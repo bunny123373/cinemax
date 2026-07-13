@@ -27,10 +27,7 @@ interface SeasonEpisodesProps {
   titleSlug: string;
 }
 
-function buildEpisodes(seasonNum: number, initialSeason: number, initialEpisodes: Episode[], seasons: Season[]): Episode[] {
-  if (seasonNum === initialSeason && initialEpisodes.length > 0) {
-    return initialEpisodes;
-  }
+function buildPlaceholder(seasons: Season[], seasonNum: number): Episode[] {
   const s = seasons.find((x) => x.season_number === seasonNum);
   const count = s?.episode_count || 0;
   return Array.from({ length: count }, (_, i) => ({
@@ -46,17 +43,30 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
   const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes);
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
 
-  function handleSeasonChange(seasonNum: number) {
+  async function handleSeasonChange(seasonNum: number) {
     setSelectedSeason(seasonNum);
-    setEpisodes(buildEpisodes(seasonNum, initialSeason, initialEpisodes, seasons));
     setFailedImages(new Set());
+
+    if (seasonNum === initialSeason && initialEpisodes.length > 0) {
+      setEpisodes(initialEpisodes);
+      return;
+    }
+
+    const placeholders = buildPlaceholder(seasons, seasonNum);
+    setEpisodes(placeholders);
+
+    try {
+      const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}`, { cache: "no-store" });
+      const data = await res.json();
+      if (data.ok && data.episodes?.length > 0) {
+        setEpisodes(data.episodes);
+      }
+    } catch {}
   }
 
   function handleImageError(episode: number) {
     setFailedImages((prev) => new Set(prev).add(episode));
   }
-
-  const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
 
   return (
     <div className="mt-8 md:mt-12">
