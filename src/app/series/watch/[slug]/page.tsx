@@ -178,34 +178,13 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               {variants.length > 0 && (
-                <div className="relative">
-                  <button
-                    onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
-                  >
-                    <Globe className="w-4 h-4" />
-                    {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
-                  </button>
-                  {showDubMenu && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px]">
-                      <button
-                        onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
-                        className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
-                      >
-                        Original
-                      </button>
-                      {variants.map((v) => (
-                        <button
-                          key={v.dubSubjectId}
-                          onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
-                          className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${selectedDub === v.dubSubjectId ? "text-[#f5c542]" : "text-white"}`}
-                        >
-                          {v.language}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
+                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
+                </button>
               )}
               {sources.length > 1 && (
                 <div className="relative">
@@ -309,6 +288,34 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           )}
         </div>
       </div>
+
+      {showDubMenu && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDubMenu(false)}>
+          <div className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-[90%] max-w-[360px] p-1 animate-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a3a]">
+              <h3 className="text-sm font-semibold text-white">Select Language</h3>
+              <button onClick={() => setShowDubMenu(false)} className="text-[#8e8ea0] hover:text-white text-lg leading-none">&times;</button>
+            </div>
+            <div className="p-2">
+              <button
+                onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#f5c542]/10 ${!selectedDub ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
+              >
+                Original
+              </button>
+              {variants.map((v) => (
+                <button
+                  key={v.dubSubjectId}
+                  onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#f5c542]/10 ${selectedDub === v.dubSubjectId ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
+                >
+                  {v.language}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
