@@ -28,7 +28,12 @@ interface SeasonEpisodesProps {
   titleSlug: string;
 }
 
-function makePlaceholder(count: number): Episode[] {
+function buildEpisodes(seasonNum: number, initialSeason: number, initialEpisodes: Episode[], seasons: Season[]): Episode[] {
+  if (seasonNum === initialSeason && initialEpisodes.length > 0) {
+    return initialEpisodes;
+  }
+  const s = seasons.find((x) => x.season_number === seasonNum);
+  const count = s?.episode_count || 0;
   return Array.from({ length: count }, (_, i) => ({
     episode: i + 1,
     name: `Episode ${i + 1}`,
@@ -40,31 +45,10 @@ function makePlaceholder(count: number): Episode[] {
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes);
-  const [loading, setLoading] = useState(false);
 
-  async function handleSeasonChange(seasonNum: number) {
+  function handleSeasonChange(seasonNum: number) {
     setSelectedSeason(seasonNum);
-    if (seasonNum === initialSeason && initialEpisodes.length > 0) {
-      setEpisodes(initialEpisodes);
-      return;
-    }
-    const s = seasons.find((x) => x.season_number === seasonNum);
-    const count = s?.episode_count || 0;
-    if (count === 0) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}?t=${Date.now()}`, { cache: "no-store" });
-      const data = await res.json();
-      if (data.ok && data.episodes?.length > 0) {
-        setEpisodes(data.episodes);
-      } else {
-        setEpisodes(makePlaceholder(count));
-      }
-    } catch {
-      setEpisodes(makePlaceholder(count));
-    } finally {
-      setLoading(false);
-    }
+    setEpisodes(buildEpisodes(seasonNum, initialSeason, initialEpisodes, seasons));
   }
 
   const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
@@ -93,49 +77,35 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
         )}
       </div>
 
-      {loading ? (
-        <div className="flex gap-3 md:gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] animate-pulse">
-              <div className="aspect-video bg-[#1a1a26]" />
-              <div className="p-3 space-y-2">
-                <div className="h-4 bg-[#1a1a26] w-3/4" />
-                <div className="h-3 bg-[#1a1a26] w-full" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex gap-3 md:gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide">
-          {episodes.map((ep) => (
-            <Link
-              key={ep.episode}
-              href={`/series/watch/${titleSlug}?tmdbId=${tmdbId}&type=${type}&season=${selectedSeason}&episode=${ep.episode}`}
-              className="group flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all overflow-hidden"
-            >
-              <div className="relative aspect-video bg-[#1a1a26]">
-                {ep.still ? (
-                  <Image src={ep.still} alt={ep.name} fill className="object-cover" sizes="340px" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-[#8e8ea0] text-3xl font-bold">
-                    E{ep.episode}
-                  </div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                  <Play className="w-6 h-6 md:w-8 md:h-8 text-[#f5c542]" fill="#f5c542" />
+      <div className="flex gap-3 md:gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide">
+        {episodes.map((ep) => (
+          <Link
+            key={`${selectedSeason}-${ep.episode}`}
+            href={`/series/watch/${titleSlug}?tmdbId=${tmdbId}&type=${type}&season=${selectedSeason}&episode=${ep.episode}`}
+            className="group flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all overflow-hidden"
+          >
+            <div className="relative aspect-video bg-[#1a1a26]">
+              {ep.still ? (
+                <Image src={ep.still} alt={ep.name} fill className="object-cover" sizes="340px" />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-[#8e8ea0] text-3xl font-bold">
+                  E{ep.episode}
                 </div>
-                {ep.runtime ? (
-                  <span className="absolute bottom-1 right-1 px-1 md:px-1.5 py-0.5 text-[9px] md:text-[10px] bg-black/70 text-white">{ep.runtime}m</span>
-                ) : null}
+              )}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                <Play className="w-6 h-6 md:w-8 md:h-8 text-[#f5c542]" fill="#f5c542" />
               </div>
-              <div className="p-2 md:p-3">
-                <p className="text-xs sm:text-sm font-medium text-white truncate">{ep.episode}. {ep.name}</p>
-                {ep.overview ? <p className="text-[10px] sm:text-xs text-[#8e8ea0] mt-1 line-clamp-2">{ep.overview}</p> : null}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+              {ep.runtime ? (
+                <span className="absolute bottom-1 right-1 px-1 md:px-1.5 py-0.5 text-[9px] md:text-[10px] bg-black/70 text-white">{ep.runtime}m</span>
+              ) : null}
+            </div>
+            <div className="p-2 md:p-3">
+              <p className="text-xs sm:text-sm font-medium text-white truncate">{ep.episode}. {ep.name}</p>
+              {ep.overview ? <p className="text-[10px] sm:text-xs text-[#8e8ea0] mt-1 line-clamp-2">{ep.overview}</p> : null}
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
