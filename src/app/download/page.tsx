@@ -43,9 +43,7 @@ export default function DownloadPage() {
                   Download APK
                 </a>
                 <div className="flex items-center gap-4 text-xs text-[#8e8ea0]">
-                  <span>v2.1.0</span>
-                  <span>|</span>
-                  <span>45 MB</span>
+                  <span>v1.2</span>
                   <span>|</span>
                   <span>Android 7+</span>
                 </div>
@@ -63,7 +61,7 @@ export default function DownloadPage() {
                     <span className="text-[#0a0a0f] font-bold text-2xl sm:text-3xl">C</span>
                   </div>
                   <span className="text-lg sm:text-xl font-bold text-white">CineMax</span>
-                  <span className="text-[10px] sm:text-xs text-[#8e8ea0]">v2.1.0</span>
+                  <span className="text-[10px] sm:text-xs text-[#8e8ea0]">v1.2</span>
                   <div className="w-full space-y-2 mt-2">
                     <div className="h-2 bg-[#2a2a3a] w-full" />
                     <div className="h-2 bg-[#2a2a3a] w-3/4" />
@@ -87,11 +85,7 @@ export default function DownloadPage() {
               <div className="grid grid-cols-2 gap-3 text-xs text-[#8e8ea0]">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-3.5 h-3.5 text-[#f5c542]" />
-                  <span>Version 2.1.0</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#f5c542]" />
-                  <span>45 MB</span>
+                  <span>Version 1.2</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-3.5 h-3.5 text-[#f5c542]" />
@@ -104,12 +98,12 @@ export default function DownloadPage() {
               </div>
             </div>
             <a
-              href="/CineMax-v2.1.0.apk"
+              href="/cinemax_1.2.apk"
               download
               className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#f5c542] text-[#0a0a0f] text-sm font-bold hover:bg-[#e0b530] transition-colors w-full md:w-auto justify-center"
             >
               <Download className="w-5 h-5" />
-              Download v2.1.0
+              Download v1.2
             </a>
           </div>
         </div>
