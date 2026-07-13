@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Play } from "lucide-react";
@@ -28,17 +28,29 @@ interface SeasonEpisodesProps {
   titleSlug: string;
 }
 
+function makePlaceholder(count: number): Episode[] {
+  return Array.from({ length: count }, (_, i) => ({
+    episode: i + 1,
+    name: `Episode ${i + 1}`,
+    overview: "",
+    still: null,
+  }));
+}
+
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes);
   const [loading, setLoading] = useState(false);
 
-  const fetchEpisodes = useCallback(async (seasonNum: number) => {
+  async function handleSeasonChange(seasonNum: number) {
+    setSelectedSeason(seasonNum);
     if (seasonNum === initialSeason && initialEpisodes.length > 0) {
       setEpisodes(initialEpisodes);
-      setLoading(false);
       return;
     }
+    const s = seasons.find((x) => x.season_number === seasonNum);
+    const count = s?.episode_count || 0;
+    if (count === 0) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}`);
@@ -46,32 +58,14 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
       if (data.ok && data.episodes?.length > 0) {
         setEpisodes(data.episodes);
       } else {
-        const s = seasons.find((x) => x.season_number === seasonNum);
-        const count = s?.episode_count || 0;
-        setEpisodes(Array.from({ length: count }, (_, i) => ({
-          episode: i + 1,
-          name: `Episode ${i + 1}`,
-          overview: "",
-          still: null,
-        })));
+        setEpisodes(makePlaceholder(count));
       }
     } catch {
-      const s = seasons.find((x) => x.season_number === seasonNum);
-      const count = s?.episode_count || 0;
-      setEpisodes(Array.from({ length: count }, (_, i) => ({
-        episode: i + 1,
-        name: `Episode ${i + 1}`,
-        overview: "",
-        still: null,
-      })));
+      setEpisodes(makePlaceholder(count));
     } finally {
       setLoading(false);
     }
-  }, [initialSeason, initialEpisodes, tmdbId, seasons]);
-
-  useEffect(() => {
-    fetchEpisodes(selectedSeason);
-  }, [selectedSeason, fetchEpisodes]);
+  }
 
   const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
 
@@ -82,7 +76,7 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
         {seasons.length > 1 && (
           <select
             value={selectedSeason}
-            onChange={(e) => setSelectedSeason(Number(e.target.value))}
+            onChange={(e) => handleSeasonChange(Number(e.target.value))}
             className="px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm appearance-none cursor-pointer pr-8"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8ea0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
