@@ -1,40 +1,12 @@
-import ContentRow from "@/components/ContentRow";
 import { fetchDiscover } from "@/lib/net27";
 import type { Net27Item } from "@/types/net27";
+import Link from "next/link";
+import Image from "next/image";
 
 export const revalidate = 60;
 
 function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
-
-function mapItem(item: Net27Item) {
-  return {
-    _id: String(item.tmdbId),
-    tmdbId: item.tmdbId,
-    type: "movie" as const,
-    title: item.title,
-    slug: toSlug(item.title),
-    poster: item.poster || "",
-    banner: item.backdrop || item.poster || "",
-    description: item.overview,
-    year: parseInt(item.year) || 0,
-    language: "en",
-    category: "movie",
-    quality: "HD",
-    rating: item.rating,
-    contentRating: "",
-    tags: [],
-    cast: [],
-    trailerEmbedUrl: "",
-    hlsLink: "",
-    embedIframeLink: "",
-    peachifyId: "",
-    downloadLink: "",
-    netmirrorId: "",
-    streams: [],
-    createdAt: new Date().toISOString(),
-  };
 }
 
 export const metadata = {
@@ -43,32 +15,40 @@ export const metadata = {
 };
 
 export default async function MoviesPage() {
-  const [trending, popular, topRated, newReleases] = await Promise.all([
-    fetchDiscover({ type: "movie", sort: "trending" }),
-    fetchDiscover({ type: "movie", sort: "popular" }),
-    fetchDiscover({ type: "movie", sort: "top_rated" }),
-    fetchDiscover({ type: "movie", sort: "new" }),
-  ]);
+  const items = await fetchDiscover({ type: "movie", sort: "popular" });
 
   return (
     <div className="min-h-screen pt-4 md:pt-8">
       <div className="max-w-[1800px] mx-auto px-4 md:px-8">
         <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8">Movies</h1>
-      </div>
-
-      <div className="space-y-8 md:space-y-12">
-        {trending.length > 0 && (
-          <ContentRow title="Trending Now" items={trending.map(mapItem)} />
-        )}
-        {popular.length > 0 && (
-          <ContentRow title="Popular Movies" items={popular.map(mapItem)} />
-        )}
-        {topRated.length > 0 && (
-          <ContentRow title="Top Rated" items={topRated.map(mapItem)} />
-        )}
-        {newReleases.length > 0 && (
-          <ContentRow title="New Releases" items={newReleases.map(mapItem)} />
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+          {items.map((item) => (
+            <Link
+              key={item.tmdbId}
+              href={`/movie/${toSlug(item.title)}?tmdbId=${item.tmdbId}`}
+              className="group relative aspect-[2/3] bg-[#12121a] overflow-hidden"
+            >
+              {item.poster ? (
+                <Image
+                  src={item.poster}
+                  alt={item.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-[#8e8ea0] text-sm font-medium p-2 text-center">
+                  {item.title}
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute bottom-0 left-0 right-0 p-2 md:p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <p className="text-white text-xs md:text-sm font-medium truncate">{item.title}</p>
+                <p className="text-[#8e8ea0] text-[10px] md:text-xs">{item.year}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
