@@ -87,19 +87,19 @@ export default function Header() {
       </header>
 
       <div className="fixed top-0 left-0 right-0 z-50 md:hidden pt-1.5 px-4">
-        <div className="mx-auto w-fit bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-4 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative w-7 h-7">
+        <div className="mx-auto w-fit bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-3 py-1 shadow-lg shadow-black/40 border border-[#2a2a3a]/50">
+          <Link href="/" className="flex items-center gap-1.5">
+            <div className="relative w-6 h-6">
               <Image
                 src="/header_logo.png"
                 alt="CineMax"
                 fill
                 className="object-contain"
                 priority
-                sizes="28px"
+                sizes="24px"
               />
             </div>
-            <span className="text-sm font-bold tracking-tight">
+            <span className="text-xs font-bold tracking-tight">
               <span className="text-[#f5c542]">Cine</span>
               <span className="text-white">Max</span>
             </span>
