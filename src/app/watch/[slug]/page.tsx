@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Settings, Globe } from "lucide-react";
 import Player from "@/components/Player";
+import { saveContinueWatching } from "@/lib/storage";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -29,6 +30,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [title, setTitle] = useState("");
   const [sources, setSources] = useState<SourceOption[]>([]);
   const [selectedSource, setSelectedSource] = useState(0);
+  const [captions, setCaptions] = useState<{ lang: string; label: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
@@ -59,6 +61,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         if (srcs.length === 0) { setError(true); return; }
         setSources(srcs);
         setSelectedSource(0);
+        setCaptions((res.captions || []).map((c: any) => ({ lang: c.lang, label: c.name || c.lang, url: c.url })));
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -98,29 +101,30 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
 
   return (
     <main className="min-h-screen pb-20 bg-[#0a0a0f]">
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 py-6">
+      <div className="max-w-[1800px] mx-auto px-3 sm:px-4 md:px-8 py-4 md:py-6">
         <Link
           href={tmdbId ? `/movie/${slug}?tmdbId=${tmdbId}` : "/"}
-          className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-4"
+          className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-3 md:mb-4 text-xs sm:text-sm"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
           Back to details
         </Link>
 
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-3 md:mb-4">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
+          <div className="flex items-center gap-2 flex-shrink-0">
             {variants.length > 0 && (
               <div className="relative">
                 <button
                   onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-xs sm:text-sm hover:border-[#f5c542]/50 transition-colors"
                 >
-                  <Globe className="w-4 h-4" />
-                  {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
+                  <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}</span>
+                  <span className="sm:hidden">Dub</span>
                 </button>
                 {showDubMenu && (
-                  <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px]">
+                  <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[160px]">
                     <button
                       onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
                       className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
@@ -144,9 +148,9 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
               <div className="relative">
                 <button
                   onClick={() => { setShowQualityMenu(!showQualityMenu); setShowDubMenu(false); }}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-xs sm:text-sm hover:border-[#f5c542]/50 transition-colors"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {current.label}
                 </button>
                 {showQualityMenu && (
@@ -172,16 +176,31 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             key={current.url}
             src={current.url}
             autoPlay
+            captions={captions}
+            onProgress={(currentTime, duration) => {
+              if (slug && tmdbId) {
+                saveContinueWatching({
+                  slug,
+                  tmdbId,
+                  type: "movie",
+                  title,
+                  poster: "",
+                  currentTime,
+                  duration,
+                  updatedAt: Date.now(),
+                });
+              }
+            }}
           />
         </div>
 
         {sources.length > 1 && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-3 md:mt-4 flex flex-wrap gap-1.5 sm:gap-2">
             {sources.map((s, i) => (
               <button
                 key={i}
                 onClick={() => setSelectedSource(i)}
-                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium border transition-colors ${
                   i === selectedSource
                     ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
                     : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"

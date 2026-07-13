@@ -95,6 +95,7 @@ export interface TmdbDetails {
 
 export interface ContinueWatchingItem {
   slug: string;
+  tmdbId: number;
   type: "movie" | "series";
   title: string;
   poster: string;

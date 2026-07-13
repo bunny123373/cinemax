@@ -28,7 +28,7 @@ export default function ContentRow({ title, items, link }: ContentRowProps) {
   if (!items.length) return null;
 
   return (
-    <section className="relative">
+    <section className="relative overflow-hidden">
       <div className="flex items-center justify-between mb-4 px-4 md:px-8">
         <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
         {link && (
@@ -56,7 +56,7 @@ export default function ContentRow({ title, items, link }: ContentRowProps) {
         </button>
         <div
           ref={rowRef}
-          className="flex gap-3 overflow-x-auto scroll-smooth px-4 md:px-8 pb-2 scrollbar-hide"
+          className="flex gap-3 overflow-x-auto scroll-smooth px-4 md:px-8 pb-10 pt-4 scrollbar-hide -my-4"
         >
           {items.map((item) => (
             <div key={item.slug} className="flex-shrink-0 w-[100px] sm:w-[120px] md:w-[150px] lg:w-[170px]">

@@ -4,6 +4,8 @@ import "./globals.css";
 import { ReduxProvider } from "@/store/provider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,14 +46,17 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#0a0a0f" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
         <ReduxProvider>
           <Header />
-          <main className="pt-16 min-h-screen">
+          <main className="pt-16 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
             {children}
           </main>
           <Footer />
+          <BottomNav />
+          <ServiceWorkerRegistrar />
         </ReduxProvider>
       </body>
     </html>

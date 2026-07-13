@@ -12,6 +12,7 @@ interface PlayerProps {
   type?: "hls" | "dash" | "mp4" | "auto";
   poster?: string;
   autoPlay?: boolean;
+  captions?: { lang: string; label: string; url: string }[];
   onProgress?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
   onError?: () => void;
@@ -26,7 +27,7 @@ function detectType(src: string): string {
   return "video/mp4";
 }
 
-export default function Player({ src, type, poster, autoPlay, onProgress, onEnded, onError }: PlayerProps) {
+export default function Player({ src, type, poster, autoPlay, captions, onProgress, onEnded, onError }: PlayerProps) {
   const playerRef = useRef<MediaPlayerInstance>(null);
   const lastProgressRef = useRef(0);
   const mountedRef = useRef(true);
@@ -139,6 +140,16 @@ export default function Player({ src, type, poster, autoPlay, onProgress, onEnde
       onError={onErrorCallback}
     >
       <MediaProvider />
+      {captions?.map((c) => (
+        <track
+          key={c.lang}
+          src={c.url}
+          kind="subtitles"
+          srcLang={c.lang}
+          label={c.label || c.lang}
+          default={c.lang === "en"}
+        />
+      ))}
       <DefaultVideoLayout icons={defaultLayoutIcons} />
     </MediaPlayer>
   );
