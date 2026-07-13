@@ -158,13 +158,24 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
-              <a
-                href={`/api/download?url=${encodeURIComponent(current.url)}&title=${encodeURIComponent(title)}`}
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(current.url);
+                    const blob = await res.blob();
+                    const ext = (current.mimeType || "").includes("mp4") ? ".mp4" : ".mp4";
+                    const a = document.createElement("a");
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `${title.replace(/[^a-zA-Z0-9\s\-_.()]/g, "").replace(/\s+/g, "_")}${ext}`;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                  } catch {}
+                }}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Download
-              </a>
+              </button>
               {variants.length > 0 && (
                 <button
                   onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
