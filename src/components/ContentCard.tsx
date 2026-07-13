@@ -54,7 +54,7 @@ export default function ContentCard({ item }: ContentCardProps) {
           onMouseLeave={handleLeave}
         >
           <div className="bg-[#18181f] overflow-hidden shadow-[0_10px_60px_rgba(0,0,0,0.8)] border border-white/10">
-            <Link href={href} className="block relative aspect-video overflow-hidden">
+            <div className="block relative aspect-video overflow-hidden">
               <Image
                 src={item.banner || item.poster || ""}
                 alt={item.title}
@@ -64,11 +64,11 @@ export default function ContentCard({ item }: ContentCardProps) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#18181f] via-transparent to-transparent" />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                <Link href={watchHref} className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:bg-white transition-colors">
+                <Link href={watchHref} className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:bg-white transition-colors" onClick={(e) => e.stopPropagation()}>
                   <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                 </Link>
               </div>
-            </Link>
+            </div>
 
             <div className="p-3">
               <div className="flex items-center gap-2 mb-2">
