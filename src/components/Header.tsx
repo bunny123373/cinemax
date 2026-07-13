@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Menu, X, Bookmark } from "lucide-react";
+import { Search, Menu, X, Bookmark, Download } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/movies", label: "Movies" },
   { href: "/series", label: "Series" },
   { href: "/watchlist", label: "Watchlist", icon: true },
+  { href: "/download", label: "Download App", icon: true },
 ];
 
 export default function Header() {

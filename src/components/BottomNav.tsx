@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Bookmark } from "lucide-react";
+import { Home, Search, Bookmark, Download } from "lucide-react";
 
 const tabs = [
   { href: "/", label: "Home", icon: Home },
   { href: "/search", label: "Search", icon: Search },
   { href: "/watchlist", label: "Watchlist", icon: Bookmark },
+  { href: "/download", label: "Download", icon: Download },
 ];
 
 export default function BottomNav() {
