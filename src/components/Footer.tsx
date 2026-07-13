@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -8,14 +9,16 @@ export default function Footer() {
       <div className="max-w-[1800px] mx-auto px-4 md:px-8 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-[#f5c542] flex items-center justify-center">
-                <span className="text-[#0a0a0f] font-bold text-sm">C</span>
+            <Link href="/" className="flex items-center mb-4">
+              <div className="relative w-24 h-9">
+                <Image
+                  src="/header_logo.png"
+                  alt="CineMax"
+                  fill
+                  className="object-contain"
+                  sizes="96px"
+                />
               </div>
-              <span className="text-lg font-bold tracking-tight">
-                <span className="text-[#f5c542]">Cine</span>
-                <span className="text-white">Max</span>
-              </span>
             </Link>
             <p className="text-sm text-[#8e8ea0] max-w-xs">
               Stream premium movies and series in stunning HD quality. Your ultimate entertainment destination.
