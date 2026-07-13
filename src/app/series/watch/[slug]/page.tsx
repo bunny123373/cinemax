@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download } from "lucide-react";
 import Player from "@/components/Player";
 import { saveContinueWatching } from "@/lib/storage";
 
@@ -209,6 +209,16 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               </p>
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              <a
+                href={current.url}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </a>
               {variants.length > 0 && (
                 <button
                   onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}

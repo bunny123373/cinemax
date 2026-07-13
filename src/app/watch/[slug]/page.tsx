@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Settings, Globe } from "lucide-react";
+import { ArrowLeft, Settings, Globe, Download } from "lucide-react";
 import Player from "@/components/Player";
 import { saveContinueWatching } from "@/lib/storage";
 
@@ -92,9 +92,30 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
 
   if (error || !current) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0f] gap-4">
-        <p className="text-[#8e8ea0]">Stream not available</p>
-        <Link href="/" className="text-[#f5c542] hover:underline">Go Home</Link>
+      <div className="min-h-screen bg-[#0a0a0f]">
+        <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
+          <Link
+            href={tmdbId ? `/movie/${slug}?tmdbId=${tmdbId}` : "/"}
+            className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-3 md:mb-4 text-xs md:text-sm"
+          >
+            <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
+            Back to details
+          </Link>
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <p className="text-[#8e8ea0]">Stream not available</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => { setError(false); if (tmdbId) loadEmbed(tmdbId, selectedDub); }}
+                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+              >
+                Retry
+              </button>
+              <Link href="/" className="px-4 py-2 text-sm border border-[#2a2a3a] text-[#f5c542] hover:border-[#f5c542]/30 transition-colors bg-[#12121a]">
+                Go Home
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -137,6 +158,16 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+              <a
+                href={current.url}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </a>
               {variants.length > 0 && (
                 <button
                   onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
