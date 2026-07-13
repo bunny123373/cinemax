@@ -130,18 +130,18 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] overflow-hidden">
-      <div className="w-full bg-[#0a0a0f]">
+    <main className="min-h-screen bg-[#0a0a0f]">
+      <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
         <Link
           href={tmdbId ? `/series/${slug}?tmdbId=${tmdbId}` : "/"}
-          className="inline-flex items-center gap-1.5 text-[#8e8ea0] hover:text-[#f5c542] transition-colors px-3 py-2 text-xs"
+          className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-3 md:mb-4 text-xs md:text-sm"
         >
-          <ArrowLeft className="w-3 h-3" />
-          Back
+          <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
+          Back to series
         </Link>
 
         {current && (
-          <div className="w-full aspect-video bg-black max-h-[50vh] sm:max-h-none">
+          <div className="w-full aspect-video bg-black">
             <Player
               key={current.url}
               src={current.url}
@@ -168,27 +168,26 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           </div>
         )}
 
-        <div className="px-3 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 mb-2 sm:mb-3">
+        <div className="mt-4 md:mt-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
             <div className="min-w-0">
-              <h1 className="text-sm sm:text-lg md:text-2xl font-bold text-white truncate">{title}</h1>
-              <p className="text-[10px] sm:text-xs md:text-sm text-[#8e8ea0]">
+              <h1 className="text-lg md:text-2xl font-bold text-white truncate">{title}</h1>
+              <p className="text-xs md:text-sm text-[#8e8ea0]">
                 Season {seasonNum} &middot; Episode {episodeNum}
               </p>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               {variants.length > 0 && (
                 <div className="relative">
                   <button
                     onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
-                    className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-[10px] sm:text-sm hover:border-[#f5c542]/50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
-                    <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}</span>
-                    <span className="sm:hidden">Dub</span>
+                    <Globe className="w-4 h-4" />
+                    {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
                   </button>
                   {showDubMenu && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[160px]">
+                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px]">
                       <button
                         onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
                         className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
@@ -212,13 +211,13 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                 <div className="relative">
                   <button
                     onClick={() => { setShowQualityMenu(!showQualityMenu); setShowDubMenu(false); }}
-                    className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-[10px] sm:text-sm hover:border-[#f5c542]/50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
-                    <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Settings className="w-4 h-4" />
                     {current?.label || "Quality"}
                   </button>
                   {showQualityMenu && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[140px]">
+                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[160px]">
                       {sources.map((s, i) => (
                         <button
                           key={i}
@@ -236,12 +235,12 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           </div>
 
           {sources.length > 1 && (
-            <div className="flex flex-wrap gap-1 sm:gap-2">
+            <div className="flex flex-wrap gap-2">
               {sources.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedSource(i)}
-                  className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium border transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
                     i === selectedSource
                       ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
                       : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
@@ -254,15 +253,15 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           )}
 
           {autoPlayCountdown !== null && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mt-2 p-2 sm:p-3 bg-[#12121a] border border-[#2a2a3a]">
-              <p className="text-[10px] sm:text-sm text-white">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-4 p-3 md:p-4 bg-[#12121a] border border-[#2a2a3a]">
+              <p className="text-sm md:text-base text-white">
                 Next episode in <span className="text-[#f5c542] font-bold">{autoPlayCountdown}s</span>
               </p>
-              <div className="flex items-center gap-3 sm:gap-2">
-                <button onClick={() => setAutoPlayCountdown(null)} className="text-[10px] sm:text-xs text-[#8e8ea0] hover:text-white transition-colors">Cancel</button>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setAutoPlayCountdown(null)} className="text-sm text-[#8e8ea0] hover:text-white transition-colors">Cancel</button>
                 <button
                   onClick={() => { setAutoPlayCountdown(null); setEpisodeNum((prev) => prev + 1); }}
-                  className="text-[10px] sm:text-xs text-[#f5c542] hover:underline"
+                  className="text-sm text-[#f5c542] hover:underline"
                 >
                   Play now &rarr;
                 </button>
@@ -270,35 +269,33 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-2 sm:mt-3 gap-2">
+          <div className="flex items-center justify-between mt-4 md:mt-6 gap-4">
             <button
               onClick={() => goToEpisode(seasonNum, episodeNum - 1)}
               disabled={episodeNum <= 1 && seasonNum <= 1}
-              className="flex items-center gap-1 px-2 sm:px-4 py-1.5 sm:py-2 border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-all text-[10px] sm:text-sm bg-[#12121a] disabled:opacity-30"
+              className="flex items-center gap-2 px-4 py-2 border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-all text-sm bg-[#12121a] disabled:opacity-30"
             >
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Previous Episode</span>
-              <span className="sm:hidden">Prev</span>
+              <ChevronLeft className="w-4 h-4" />
+              Previous Episode
             </button>
             <button
               onClick={() => goToEpisode(seasonNum, episodeNum + 1)}
-              className="flex items-center gap-1 px-2 sm:px-4 py-1.5 sm:py-2 border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-all text-[10px] sm:text-sm bg-[#12121a]"
+              className="flex items-center gap-2 px-4 py-2 border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-all text-sm bg-[#12121a]"
             >
-              <span className="hidden sm:inline">Next Episode</span>
-              <span className="sm:hidden">Next</span>
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+              Next Episode
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
           {variants.length > 0 && (
-            <div className="mt-4 sm:mt-6">
-              <h2 className="text-[10px] sm:text-sm md:text-lg font-bold text-white mb-2 sm:mb-3">Languages</h2>
-              <div className="flex flex-wrap gap-1 sm:gap-2">
+            <div className="mt-6 md:mt-8">
+              <h2 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4">Available Languages</h2>
+              <div className="flex flex-wrap gap-2">
                 {variants.map((v) => (
                   <button
                     key={v.dubSubjectId}
                     onClick={() => setSelectedDub(v.isOriginal ? undefined : v.dubSubjectId)}
-                    className={`px-2 sm:px-4 py-1 sm:py-2 text-[10px] sm:text-sm border transition-colors ${
+                    className={`px-4 py-2 text-sm border transition-colors ${
                       (selectedDub === v.dubSubjectId || (v.isOriginal && !selectedDub))
                         ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
                         : "border-[#2a2a3a] text-white hover:border-[#f5c542]/30"

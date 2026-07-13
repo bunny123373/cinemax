@@ -100,17 +100,17 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] overflow-hidden">
-      <div className="w-full bg-[#0a0a0f]">
+    <main className="min-h-screen bg-[#0a0a0f]">
+      <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
         <Link
           href={tmdbId ? `/movie/${slug}?tmdbId=${tmdbId}` : "/"}
-          className="inline-flex items-center gap-1.5 text-[#8e8ea0] hover:text-[#f5c542] transition-colors px-3 py-2 text-xs"
+          className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-3 md:mb-4 text-xs md:text-sm"
         >
-          <ArrowLeft className="w-3 h-3" />
-          Back
+          <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
+          Back to details
         </Link>
 
-        <div className="w-full aspect-video bg-black max-h-[50vh] sm:max-h-none">
+        <div className="w-full aspect-video bg-black">
           <Player
             key={current.url}
             src={current.url}
@@ -133,22 +133,21 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
           />
         </div>
 
-        <div className="px-3 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 mb-2 sm:mb-3">
-            <h1 className="text-sm sm:text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        <div className="mt-4 md:mt-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
+            <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
+            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               {variants.length > 0 && (
                 <div className="relative">
                   <button
                     onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
-                    className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-[10px] sm:text-sm hover:border-[#f5c542]/50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
-                    <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}</span>
-                    <span className="sm:hidden">Dub</span>
+                    <Globe className="w-4 h-4" />
+                    {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
                   </button>
                   {showDubMenu && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[160px]">
+                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px]">
                       <button
                         onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
                         className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
@@ -172,13 +171,13 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
                 <div className="relative">
                   <button
                     onClick={() => { setShowQualityMenu(!showQualityMenu); setShowDubMenu(false); }}
-                    className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-[10px] sm:text-sm hover:border-[#f5c542]/50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
-                    <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Settings className="w-4 h-4" />
                     {current.label}
                   </button>
                   {showQualityMenu && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[140px]">
+                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[160px]">
                       {sources.map((s, i) => (
                         <button
                           key={i}
@@ -196,12 +195,12 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
           </div>
 
           {sources.length > 1 && (
-            <div className="flex flex-wrap gap-1 sm:gap-2">
+            <div className="flex flex-wrap gap-2">
               {sources.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedSource(i)}
-                  className={`px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium border transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
                     i === selectedSource
                       ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
                       : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
