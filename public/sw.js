@@ -1,13 +1,18 @@
-const CACHE_NAME = "cinemax-v2";
+const CACHE_NAME = "cinemax-v3";
 const STATIC_ASSETS = [
   "/",
   "/search",
   "/watchlist",
+  "/download",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const url of STATIC_ASSETS) {
+        try { await cache.add(url); } catch {}
+      }
+    })
   );
   self.skipWaiting();
 });
@@ -21,6 +26,11 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+const OFFLINE_RESPONSE = new Response("Offline", {
+  status: 503,
+  headers: { "Content-Type": "text/plain" },
+});
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -28,22 +38,20 @@ self.addEventListener("fetch", (event) => {
   if (url.protocol !== "http:" && url.protocol !== "https:") return;
 
   if (url.pathname.startsWith("/api/")) {
-    event.respondWith(
-      fetch(request).catch(() => caches.match(request))
-    );
+    event.respondWith(fetch(request).catch(() => OFFLINE_RESPONSE));
     return;
   }
 
   event.respondWith(
     caches.match(request).then((cached) => {
-      const fetched = fetch(request).then((response) => {
+      if (cached) return cached;
+      return fetch(request).then((response) => {
         if (response && response.ok && response.type === "basic") {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
-      }).catch(() => cached);
-      return cached || fetched;
+      }).catch(() => OFFLINE_RESPONSE);
     })
   );
 });
