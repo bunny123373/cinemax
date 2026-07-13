@@ -33,44 +33,44 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 md:bg-[#0a0a0f]/80 md:backdrop-blur-xl md:border-b md:border-[#2a2a3a]/50">
-      <div className="max-w-[1800px] mx-auto px-3 sm:px-4 md:px-8 pt-2 md:pt-0">
-        <div className="flex items-center justify-between h-12 sm:h-14 md:h-16 bg-[#0a0a0f]/90 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none rounded-full md:rounded-none px-3 md:px-0 shadow-lg md:shadow-none border border-[#2a2a3a]/50 md:border-0">
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="relative w-9 h-9">
-              <Image
-                src="/header_logo.png"
-                alt="CineMax"
-                fill
-                className="object-contain"
-                priority
-                sizes="36px"
-              />
-            </div>
-            <span className="text-lg sm:text-xl font-bold tracking-tight">
-              <span className="text-[#f5c542]">Cine</span>
-              <span className="text-white">Max</span>
-            </span>
-          </Link>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-[#2a2a3a]/50 hidden md:block">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+              <div className="relative w-9 h-9">
+                <Image
+                  src="/header_logo.png"
+                  alt="CineMax"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="36px"
+                />
+              </div>
+              <span className="text-xl font-bold tracking-tight">
+                <span className="text-[#f5c542]">Cine</span>
+                <span className="text-white">Max</span>
+              </span>
+            </Link>
 
-          <nav className="hidden md:flex items-center gap-8 ml-10">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors ${
-                  isActive(link.href)
-                    ? "text-[#f5c542]"
-                    : "text-[#8e8ea0] hover:text-white"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+            <nav className="flex items-center gap-8 ml-10">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors ${
+                    isActive(link.href)
+                      ? "text-[#f5c542]"
+                      : "text-[#8e8ea0] hover:text-white"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
 
-          <div className="flex items-center gap-3">
-            <form onSubmit={handleSearch} className="hidden md:flex items-center">
+            <form onSubmit={handleSearch} className="flex items-center">
               <div className="relative">
                 <input
                   type="text"
@@ -82,16 +82,30 @@ export default function Header() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e8ea0]" />
               </div>
             </form>
-
-            <Link
-              href="/search"
-              className="md:hidden p-2 text-[#8e8ea0] hover:text-white transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </Link>
           </div>
         </div>
+      </header>
+
+      <div className="fixed top-0 left-0 right-0 z-50 md:hidden pt-1.5 px-4">
+        <div className="mx-auto w-fit bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-4 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative w-7 h-7">
+              <Image
+                src="/header_logo.png"
+                alt="CineMax"
+                fill
+                className="object-contain"
+                priority
+                sizes="28px"
+              />
+            </div>
+            <span className="text-sm font-bold tracking-tight">
+              <span className="text-[#f5c542]">Cine</span>
+              <span className="text-white">Max</span>
+            </span>
+          </Link>
+        </div>
       </div>
-    </header>
+    </>
   );
 }

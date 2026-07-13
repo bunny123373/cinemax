@@ -51,7 +51,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
         <ReduxProvider>
           <Header />
-          <main className="pt-16 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
+          <main className="pt-10 md:pt-16 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
             {children}
           </main>
           <Footer />
