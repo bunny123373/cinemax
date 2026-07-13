@@ -44,13 +44,6 @@ export default function ContentCard({ item }: ContentCardProps) {
             className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
           />
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {item.quality && (
-              <span className="px-1.5 py-0.5 text-[10px] font-bold bg-white text-black">
-                {item.quality}
-              </span>
-            )}
-          </div>
         </div>
       </Link>
 
