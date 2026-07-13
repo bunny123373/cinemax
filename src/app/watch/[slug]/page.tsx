@@ -1,0 +1,198 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { ArrowLeft, Settings, Globe } from "lucide-react";
+import Player from "@/components/Player";
+
+interface Props {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ tmdbId?: string; type?: string }>;
+}
+
+interface SourceOption {
+  label: string;
+  url: string;
+  mimeType: string;
+  resolution: number;
+}
+
+interface Variant {
+  dubSubjectId: string;
+  language: string;
+  isOriginal: boolean;
+}
+
+export default function WatchMoviePage({ params, searchParams }: Props) {
+  const [slug, setSlug] = useState<string | null>(null);
+  const [tmdbId, setTmdbId] = useState<number | null>(null);
+  const [title, setTitle] = useState("");
+  const [sources, setSources] = useState<SourceOption[]>([]);
+  const [selectedSource, setSelectedSource] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [showQualityMenu, setShowQualityMenu] = useState(false);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
+  const [showDubMenu, setShowDubMenu] = useState(false);
+
+  useEffect(() => {
+    Promise.all([params, searchParams]).then(([p, sp]) => {
+      setSlug(p.slug);
+      setTmdbId(sp.tmdbId ? Number(sp.tmdbId) : null);
+      setTitle(p.slug.replace(/-/g, " "));
+    });
+  }, [params, searchParams]);
+
+  const loadEmbed = useCallback((tid: number, dub?: string) => {
+    setLoading(true);
+    setError(false);
+    setSources([]);
+    const qs = new URLSearchParams({ type: "movie" });
+    if (dub) qs.set("dub", dub);
+    fetch(`/api/net27/embed/${tid}?${qs}`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (!res.ok) { setError(true); return; }
+        setTitle(res.embed?.title || slug?.replace(/-/g, " ") || "");
+        const srcs: SourceOption[] = res.sources || [];
+        if (srcs.length === 0) { setError(true); return; }
+        setSources(srcs);
+        setSelectedSource(0);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  useEffect(() => {
+    if (!tmdbId) { setLoading(false); setError(true); return; }
+    loadEmbed(tmdbId, selectedDub);
+  }, [tmdbId, selectedDub, loadEmbed]);
+
+  useEffect(() => {
+    if (!tmdbId) return;
+    fetch(`/api/net27/variants/movie/${tmdbId}`)
+      .then((r) => r.json())
+      .then((res) => { if (res.variants) setVariants(res.variants); })
+      .catch(() => {});
+  }, [tmdbId]);
+
+  const current = sources[selectedSource];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+        <div className="animate-spin w-8 h-8 border-2 border-[#f5c542] border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (error || !current) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0f] gap-4">
+        <p className="text-[#8e8ea0]">Stream not available</p>
+        <Link href="/" className="text-[#f5c542] hover:underline">Go Home</Link>
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen pb-20 bg-[#0a0a0f]">
+      <div className="max-w-[1800px] mx-auto px-4 md:px-8 py-6">
+        <Link
+          href={tmdbId ? `/movie/${slug}?tmdbId=${tmdbId}` : "/"}
+          className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-4"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to details
+        </Link>
+
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <div className="flex items-center gap-2">
+            {variants.length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
+                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
+                </button>
+                {showDubMenu && (
+                  <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px]">
+                    <button
+                      onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
+                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
+                    >
+                      Original
+                    </button>
+                    {variants.map((v) => (
+                      <button
+                        key={v.dubSubjectId}
+                        onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
+                        className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${selectedDub === v.dubSubjectId ? "text-[#f5c542]" : "text-white"}`}
+                      >
+                        {v.language}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {sources.length > 1 && (
+              <div className="relative">
+                <button
+                  onClick={() => { setShowQualityMenu(!showQualityMenu); setShowDubMenu(false); }}
+                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                >
+                  <Settings className="w-4 h-4" />
+                  {current.label}
+                </button>
+                {showQualityMenu && (
+                  <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[140px]">
+                    {sources.map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { setSelectedSource(i); setShowQualityMenu(false); }}
+                        className={`block w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${i === selectedSource ? "text-[#f5c542]" : "text-white"}`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="w-full aspect-video bg-black">
+          <Player
+            key={current.url}
+            src={current.url}
+            autoPlay
+          />
+        </div>
+
+        {sources.length > 1 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {sources.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedSource(i)}
+                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                  i === selectedSource
+                    ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
+                    : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
