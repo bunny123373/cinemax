@@ -42,7 +42,7 @@ export default function Header() {
                 src="/header_logo.png"
                 alt="CineMax"
                 fill
-                className="object-contain"
+                className="object-contain brightness-0 invert"
                 priority
                 sizes="112px"
               />

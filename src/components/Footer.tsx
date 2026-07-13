@@ -15,7 +15,7 @@ export default function Footer() {
                   src="/header_logo.png"
                   alt="CineMax"
                   fill
-                  className="object-contain"
+                  className="object-contain brightness-0 invert"
                   sizes="96px"
                 />
               </div>
