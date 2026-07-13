@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Play } from "lucide-react";
 
@@ -45,10 +44,16 @@ function buildEpisodes(seasonNum: number, initialSeason: number, initialEpisodes
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes);
+  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
 
   function handleSeasonChange(seasonNum: number) {
     setSelectedSeason(seasonNum);
     setEpisodes(buildEpisodes(seasonNum, initialSeason, initialEpisodes, seasons));
+    setFailedImages(new Set());
+  }
+
+  function handleImageError(episode: number) {
+    setFailedImages((prev) => new Set(prev).add(episode));
   }
 
   const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
@@ -85,11 +90,21 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
             className="group flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all overflow-hidden"
           >
             <div className="relative aspect-video bg-[#1a1a26]">
-              {ep.still ? (
-                <Image src={ep.still} alt={ep.name} fill className="object-cover" sizes="340px" />
+              {ep.still && !failedImages.has(ep.episode) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={ep.still}
+                  alt={ep.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                  onError={() => handleImageError(ep.episode)}
+                />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-[#8e8ea0] text-3xl font-bold">
-                  E{ep.episode}
+                <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a26]">
+                  <div className="text-center">
+                    <Play className="w-8 h-8 text-[#f5c542]/60 mx-auto mb-1" />
+                    <span className="text-[#8e8ea0] text-sm font-medium">E{ep.episode}</span>
+                  </div>
                 </div>
               )}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
