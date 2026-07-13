@@ -1,25 +1,38 @@
 # CineMax
 
-Premium streaming platform for movies and web series, powered by TMDB metadata and NetMirror HLS streams.
+Premium streaming platform for movies and series — powered by [Net27](https://net27.cc) API with proxy-signed CDN streams, quality selection, and language/dub variants.
+
+## Features
+
+- **Net27 API integration** — trending, discover, search, title details, embed streams
+- **Multi-quality streaming** — 360p / 480p / 720p / 1080p via proxy-signed CDN URLs
+- **Dub & language variants** — switch between Original, Hindi dub, English dub, etc.
+- **Vidstack player** — HLS.js + native MP4 with fullscreen, keyboard shortcuts, progress tracking
+- **Auto-play next episode** — 10s countdown with cancel
+- **TMDB metadata** — posters, backdrops, cast, genres, ratings, trailers
+- **Responsive UI** — dark theme, horizontal scroll rows, hover effects
+- **HLS proxy** — UA rotation, retry logic, manifest rewriting for protected streams
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **UI**: React 19, Tailwind CSS 4, Framer Motion
-- **Player**: Vidstack + hls.js
-- **State**: Redux Toolkit
-- **Database**: MongoDB + Mongoose
-- **Content**: TMDB API (metadata), NetMirror / screenscapeapi.dev (HLS streams)
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| UI | React 19, Tailwind CSS 4, Lucide icons |
+| Player | Vidstack + hls.js |
+| State | Redux Toolkit |
+| Database | MongoDB + Mongoose |
+| API | Net27.cc (streams), TMDB v3 (metadata) |
 
 ## Quick Start
 
 ```bash
-# Install
+# Install dependencies
 npm install
 
 # Configure environment
 cp .env.local.example .env.local
-# Edit .env.local with your MongoDB credentials and TMDB API key
+# Edit .env.local (see Environment Variables below)
 
 # Run dev server (port 4000)
 npm run dev
@@ -31,62 +44,98 @@ npm run build
 npm start
 ```
 
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `MONGODB_URI` | Yes | MongoDB Atlas connection string |
+| `TMDB_API_KEY` | Yes | TMDB v3 API key |
+| `ADMIN_KEY` | Yes | Shared secret for admin API routes |
+| `NETMIRROR_API_KEY` | No | NetMirror/screenscape API key |
+| `SITE_URL` | No | Public URL (default: `http://localhost:4000`) |
+
 ## Architecture
 
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Homepage — featured & category rows
-│   ├── layout.tsx            # Root layout (Header, Footer, Redux)
-│   ├── movie/[slug]/         # Movie detail page
-│   ├── series/[slug]/        # Series detail page
-│   ├── watch/[slug]/         # Video player page
-│   ├── series/watch/[slug]/  # Episode player page
-│   ├── search/               # Search with filters
-│   └── api/                  # Backend API routes
-│       ├── proxy/            # HLS proxy with header rotation & retries
-│       ├── tmdb/             # TMDB search & details
-│       ├── netmirror/        # NetMirror stream resolution
-│       ├── content/          # MongoDB CRUD
-│       └── seed/             # Seed sample data
+│   ├── page.tsx                    # Homepage — hero, trending, movies, series rows
+│   ├── layout.tsx                  # Root layout (Header, Footer, Redux)
+│   ├── movie/[slug]/page.tsx       # Movie detail — poster, cast, genres, recommendations
+│   ├── series/[slug]/page.tsx      # Series detail — seasons, episodes, cast
+│   ├── watch/[slug]/page.tsx       # Movie player — quality picker, Vidstack player
+│   ├── series/watch/[slug]/page.tsx # Episode player — quality/dub picker, auto-play next
+│   ├── search/page.tsx             # Search with type filter (All/Movies/Series)
+│   └── api/
+│       ├── net27/
+│       │   ├── route.ts            # Proxy: trending / hero / discover
+│       │   ├── search/route.ts     # Proxy: search-hybrid
+│       │   ├── embed/[tmdbId]/     # Proxy: embed + stream resolution (proxy-signed URLs)
+│       │   └── variants/[type]/[tmdbId]/ # Proxy: dub/language variants
+│       ├── proxy/route.ts          # HLS proxy — UA rotation, retry, manifest rewrite
+│       ├── tmdb/                   # TMDB search & details
+│       ├── content/                # MongoDB CRUD
+│       └── seed/                   # Seed sample data
 ├── components/
-│   ├── Player.tsx            # Vidstack + hls.js player with error/timeout states
-│   ├── Header.tsx            # Navigation, search bar, logo
-│   ├── Footer.tsx            # Site footer
-│   ├── ContentCard.tsx       # Movie/series card
-│   └── ContentRow.tsx        # Horizontal scrollable row
+│   ├── Player.tsx                  # Vidstack player — HLS/MP4/DASH, error/timeout, retry
+│   ├── Header.tsx                  # Nav bar — logo, links, search
+│   ├── Footer.tsx                  # Site footer
+│   ├── ContentCard.tsx             # Poster card — quality badge, rating, hover
+│   └── ContentRow.tsx              # Horizontal scrollable row with nav arrows
 ├── lib/
-│   ├── db.ts                 # MongoDB connection (cached singleton)
-│   ├── tmdb.ts               # TMDB API client
-│   ├── netmirror.ts          # NetMirror API client
-│   └── models/Content.ts     # Mongoose schema
-├── store/                    # Redux store
-│   ├── slices/searchSlice.ts
-│   └── slices/continueSlice.ts
-└── types/index.ts            # Shared TypeScript interfaces
+│   ├── net27.ts                    # Net27 API client + stream URL resolver
+│   ├── tmdb.ts                     # TMDB API client
+│   ├── netmirror.ts                # NetMirror/screenscape API (legacy)
+│   ├── db.ts                       # MongoDB connection (cached singleton)
+│   └── models/Content.ts           # Mongoose schema
+├── store/
+│   ├── store.ts                    # Redux store config
+│   └── slices/
+│       ├── searchSlice.ts          # Search UI state
+│       └── continueSlice.ts        # Continue watching tracker
+└── types/
+    ├── index.ts                    # IContent, Season, Episode, SearchResult
+    └── net27.ts                    # Net27Item, Net27TitleDetail, Net27EmbedResponse, etc.
 ```
-
-## Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `MONGODB_URI` | MongoDB connection string |
-| `MONGODB_USER` | MongoDB username |
-| `MONGODB_PASS` | MongoDB password |
-| `TMDB_API_KEY` | TMDB API v3 key |
-| `ADMIN_KEY` | Shared admin auth secret |
-| `SITE_URL` | Public site URL (default: `http://localhost:4000`) |
-| `NETMIRROR_API_KEY` | NetMirror API key |
 
 ## API Routes
 
+### Net27 Proxies
+
 | Route | Method | Description |
 |-------|--------|-------------|
-| `/api/content` | GET | List content (query: `type`, `category`, `search`, `limit`, `featured`) |
-| `/api/content` | POST | Create content (requires `x-admin-key` header) |
-| `/api/content/[id]` | GET/PUT/DELETE | Single content CRUD |
-| `/api/tmdb/search` | GET | Search TMDB (query: `query`, `type`) |
-| `/api/tmdb/details/[id]` | GET | TMDB details by TMDB ID |
-| `/api/netmirror` | GET | Resolve NetMirror ID to HLS URL |
-| `/api/proxy` | GET | Proxy HLS streams (query: `url`) |
-| `/api/seed` | POST | Seed sample content |
+| `/api/net27?action=trending` | GET | Trending content (day) |
+| `/api/net27?action=hero` | GET | Hero carousel items |
+| `/api/net27?action=discover&type=movie` | GET | Discover by type/genre/sort |
+| `/api/net27/search?q=query` | GET | Hybrid search |
+| `/api/net27/embed/[tmdbId]?type=movie` | GET | Embed source + all quality options (proxy-signed) |
+| `/api/net27/variants/[type]/[tmdbId]` | GET | Dub/language variants |
+
+### Other
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/proxy?url=...` | GET | HLS proxy with UA rotation & manifest rewrite |
+| `/api/content` | GET/POST | MongoDB content CRUD |
+| `/api/tmdb/search` | GET | TMDB search proxy |
+| `/api/tmdb/details/[id]` | GET | TMDB movie/TV details |
+| `/api/seed` | POST | Seed sample content (admin) |
+
+## Streaming Flow
+
+```
+Client → /api/net27/embed/{tmdbId}?type=movie
+       → net27.cc/api/embed-tmdb/{tmdbId} (fetches raw streams)
+       → resolveAllSources() (proxy-signs CDN URLs via streamhub-proxy)
+       → Returns { sources: [{label, url, mimeType}], captions: [...] }
+
+Client → Player component
+       → Vidstack MediaPlayer with auto-detected MIME type
+       → Supports: MP4, HLS (.m3u8), DASH (.mpd)
+       → Quality picker: switch between 360p/480p/720p/1080p
+       → Dub picker: switch between Original/Hindi dub/English dub/etc.
+```
+
+## License
+
+MIT
