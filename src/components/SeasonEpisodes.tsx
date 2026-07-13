@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, ChevronDown } from "lucide-react";
+import { Play } from "lucide-react";
 
 interface Episode {
   episode: number;
@@ -30,39 +30,48 @@ interface SeasonEpisodesProps {
 
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes);
   const [loading, setLoading] = useState(false);
 
   const fetchEpisodes = useCallback(async (seasonNum: number) => {
-    if (seasonNum === initialSeason) {
+    if (seasonNum === initialSeason && initialEpisodes.length > 0) {
       setEpisodes(initialEpisodes);
+      setLoading(false);
       return;
     }
     setLoading(true);
     try {
       const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}`);
       const data = await res.json();
-      if (data.ok && data.episodes) {
+      if (data.ok && data.episodes?.length > 0) {
         setEpisodes(data.episodes);
       } else {
-        setEpisodes([]);
+        const s = seasons.find((x) => x.season_number === seasonNum);
+        const count = s?.episode_count || 0;
+        setEpisodes(Array.from({ length: count }, (_, i) => ({
+          episode: i + 1,
+          name: `Episode ${i + 1}`,
+          overview: "",
+          still: null,
+        })));
       }
     } catch {
-      setEpisodes([]);
+      const s = seasons.find((x) => x.season_number === seasonNum);
+      const count = s?.episode_count || 0;
+      setEpisodes(Array.from({ length: count }, (_, i) => ({
+        episode: i + 1,
+        name: `Episode ${i + 1}`,
+        overview: "",
+        still: null,
+      })));
     } finally {
       setLoading(false);
     }
-  }, [initialSeason, initialEpisodes, tmdbId]);
+  }, [initialSeason, initialEpisodes, tmdbId, seasons]);
 
   useEffect(() => {
     fetchEpisodes(selectedSeason);
   }, [selectedSeason, fetchEpisodes]);
-
-  const handleSeasonSelect = (seasonNum: number) => {
-    setSelectedSeason(seasonNum);
-    setShowDropdown(false);
-  };
 
   const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
 
@@ -71,13 +80,22 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-white">Episodes</h2>
         {seasons.length > 1 && (
-          <button
-            onClick={() => setShowDropdown(true)}
-            className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+          <select
+            value={selectedSeason}
+            onChange={(e) => setSelectedSeason(Number(e.target.value))}
+            className="px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm appearance-none cursor-pointer pr-8"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8ea0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 8px center",
+            }}
           >
-            {currentSeason?.name || `Season ${selectedSeason}`}
-            <ChevronDown className="w-4 h-4" />
-          </button>
+            {seasons.map((s) => (
+              <option key={s.season_number} value={s.season_number}>
+                {s.name || `Season ${s.season_number}`} ({s.episode_count} ep)
+              </option>
+            ))}
+          </select>
         )}
       </div>
 
@@ -93,7 +111,7 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
             </div>
           ))}
         </div>
-      ) : episodes.length > 0 ? (
+      ) : (
         <div className="flex gap-3 md:gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide">
           {episodes.map((ep) => (
             <Link
@@ -118,46 +136,10 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
               </div>
               <div className="p-2 md:p-3">
                 <p className="text-xs sm:text-sm font-medium text-white truncate">{ep.episode}. {ep.name}</p>
-                {ep.overview && <p className="text-[10px] sm:text-xs text-[#8e8ea0] mt-1 line-clamp-2">{ep.overview}</p>}
+                {ep.overview ? <p className="text-[10px] sm:text-xs text-[#8e8ea0] mt-1 line-clamp-2">{ep.overview}</p> : null}
               </div>
             </Link>
           ))}
-        </div>
-      ) : (
-        <Link
-          href={`/series/watch/${titleSlug}?tmdbId=${tmdbId}&type=${type}&season=${selectedSeason}&episode=1`}
-          className="flex items-center gap-4 p-4 bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all"
-        >
-          <div className="w-12 h-12 flex-shrink-0 bg-[#f5c542]/10 flex items-center justify-center">
-            <Play className="w-6 h-6 text-[#f5c542]" fill="#f5c542" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-white">Watch {currentSeason?.name || `Season ${selectedSeason}`}</p>
-            <p className="text-xs text-[#8e8ea0]">{currentSeason?.episode_count || 0} episodes</p>
-          </div>
-        </Link>
-      )}
-
-      {showDropdown && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDropdown(false)}>
-          <div className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-[90%] max-w-[360px] p-1 animate-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a3a]">
-              <h3 className="text-sm font-semibold text-white">Select Season</h3>
-              <button onClick={() => setShowDropdown(false)} className="text-[#8e8ea0] hover:text-white text-lg leading-none">&times;</button>
-            </div>
-            <div className="p-2 max-h-[300px] overflow-y-auto scrollbar-hide">
-              {seasons.map((s) => (
-                <button
-                  key={s.season_number}
-                  onClick={() => handleSeasonSelect(s.season_number)}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#f5c542]/10 ${s.season_number === selectedSeason ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
-                >
-                  {s.name || `Season ${s.season_number}`}
-                  <span className="text-[#8e8ea0] ml-2 text-xs">({s.episode_count} ep)</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </div>
