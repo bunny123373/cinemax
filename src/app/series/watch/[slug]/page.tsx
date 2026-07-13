@@ -66,15 +66,15 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       .then((r) => r.json())
       .then((res) => {
         if (!res.ok) { setError(true); return; }
-        setTitle(res.embed?.title || slug?.replace(/-/g, " ") || "");
+        setTitle(res.embed?.title || "");
         const srcs: SourceOption[] = res.sources || [];
         if (srcs.length === 0) { setError(true); return; }
         setSources(srcs);
-        setCaptions((res.captions || []).map((c: any) => ({ lang: c.lang, label: c.name || c.lang, url: c.url })));
+        setCaptions((res.captions || []).map((c: { lang: string; name?: string; url: string }) => ({ lang: c.lang, label: c.name || c.lang, url: c.url })));
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, []);
 
   useEffect(() => {
     if (!tmdbId) { setLoading(false); setError(true); return; }
@@ -120,11 +120,43 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     );
   }
 
-  if (error && sources.length === 0) {
+  if (error && sources.length === 0 && !loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0f] gap-4">
-        <p className="text-[#8e8ea0]">Stream not available</p>
-        <Link href="/" className="text-[#f5c542] hover:underline">Go Home</Link>
+      <div className="min-h-screen bg-[#0a0a0f]">
+        <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
+          <Link
+            href={tmdbId ? `/series/${slug}?tmdbId=${tmdbId}` : "/"}
+            className="inline-flex items-center gap-2 text-[#8e8ea0] hover:text-[#f5c542] transition-colors mb-3 md:mb-4 text-xs md:text-sm"
+          >
+            <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
+            Back to series
+          </Link>
+
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <p className="text-[#8e8ea0]">Stream not available for this episode</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => { setError(false); loadEmbed(tmdbId!, type, seasonNum, episodeNum, selectedDub); }}
+                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => goToEpisode(seasonNum, episodeNum - 1)}
+                disabled={episodeNum <= 1 && seasonNum <= 1}
+                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a] disabled:opacity-30"
+              >
+                <ChevronLeft className="w-4 h-4 inline mr-1" />Prev
+              </button>
+              <button
+                onClick={() => goToEpisode(seasonNum, episodeNum + 1)}
+                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+              >
+                Next<ChevronRight className="w-4 h-4 inline ml-1" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
