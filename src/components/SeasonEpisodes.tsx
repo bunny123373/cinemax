@@ -53,7 +53,7 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
     if (count === 0) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}`);
+      const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (data.ok && data.episodes?.length > 0) {
         setEpisodes(data.episodes);

@@ -1,4 +1,4 @@
-const CACHE_NAME = "cinemax-v1";
+const CACHE_NAME = "cinemax-v2";
 const STATIC_ASSETS = [
   "/",
   "/search",
@@ -24,8 +24,10 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
 
-  if (request.url.includes("/api/")) {
+  if (url.pathname.startsWith("/api/")) {
     event.respondWith(
       fetch(request).catch(() => caches.match(request))
     );
@@ -35,7 +37,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetched = fetch(request).then((response) => {
-        if (response.ok) {
+        if (response && response.ok && response.type === "basic") {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
