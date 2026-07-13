@@ -71,7 +71,7 @@ export default async function SeriesDetailPage({ params, searchParams }: Props) 
   const firstEpHref = `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${initialSeason}&episode=1`;
 
   return (
-    <main className="min-h-screen pb-20 overflow-hidden">
+    <main className="min-h-screen pb-20">
       <div className="relative w-full h-[30vh] sm:h-[40vh] md:h-[60vh] group/banner">
         <Image
           src={item.backdrop || item.poster || ""}

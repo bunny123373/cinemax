@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Play, ChevronDown } from "lucide-react";
@@ -31,6 +31,18 @@ interface SeasonEpisodesProps {
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showDropdown) return;
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showDropdown]);
 
   const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
   const isInitial = selectedSeason === initialSeason;
@@ -40,7 +52,7 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-white">Episodes</h2>
         {seasons.length > 1 && (
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
