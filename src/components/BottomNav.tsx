@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Bookmark, Download } from "lucide-react";
+import { Home, Film, Tv, Bookmark, Download } from "lucide-react";
 
 const tabs = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/search", label: "Search", icon: Search },
+  { href: "/movies", label: "Movies", icon: Film },
+  { href: "/series", label: "Series", icon: Tv },
   { href: "/watchlist", label: "Watchlist", icon: Bookmark },
   { href: "/download", label: "Download", icon: Download },
 ];
@@ -29,7 +30,7 @@ export default function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-4 py-1 transition-colors ${
+              className={`flex flex-col items-center gap-0.5 px-3 py-1 transition-colors ${
                 active ? "text-[#f5c542]" : "text-[#8e8ea0]"
               }`}
             >
