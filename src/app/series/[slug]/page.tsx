@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { fetchTitleDetail, searchNet27 } from "@/lib/net27";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
+import SeasonEpisodes from "@/components/SeasonEpisodes";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
 export const revalidate = 60;
@@ -205,63 +206,14 @@ export default async function SeriesDetailPage({ params, searchParams }: Props) 
         </div>
 
         {detail?.seasons && detail.seasons.length > 0 && (
-          <div className="mt-8 md:mt-12">
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Episodes</h2>
-            {detail.seasons.map((season) => (
-              <div key={season.season_number} className="mb-6 md:mb-8">
-                <h3 className="text-base md:text-lg font-semibold text-[#f5c542] mb-3 md:mb-4">
-                  {season.name || `Season ${season.season_number}`}
-                </h3>
-                <div className="flex gap-3 md:gap-4 overflow-x-auto scroll-smooth pb-4 scrollbar-hide">
-                  {detail.initialEpisodes && season.season_number === initialSeason
-                    ? detail.initialEpisodes.map((ep) => (
-                        <Link
-                          key={ep.episode}
-                          href={`/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${season.season_number}&episode=${ep.episode}`}
-                          className="group flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all overflow-hidden"
-                        >
-                          <div className="relative aspect-video bg-[#1a1a26]">
-                            {ep.still && (
-                              <Image
-                                src={ep.still}
-                                alt={ep.name}
-                                fill
-                                className="object-cover"
-                                sizes="340px"
-                              />
-                            )}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                              <Play className="w-6 h-6 md:w-8 md:h-8 text-[#f5c542]" fill="#f5c542" />
-                            </div>
-                            {ep.runtime && (
-                              <span className="absolute bottom-1 right-1 px-1 md:px-1.5 py-0.5 text-[9px] md:text-[10px] bg-black/70 text-white">{ep.runtime}m</span>
-                            )}
-                          </div>
-                          <div className="p-2 md:p-3">
-                            <p className="text-xs sm:text-sm font-medium text-white truncate">
-                              {ep.episode}. {ep.name}
-                            </p>
-                            {ep.overview && (
-                              <p className="text-[10px] sm:text-xs text-[#8e8ea0] mt-1 line-clamp-2">{ep.overview}</p>
-                            )}
-                          </div>
-                        </Link>
-                      ))
-                    : null}
-                  {season.season_number !== initialSeason && (
-                    <Link
-                      href={`/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${season.season_number}&episode=1`}
-                      className="group flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all p-3 md:p-4 text-center"
-                    >
-                      <Play className="w-8 h-8 md:w-10 md:h-10 text-[#f5c542] mx-auto mb-2" fill="#f5c542" />
-                      <p className="text-xs sm:text-sm text-white font-medium">{season.name || `Season ${season.season_number}`}</p>
-                      <p className="text-[10px] sm:text-xs text-[#8e8ea0]">{season.episode_count} episodes</p>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <SeasonEpisodes
+            seasons={detail.seasons}
+            initialSeason={initialSeason}
+            initialEpisodes={detail.initialEpisodes || []}
+            tmdbId={item.tmdbId}
+            type="tv"
+            titleSlug={toSlug(item.title)}
+          />
         )}
 
         {related && related.length > 0 && (
