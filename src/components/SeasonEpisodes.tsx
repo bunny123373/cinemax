@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Play, ChevronDown } from "lucide-react";
@@ -31,18 +31,6 @@ interface SeasonEpisodesProps {
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [showDropdown, setShowDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showDropdown) return;
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [showDropdown]);
 
   const currentSeason = seasons.find((s) => s.season_number === selectedSeason);
   const isInitial = selectedSeason === initialSeason;
@@ -52,29 +40,13 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-white">Episodes</h2>
         {seasons.length > 1 && (
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
-            >
-              {currentSeason?.name || `Season ${selectedSeason}`}
-              <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
-            </button>
-            {showDropdown && (
-              <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[200px] max-h-[300px] overflow-y-auto scrollbar-hide">
-                {seasons.map((s) => (
-                  <button
-                    key={s.season_number}
-                    onClick={() => { setSelectedSeason(s.season_number); setShowDropdown(false); }}
-                    className={`block w-full text-left px-4 py-2.5 text-sm hover:bg-[#1a1a2e] transition-colors ${s.season_number === selectedSeason ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
-                  >
-                    {s.name || `Season ${s.season_number}`}
-                    <span className="text-[#8e8ea0] ml-2 text-xs">({s.episode_count} ep)</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => setShowDropdown(true)}
+            className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+          >
+            {currentSeason?.name || `Season ${selectedSeason}`}
+            <ChevronDown className="w-4 h-4" />
+          </button>
         )}
       </div>
 
@@ -117,6 +89,29 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
             <p className="text-xs text-[#8e8ea0]">{currentSeason?.episode_count || 0} episodes</p>
           </div>
         </Link>
+      )}
+
+      {showDropdown && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDropdown(false)}>
+          <div className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-[90%] max-w-[360px] p-1 animate-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a3a]">
+              <h3 className="text-sm font-semibold text-white">Select Season</h3>
+              <button onClick={() => setShowDropdown(false)} className="text-[#8e8ea0] hover:text-white text-lg leading-none">&times;</button>
+            </div>
+            <div className="p-2 max-h-[300px] overflow-y-auto scrollbar-hide">
+              {seasons.map((s) => (
+                <button
+                  key={s.season_number}
+                  onClick={() => { setSelectedSeason(s.season_number); setShowDropdown(false); }}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#f5c542]/10 ${s.season_number === selectedSeason ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
+                >
+                  {s.name || `Season ${s.season_number}`}
+                  <span className="text-[#8e8ea0] ml-2 text-xs">({s.episode_count} ep)</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
