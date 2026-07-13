@@ -210,10 +210,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <a
-                href={current.url}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/api/download?url=${encodeURIComponent(current.url)}&title=${encodeURIComponent(title + ` S${seasonNum}E${episodeNum}`)}`}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Download className="w-4 h-4" />

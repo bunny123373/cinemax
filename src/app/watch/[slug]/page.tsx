@@ -159,10 +159,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <a
-                href={current.url}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/api/download?url=${encodeURIComponent(current.url)}&title=${encodeURIComponent(title)}`}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Download className="w-4 h-4" />
