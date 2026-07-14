@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Play, Plus, ChevronDown, Star } from "lucide-react";
 import { IContent } from "@/types";
+import DetailPopup from "./DetailPopup";
 
 interface TopTenRowProps {
   title: string;
@@ -18,6 +19,7 @@ function toSlug(title: string) {
 
 function TopTenCard({ item, index }: { item: IContent; index: number }) {
   const [hovered, setHovered] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const href = item.type === "movie"
     ? `/movie/${toSlug(item.title)}?tmdbId=${item.tmdbId}`
@@ -86,10 +88,16 @@ function TopTenCard({ item, index }: { item: IContent; index: number }) {
                   <Link href={watchHref} className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:bg-white/80 transition-colors">
                     <Play className="w-4 h-4 text-black fill-black ml-0.5" />
                   </Link>
-                  <button className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors">
+                  <button
+                    className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDetail(true); setHovered(false); }}
+                  >
                     <Plus className="w-4 h-4 text-white" />
                   </button>
-                  <button className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors ml-auto">
+                  <button
+                    className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors ml-auto"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDetail(true); setHovered(false); }}
+                  >
                     <ChevronDown className="w-4 h-4 text-white" />
                   </button>
                 </div>
@@ -112,6 +120,16 @@ function TopTenCard({ item, index }: { item: IContent; index: number }) {
           </div>
         )}
       </div>
+
+      {showDetail && (
+        <DetailPopup
+          tmdbId={item.tmdbId}
+          type={item.type}
+          title={item.title}
+          slug={toSlug(item.title)}
+          onClose={() => setShowDetail(false)}
+        />
+      )}
     </div>
   );
 }

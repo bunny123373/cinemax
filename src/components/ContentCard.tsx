@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { IContent } from "@/types";
 import { Star, Play, Plus, ChevronDown } from "lucide-react";
+import DetailPopup from "./DetailPopup";
 
 interface ContentCardProps {
   item: IContent;
@@ -12,6 +13,7 @@ interface ContentCardProps {
 
 export default function ContentCard({ item }: ContentCardProps) {
   const [hovered, setHovered] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const href = item.type === "movie"
     ? `/movie/${item.slug}?tmdbId=${item.tmdbId}`
@@ -54,7 +56,7 @@ export default function ContentCard({ item }: ContentCardProps) {
           onMouseLeave={handleLeave}
         >
           <div className="bg-[#18181f] overflow-hidden shadow-[0_10px_60px_rgba(0,0,0,0.8)] border border-white/10">
-            <div className="block relative aspect-video overflow-hidden">
+            <Link href={href} className="block relative aspect-video overflow-hidden">
               <Image
                 src={item.banner || item.poster || ""}
                 alt={item.title}
@@ -63,22 +65,23 @@ export default function ContentCard({ item }: ContentCardProps) {
                 sizes="280px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#18181f] via-transparent to-transparent" />
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                <Link href={watchHref} className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:bg-white transition-colors" onClick={(e) => e.stopPropagation()}>
-                  <Play className="w-5 h-5 text-black fill-black ml-0.5" />
-                </Link>
-              </div>
-            </div>
+            </Link>
 
             <div className="p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Link href={watchHref} className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:bg-white/80 transition-colors">
                   <Play className="w-4 h-4 text-black fill-black ml-0.5" />
                 </Link>
-                <button className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors">
+                <button
+                  className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDetail(true); setHovered(false); }}
+                >
                   <Plus className="w-4 h-4 text-white" />
                 </button>
-                <button className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors ml-auto">
+                <button
+                  className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors ml-auto"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDetail(true); setHovered(false); }}
+                >
                   <ChevronDown className="w-4 h-4 text-white" />
                 </button>
               </div>
@@ -91,14 +94,24 @@ export default function ContentCard({ item }: ContentCardProps) {
                   </span>
                 )}
                 <span className="text-white/60 text-xs">{item.year}</span>
-                <span className="px-1 py-0.5 text-[9px] border border-white/30 text-white/60 rounded">HD</span>
-                <span className="px-1 py-0.5 text-[9px] border border-white/30 text-white/60 rounded capitalize">{item.type}</span>
+                <span className="px-1 py-0.5 text-[9px] border border-white/30 text-white/60">HD</span>
+                <span className="px-1 py-0.5 text-[9px] border border-white/30 text-white/60 capitalize">{item.type}</span>
               </div>
 
               <p className="text-white/50 text-[11px] line-clamp-2">{item.description}</p>
             </div>
           </div>
         </div>
+      )}
+
+      {showDetail && (
+        <DetailPopup
+          tmdbId={item.tmdbId}
+          type={item.type}
+          title={item.title}
+          slug={item.slug}
+          onClose={() => setShowDetail(false)}
+        />
       )}
     </div>
   );
