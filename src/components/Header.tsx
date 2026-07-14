@@ -105,21 +105,6 @@ export default function Header() {
           </Link>
 
           <nav className="flex items-center gap-1">
-            {mobileNavLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium transition-colors ${
-                    isActive(link.href) ? "text-[#f5c542]" : "text-[#8e8ea0]"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {link.label}
-                </Link>
-              );
-            })}
             <button
               onClick={() => setShowSearch(!showSearch)}
               className="p-1.5 text-[#8e8ea0] hover:text-white transition-colors"
