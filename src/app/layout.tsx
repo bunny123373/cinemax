@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: "Stream premium movies and web series online in HD. CineMax - your ultimate streaming platform for premium entertainment.",
   metadataBase: new URL(process.env.SITE_URL || "http://localhost:4000"),
   icons: {
-    icon: "/icon.svg",
+    icon: "/favicon.png",
   },
   openGraph: {
     siteName: "CineMax",
