@@ -70,7 +70,7 @@ export default async function MoviePage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
-      <div className="relative w-full h-[30vh] sm:h-[40vh] md:h-[70vh]">
+      <div className="relative w-full h-[40vh] min-h-[260px] sm:h-[50vh] md:h-[60vh] lg:h-[70vh]">
         <Image
           src={item.backdrop || item.poster || ""}
           alt={item.title}
@@ -82,9 +82,9 @@ export default async function MoviePage({ params, searchParams }: Props) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/30 to-transparent" />
       </div>
 
-      <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 -mt-20 sm:-mt-28 md:-mt-40">
+      <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 -mt-24 sm:-mt-32 md:-mt-44 lg:-mt-52">
         <div className="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 items-start">
-          <div className="w-24 sm:w-36 md:w-48 shrink-0 mx-auto md:mx-0">
+          <div className="w-28 sm:w-36 md:w-48 shrink-0 mx-auto md:mx-0">
             <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a] shadow-2xl">
               <Image
                 src={item.poster || ""}
@@ -92,12 +92,12 @@ export default async function MoviePage({ params, searchParams }: Props) {
                 fill
                 priority
                 className="object-cover"
-                sizes="192px"
+                sizes="(max-width: 768px) 112px, 192px"
               />
             </div>
           </div>
 
-          <div className="flex-1 mt-2 md:mt-auto pb-6 md:pb-8 min-w-0">
+          <div className="flex-1 pt-2 md:pt-12 pb-6 md:pb-8 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-3 mb-2 md:mb-3">
               <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#f5c542] text-[#0a0a0f]">
                 Movie

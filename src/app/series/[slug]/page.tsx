@@ -72,7 +72,7 @@ export default async function SeriesDetailPage({ params, searchParams }: Props) 
 
   return (
     <main className="min-h-screen pb-20">
-      <div className="relative w-full h-[30vh] sm:h-[40vh] md:h-[60vh] group/banner">
+      <div className="relative w-full h-[40vh] min-h-[260px] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] group/banner">
         <Image
           src={item.backdrop || item.poster || ""}
           alt={item.title}
@@ -92,9 +92,9 @@ export default async function SeriesDetailPage({ params, searchParams }: Props) 
         </Link>
       </div>
 
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 -mt-24 sm:-mt-32 md:-mt-48 relative z-10">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-10 items-start">
-          <div className="flex-shrink-0 w-32 sm:w-40 md:w-64 mx-auto md:mx-0">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 -mt-24 sm:-mt-32 md:-mt-44 lg:-mt-52 relative z-10">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-10 items-start">
+          <div className="flex-shrink-0 w-28 sm:w-40 md:w-56 lg:w-64 mx-auto md:mx-0">
             <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a] shadow-2xl">
               <Image
                 src={item.poster || ""}
@@ -102,7 +102,7 @@ export default async function SeriesDetailPage({ params, searchParams }: Props) 
                 fill
                 priority
                 className="object-cover"
-                sizes="256px"
+                sizes="(max-width: 768px) 112px, (max-width: 1024px) 160px, 256px"
               />
             </div>
           </div>
