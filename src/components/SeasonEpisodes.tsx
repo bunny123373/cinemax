@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Play } from "lucide-react";
 
@@ -40,10 +40,11 @@ function buildPlaceholder(seasons: Season[], seasonNum: number): Episode[] {
 
 export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
-  const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes);
+  const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes.length > 0 ? initialEpisodes : buildPlaceholder(seasons, initialSeason));
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+  const [loading, setLoading] = useState(false);
 
-  async function handleSeasonChange(seasonNum: number) {
+  const handleSeasonChange = useCallback(async (seasonNum: number) => {
     setSelectedSeason(seasonNum);
     setFailedImages(new Set());
 
@@ -54,15 +55,31 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
 
     const placeholders = buildPlaceholder(seasons, seasonNum);
     setEpisodes(placeholders);
+    setLoading(true);
 
     try {
       const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}`, { cache: "no-store" });
       const data = await res.json();
       if (data.ok && data.episodes?.length > 0) {
-        setEpisodes(data.episodes);
+        const fetched = data.episodes as Episode[];
+        const merged = placeholders.map((ph) => {
+          const real = fetched.find((e) => e.episode === ph.episode);
+          if (real && real.name !== `Episode ${ph.episode}`) return real;
+          return ph;
+        });
+        if (fetched.length > placeholders.length) {
+          for (const ep of fetched) {
+            if (!merged.find((m) => m.episode === ep.episode)) merged.push(ep);
+          }
+        }
+        setEpisodes(merged);
       }
-    } catch {}
-  }
+    } catch {
+      // keep placeholders
+    } finally {
+      setLoading(false);
+    }
+  }, [initialSeason, initialEpisodes, seasons, tmdbId]);
 
   function handleImageError(episode: number) {
     setFailedImages((prev) => new Set(prev).add(episode));
@@ -71,7 +88,10 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
   return (
     <div className="mt-8 md:mt-12">
       <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-white">Episodes</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-white">
+          Episodes
+          {loading && <span className="ml-3 text-sm font-normal text-[#8e8ea0]">Loading...</span>}
+        </h2>
         {seasons.length > 1 && (
           <select
             value={selectedSeason}
