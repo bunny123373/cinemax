@@ -54,7 +54,7 @@ export default function RootLayout({
       <script src="https://pl30358092.effectivecpmnetwork.com/83/ae/1d/83ae1d8e37ab5ebba22d210675001f57.js"></script>
         <ReduxProvider>
           <Header />
-          <main className="pt-8 md:pt-16 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
+          <main className="pt-8 md:pt-16 min-h-screen pb-16 md:pb-0">
             {children}
           </main>
           <Footer />

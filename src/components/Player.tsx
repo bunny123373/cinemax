@@ -131,6 +131,7 @@ export default function Player({ src, type, poster, autoPlay, captions, onProgre
       poster={poster}
       autoPlay={autoPlay}
       playsInline
+      viewType="video"
       volume={0.5}
       crossOrigin="anonymous"
       aspectRatio="16/9"
