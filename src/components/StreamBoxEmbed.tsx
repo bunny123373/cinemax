@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, ExternalLink } from "lucide-react";
 
 const STREAMBOX_BASE = "https://streambox.sonixhub.net";
 
@@ -16,6 +16,7 @@ interface StreamBoxEmbedProps {
 
 export default function StreamBoxEmbed({ type, tmdbId, season, episode, title, onClose }: StreamBoxEmbedProps) {
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   const streamPath =
     type === "series" && season && episode
@@ -27,12 +28,8 @@ export default function StreamBoxEmbed({ type, tmdbId, season, episode, title, o
       ? `/download/series/${tmdbId}/${season}/${episode}`
       : `/download/movie/${tmdbId}`;
 
-  const [activeTab, setActiveTab] = useState<"stream" | "download">("download");
-
-  const embedUrl =
-    activeTab === "download"
-      ? `${STREAMBOX_BASE}${downloadPath}`
-      : `${STREAMBOX_BASE}${streamPath}?server=blaze&download=true&autoplay=false`;
+  const streamUrl = `${STREAMBOX_BASE}${streamPath}?server=blaze&download=true&autoplay=false`;
+  const downloadUrl = `${STREAMBOX_BASE}${downloadPath}`;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={onClose}>
@@ -43,46 +40,50 @@ export default function StreamBoxEmbed({ type, tmdbId, season, episode, title, o
         <div className="flex items-center justify-between px-4 py-3 bg-[#12121a] border-b border-[#2a2a3a]">
           <div className="flex items-center gap-3 min-w-0">
             <h3 className="text-sm font-semibold text-white truncate">{title}</h3>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setActiveTab("download")}
-                className={`px-3 py-1 text-xs font-medium transition-colors ${
-                  activeTab === "download"
-                    ? "bg-[#f5c542] text-[#0a0a0f]"
-                    : "text-[#8e8ea0] hover:text-white"
-                }`}
-              >
-                Downloads
-              </button>
-              <button
-                onClick={() => setActiveTab("stream")}
-                className={`px-3 py-1 text-xs font-medium transition-colors ${
-                  activeTab === "stream"
-                    ? "bg-[#f5c542] text-[#0a0a0f]"
-                    : "text-[#8e8ea0] hover:text-white"
-                }`}
-              >
-                Stream
-              </button>
-            </div>
+            <a
+              href={downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-[#1db954] text-white hover:bg-[#1ed760] transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+              Downloads
+            </a>
           </div>
           <button onClick={onClose} className="text-[#8e8ea0] hover:text-white ml-2">
             <X className="w-5 h-5" />
           </button>
         </div>
         <div className="flex-1 relative">
-          {loading && (
+          {loading && !failed && (
             <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0f]">
               <Loader2 className="w-8 h-8 text-[#f5c542] animate-spin" />
             </div>
           )}
-          <iframe
-            key={`${activeTab}-${tmdbId}`}
-            src={embedUrl}
-            className="w-full h-full border-0"
-            allowFullScreen
-            onLoad={() => setLoading(false)}
-          />
+          {failed ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f] gap-4 p-6 text-center">
+              <p className="text-sm text-[#8e8ea0]">StreamBox player is not available for this title.</p>
+              <a
+                href={streamUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open in StreamBox
+              </a>
+            </div>
+          ) : (
+            <iframe
+              key={`${tmdbId}-${season || ""}-${episode || ""}`}
+              src={streamUrl}
+              className="w-full h-full border-0"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              onLoad={() => setLoading(false)}
+              onError={() => setFailed(true)}
+            />
+          )}
         </div>
       </div>
     </div>
