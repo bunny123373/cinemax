@@ -75,6 +75,26 @@ body {
   animation: popupIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+  to { opacity: 1; transform: translateY(0); max-height: 60px; }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { opacity: 1; transform: translateY(0); max-height: 60px; }
+  to { opacity: 0; transform: translateY(-8px); max-height: 0; }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.2s ease-in forwards;
+  overflow: hidden;
+}
+
 @keyframes loadingBar {
   0% { transform: translateX(-100%); }
   50% { transform: translateX(0%); }

@@ -115,7 +115,7 @@ export default function Header() {
         </div>
 
         {showSearch && (
-          <form onSubmit={handleSearch} className="mt-1.5">
+          <form onSubmit={handleSearch} className="mt-1.5 animate-slideDown">
             <div className="relative bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full border border-[#2a2a3a]/50 overflow-hidden shadow-lg shadow-black/40">
               <input
                 type="text"
