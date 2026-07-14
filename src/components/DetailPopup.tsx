@@ -63,7 +63,7 @@ export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopup
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="relative w-[95%] h-[90vh] max-w-[1000px] bg-[#0a0a0f] overflow-hidden shadow-[0_20px_100px_rgba(0,0,0,0.9)] border border-white/10 animate-popup flex flex-col"
+        className="relative w-[90%] max-w-[480px] bg-[#18181f] overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.9)] border border-white/10 animate-popup flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {loading ? (
@@ -80,7 +80,7 @@ export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopup
         ) : (
           <>
             <div className="relative flex-shrink-0">
-              <div className="relative w-full h-[250px] sm:h-[300px] md:h-[380px] overflow-hidden">
+              <div className="relative w-full h-[180px] sm:h-[200px] overflow-hidden">
                 <Image
                   src={detail.backdrop || detail.poster || ""}
                   alt={detail.title}
@@ -99,24 +99,24 @@ export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopup
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 z-10">
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                  <div className="w-20 sm:w-28 shrink-0 mx-auto sm:mx-0">
+              <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+                <div className="flex flex-col sm:flex-row gap-3 items-start">
+                  <div className="w-16 sm:w-20 shrink-0 mx-auto sm:mx-0">
                     <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a] shadow-2xl">
                       <Image
                         src={detail.poster || ""}
                         alt={detail.title}
                         fill
                         className="object-cover"
-                        sizes="112px"
+                        sizes="80px"
                       />
                     </div>
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">{detail.title}</h1>
+                    <h1 className="text-base sm:text-lg font-bold text-white mb-1.5">{detail.title}</h1>
 
-                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-2">
                       {detail.rating > 0 && (
                         <span className="flex items-center gap-1 text-sm text-[#46d369] font-semibold">
                           <Star className="w-4 h-4 fill-[#46d369]" />
@@ -129,30 +129,30 @@ export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopup
                     </div>
 
                     {detail.genres && detail.genres.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
+                      <div className="flex flex-wrap gap-1 mb-2">
                         {detail.genres.map((g) => (
-                          <span key={g.name} className="px-2 py-0.5 text-[10px] bg-[#2a2a3a] text-white/60">{g.name}</span>
+                          <span key={g.name} className="px-1.5 py-0.5 text-[9px] bg-[#2a2a3a] text-white/60">{g.name}</span>
                         ))}
                       </div>
                     )}
 
                     {detail.overview && (
-                      <p className="text-sm text-white/50 line-clamp-3 mb-4">{detail.overview}</p>
+                      <p className="text-xs text-white/50 line-clamp-2 mb-3">{detail.overview}</p>
                     )}
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <Link
                         href={watchHref}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-semibold hover:bg-white/80 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-black text-xs font-semibold hover:bg-white/80 transition-colors"
                       >
-                        <Play className="w-4 h-4 fill-black" />
+                        <Play className="w-3.5 h-3.5 fill-black" />
                         Play
                       </Link>
                       <Link
                         href={href}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/30 text-white text-sm font-medium hover:bg-white/5 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 border border-white/30 text-white text-xs font-medium hover:bg-white/5 transition-colors"
                       >
-                        Full Details
+                        Details
                       </Link>
                     </div>
                   </div>
@@ -160,7 +160,7 @@ export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopup
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 sm:p-8 pt-4">
+            <div className="flex-1 overflow-y-auto p-4 pt-2">
               {detail.cast && detail.cast.length > 0 && (
                 <div className="mb-6">
                   <h2 className="text-sm font-semibold text-white mb-3">Cast</h2>
