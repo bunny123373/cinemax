@@ -51,6 +51,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
+      <script src="https://pl30358092.effectivecpmnetwork.com/83/ae/1d/83ae1d8e37ab5ebba22d210675001f57.js"></script>
         <ReduxProvider>
           <Header />
           <main className="pt-8 md:pt-16 min-h-screen pb-16 md:pb-0 overflow-x-hidden">
