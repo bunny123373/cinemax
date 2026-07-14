@@ -92,9 +92,9 @@ export default function Header() {
         </div>
       </header>
 
-      <div className="fixed top-0 left-0 right-0 z-50 md:hidden pt-2 px-3 flex flex-col items-center gap-2">
-        <div className="flex items-center justify-center bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-4 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50 w-full max-w-[200px]">
-          <Link href="/" className="flex items-center gap-1.5">
+      <div className="fixed top-0 left-0 right-0 z-50 md:hidden pt-2 px-3">
+        <div className="flex items-center bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-3 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50">
+          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
             <div className="relative w-6 h-6">
               <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" priority sizes="24px" />
             </div>
@@ -103,20 +103,32 @@ export default function Header() {
               <span className="text-white">Max</span>
             </span>
           </Link>
+
+          <div className="flex-1" />
+
+          <button
+            onClick={() => setShowSearch(!showSearch)}
+            className="w-8 h-8 rounded-full bg-[#1a1a2e] border border-[#2a2a3a] flex items-center justify-center text-[#8e8ea0] hover:text-white hover:border-[#f5c542]/50 transition-colors flex-shrink-0"
+          >
+            <Search className="w-4 h-4" />
+          </button>
         </div>
 
-        <form onSubmit={handleSearch} className="w-full">
-          <div className="relative bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full border border-[#2a2a3a]/50 overflow-hidden shadow-lg shadow-black/40">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search movies & series..."
-              className="w-full pl-10 pr-4 py-2 bg-transparent text-sm text-white placeholder-[#8e8ea0] focus:outline-none"
-            />
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e8ea0]" />
-          </div>
-        </form>
+        {showSearch && (
+          <form onSubmit={handleSearch} className="mt-1.5 mx-2">
+            <div className="relative bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full border border-[#2a2a3a]/50 overflow-hidden">
+              <input
+                type="text"
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search movies & series..."
+                className="w-full pl-10 pr-4 py-2 bg-transparent text-sm text-white placeholder-[#8e8ea0] focus:outline-none"
+              />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e8ea0]" />
+            </div>
+          </form>
+        )}
       </div>
     </>
   );
