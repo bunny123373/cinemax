@@ -39,7 +39,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [captions, setCaptions] = useState<{ lang: string; label: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [autoPlayCountdown, setAutoPlayCountdown] = useState<number | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
   const [showDubMenu, setShowDubMenu] = useState(false);
@@ -90,21 +89,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       .then((res) => { if (res.variants) setVariants(res.variants); })
       .catch(() => {});
   }, [tmdbId, type, seasonNum, episodeNum]);
-
-  const handleEnded = useCallback(() => {
-    setAutoPlayCountdown(10);
-  }, []);
-
-  useEffect(() => {
-    if (autoPlayCountdown === null) return;
-    if (autoPlayCountdown <= 0) {
-      setAutoPlayCountdown(null);
-      setEpisodeNum((prev) => prev + 1);
-      return;
-    }
-    const timer = setTimeout(() => setAutoPlayCountdown(autoPlayCountdown - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [autoPlayCountdown]);
 
   const goToEpisode = (se: number, ep: number) => {
     setSeasonNum(se);
@@ -181,7 +165,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               src={current.url}
               autoPlay
               captions={captions}
-              onEnded={handleEnded}
               onProgress={(currentTime, duration) => {
                 if (slug && tmdbId) {
                   saveContinueWatching({
@@ -287,23 +270,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                   {s.label}
                 </button>
               ))}
-            </div>
-          )}
-
-          {autoPlayCountdown !== null && (
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-4 p-3 md:p-4 bg-[#12121a] border border-[#2a2a3a]">
-              <p className="text-sm md:text-base text-white">
-                Next episode in <span className="text-[#f5c542] font-bold">{autoPlayCountdown}s</span>
-              </p>
-              <div className="flex items-center gap-3">
-                <button onClick={() => setAutoPlayCountdown(null)} className="text-sm text-[#8e8ea0] hover:text-white transition-colors">Cancel</button>
-                <button
-                  onClick={() => { setAutoPlayCountdown(null); setEpisodeNum((prev) => prev + 1); }}
-                  className="text-sm text-[#f5c542] hover:underline"
-                >
-                  Play now &rarr;
-                </button>
-              </div>
             </div>
           )}
 
