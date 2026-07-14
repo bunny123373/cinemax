@@ -31,27 +31,28 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-white mb-3">Browse</h3>
             <div className="space-y-2">
+              <Link href="/" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Home</Link>
               <Link href="/movies" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Movies</Link>
               <Link href="/series" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Series</Link>
-              <Link href="/watchlist" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Watchlist</Link>
-              <Link href="/download" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Download App</Link>
               <Link href="/search" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Search</Link>
+              <Link href="/download" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Download App</Link>
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3">Categories</h3>
+            <h3 className="text-sm font-semibold text-white mb-3">Genres</h3>
             <div className="space-y-2">
-              <Link href="/category/action" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Action</Link>
-              <Link href="/category/drama" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Drama</Link>
-              <Link href="/category/comedy" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Comedy</Link>
+              <Link href="/movies" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Action</Link>
+              <Link href="/movies" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Drama</Link>
+              <Link href="/movies" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Comedy</Link>
+              <Link href="/movies" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Horror</Link>
+              <Link href="/movies" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Sci-Fi</Link>
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3">Legal</h3>
+            <h3 className="text-sm font-semibold text-white mb-3">More</h3>
             <div className="space-y-2">
-              <Link href="/privacy" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Terms of Service</Link>
-              <Link href="/dmca" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">DMCA</Link>
+              <Link href="/watchlist" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Watchlist</Link>
+              <Link href="/download" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">APK Download</Link>
             </div>
           </div>
         </div>
