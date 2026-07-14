@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Settings, Globe, Download } from "lucide-react";
+import { ArrowLeft, Settings, Globe, Download, ExternalLink } from "lucide-react";
 import Player from "@/components/Player";
+import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
 
 interface Props {
@@ -37,6 +38,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
   const [showDubMenu, setShowDubMenu] = useState(false);
+  const [showStreamBox, setShowStreamBox] = useState(false);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -159,6 +161,13 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <button
+                onClick={() => setShowStreamBox(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                StreamBox
+              </button>
+              <button
                 onClick={async () => {
                   try {
                     const res = await fetch(current.url);
@@ -258,6 +267,15 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {showStreamBox && tmdbId && (
+        <StreamBoxEmbed
+          type="movie"
+          tmdbId={tmdbId}
+          title={title}
+          onClose={() => setShowStreamBox(false)}
+        />
       )}
     </main>
   );

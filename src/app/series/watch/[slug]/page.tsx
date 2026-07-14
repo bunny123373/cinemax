@@ -3,8 +3,9 @@
 import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ExternalLink } from "lucide-react";
 import Player from "@/components/Player";
+import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
 
 interface Props {
@@ -43,6 +44,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
   const [showDubMenu, setShowDubMenu] = useState(false);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
+  const [showStreamBox, setShowStreamBox] = useState(false);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -210,6 +212,13 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
             <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
               <button
+                onClick={() => setShowStreamBox(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
+              >
+                <ExternalLink className="w-4 h-4" />
+                StreamBox
+              </button>
+              <button
                 onClick={async () => {
                   try {
                     const res = await fetch(current.url);
@@ -365,6 +374,17 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {showStreamBox && tmdbId && (
+        <StreamBoxEmbed
+          type="series"
+          tmdbId={tmdbId}
+          season={seasonNum}
+          episode={episodeNum}
+          title={title}
+          onClose={() => setShowStreamBox(false)}
+        />
       )}
     </main>
   );
