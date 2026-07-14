@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X, Play, Star, Plus, Check } from "lucide-react";
+import { X, Play, Star } from "lucide-react";
 import type { Net27TitleDetail } from "@/types/net27";
-
-type DetailData = Pick<Net27TitleDetail, "title" | "overview" | "poster" | "backdrop" | "year" | "rating" | "genres" | "runtime">;
 
 interface DetailPopupProps {
   tmdbId: number;
@@ -16,8 +14,12 @@ interface DetailPopupProps {
   onClose: () => void;
 }
 
-export default function DetailPopup({ tmdbId, type, title, slug, onClose }: DetailPopupProps) {
-  const [detail, setDetail] = useState<DetailData | null>(null);
+function toSlug(title: string) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopupProps) {
+  const [detail, setDetail] = useState<Net27TitleDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   const href = type === "movie"
@@ -33,101 +35,177 @@ export default function DetailPopup({ tmdbId, type, title, slug, onClose }: Deta
       .then((res) => {
         if (res.ok && res.embed) {
           setDetail({
-            title: res.embed.title || title,
+            title: res.embed.title || "",
+            type: type,
             overview: res.embed.overview || "",
             poster: res.embed.poster || "",
             backdrop: res.embed.backdrop || "",
             year: res.embed.year || "",
             rating: res.embed.rating || 0,
-            genres: res.embed.genres || [],
             runtime: res.embed.runtime || 0,
+            tagline: null,
+            genres: res.embed.genres || [],
+            cast: [],
+            seasons: [],
+            initialSeason: 1,
+            initialEpisodes: [],
+            recommendations: [],
+            trailerKey: null,
+            certification: null,
+            catalog: null,
           });
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [tmdbId, type, title]);
-
-  const item = detail;
+  }, [tmdbId, type]);
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="relative w-[90%] max-w-[500px] bg-[#18181f] overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.9)] border border-white/10 animate-popup"
+        className="relative w-[95%] h-[90vh] max-w-[1000px] bg-[#0a0a0f] overflow-hidden shadow-[0_20px_100px_rgba(0,0,0,0.9)] border border-white/10 animate-popup flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative aspect-video overflow-hidden">
-          {loading ? (
-            <div className="absolute inset-0 bg-[#12121a] flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-[#f5c542] border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : (
-            <>
-              <Image
-                src={item?.backdrop || item?.poster || ""}
-                alt={item?.title || title}
-                fill
-                className="object-cover"
-                sizes="500px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#18181f] via-[#18181f]/20 to-transparent" />
-            </>
-          )}
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#18181f]/80 flex items-center justify-center text-white hover:bg-[#18181f] transition-colors z-10"
-          >
-            <X className="w-4 h-4" />
-          </button>
-          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-            <Link
-              href={watchHref}
-              className="flex items-center gap-1.5 px-4 py-2 bg-white text-black text-sm font-semibold hover:bg-white/80 transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Play className="w-4 h-4 fill-black" />
-              Play
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-10 h-10 border-2 border-[#f5c542] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : !detail ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4">
+            <p className="text-[#8e8ea0] text-sm">Details not available</p>
+            <Link href={href} className="px-4 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors">
+              Go to Page
             </Link>
-            <button className="w-8 h-8 rounded-full border-2 border-[#424242] flex items-center justify-center hover:border-white transition-colors">
-              <Plus className="w-4 h-4 text-white" />
-            </button>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="relative flex-shrink-0">
+              <div className="relative w-full h-[250px] sm:h-[300px] md:h-[380px] overflow-hidden">
+                <Image
+                  src={detail.backdrop || detail.poster || ""}
+                  alt={detail.title}
+                  fill
+                  className="object-cover"
+                  sizes="1000px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] via-[#0a0a0f]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0f]/60 to-transparent" />
+              </div>
 
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            {item?.rating !== undefined && item.rating > 0 && (
-              <span className="flex items-center gap-1 text-sm text-[#46d369] font-semibold">
-                <Star className="w-3.5 h-3.5 fill-[#46d369]" />
-                {item.rating.toFixed(1)}
-              </span>
-            )}
-            {item?.year && <span className="text-sm text-white/60">{item.year}</span>}
-            <span className="px-1.5 py-0.5 text-[10px] border border-white/30 text-white/60">HD</span>
-            <span className="px-1.5 py-0.5 text-[10px] border border-white/30 text-white/60 capitalize">{type}</span>
-          </div>
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#0a0a0f]/80 flex items-center justify-center text-white hover:bg-[#0a0a0f] transition-colors z-20"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
-          {item?.overview && (
-            <p className="text-sm text-white/50 line-clamp-3 mb-3">{item.overview}</p>
-          )}
+              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 z-10">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                  <div className="w-20 sm:w-28 shrink-0 mx-auto sm:mx-0">
+                    <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a] shadow-2xl">
+                      <Image
+                        src={detail.poster || ""}
+                        alt={detail.title}
+                        fill
+                        className="object-cover"
+                        sizes="112px"
+                      />
+                    </div>
+                  </div>
 
-          {item?.genres && item.genres.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {item.genres.map((g: { id?: number; name: string }) => (
-                <span key={g.name} className="px-2 py-0.5 text-[10px] bg-[#2a2a3a] text-white/60">{g.name}</span>
-              ))}
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">{detail.title}</h1>
+
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      {detail.rating > 0 && (
+                        <span className="flex items-center gap-1 text-sm text-[#46d369] font-semibold">
+                          <Star className="w-4 h-4 fill-[#46d369]" />
+                          {detail.rating.toFixed(1)}
+                        </span>
+                      )}
+                      {detail.year && <span className="text-sm text-white/60">{detail.year}</span>}
+                      {detail.runtime > 0 && <span className="text-sm text-white/60">{detail.runtime} min</span>}
+                      <span className="px-1.5 py-0.5 text-[10px] border border-white/30 text-white/60">HD</span>
+                    </div>
+
+                    {detail.genres && detail.genres.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {detail.genres.map((g) => (
+                          <span key={g.name} className="px-2 py-0.5 text-[10px] bg-[#2a2a3a] text-white/60">{g.name}</span>
+                        ))}
+                      </div>
+                    )}
+
+                    {detail.overview && (
+                      <p className="text-sm text-white/50 line-clamp-3 mb-4">{detail.overview}</p>
+                    )}
+
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={watchHref}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-semibold hover:bg-white/80 transition-colors"
+                      >
+                        <Play className="w-4 h-4 fill-black" />
+                        Play
+                      </Link>
+                      <Link
+                        href={href}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/30 text-white text-sm font-medium hover:bg-white/5 transition-colors"
+                      >
+                        Full Details
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
 
-          <Link
-            href={href}
-            className="inline-flex items-center gap-1.5 text-sm text-[#8e8ea0] hover:text-white transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Details & Episodes
-            <span className="text-xs">&rarr;</span>
-          </Link>
-        </div>
+            <div className="flex-1 overflow-y-auto p-5 sm:p-8 pt-4">
+              {detail.cast && detail.cast.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="text-sm font-semibold text-white mb-3">Cast</h2>
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                    {detail.cast.slice(0, 8).map((actor, idx) => (
+                      <div key={idx} className="flex-shrink-0 text-center w-16">
+                        <div className="w-12 h-12 mx-auto rounded-full overflow-hidden bg-[#2a2a3a] mb-1">
+                          {actor.photo ? (
+                            <Image src={actor.photo} alt={actor.name} width={48} height={48} className="object-cover w-full h-full" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#8e8ea0] text-xs">{actor.name.charAt(0)}</div>
+                          )}
+                        </div>
+                        <p className="text-[9px] text-white truncate">{actor.name}</p>
+                        <p className="text-[8px] text-[#8e8ea0] truncate">{actor.character}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {detail.recommendations && detail.recommendations.length > 0 && (
+                <div>
+                  <h2 className="text-sm font-semibold text-white mb-3">More Like This</h2>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {detail.recommendations.slice(0, 6).map((r) => {
+                      const rSlug = toSlug(r.title);
+                      const rHref = r.type === "movie"
+                        ? `/movie/${rSlug}?tmdbId=${r.tmdbId}`
+                        : `/series/${rSlug}?tmdbId=${r.tmdbId}`;
+                      return (
+                        <Link key={r.tmdbId} href={rHref} className="flex-shrink-0 w-[100px]">
+                          <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a]">
+                            <Image src={r.poster || ""} alt={r.title} fill className="object-cover" sizes="100px" />
+                          </div>
+                          <p className="text-[9px] text-white mt-1 truncate">{r.title}</p>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
