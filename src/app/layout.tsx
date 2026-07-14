@@ -47,6 +47,7 @@ export default function RootLayout({
       <head>
         <meta name="theme-color" content="#0a0a0f" />
         <meta name="monetag" content="60d1a06d562117372df72849d5db08e3"></meta>
+        <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
