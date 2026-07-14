@@ -93,30 +93,32 @@ export default function Header() {
       </header>
 
       <div className="fixed top-0 left-0 right-0 z-50 md:hidden pt-2 px-3">
-        <div className="flex items-center bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-3 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50">
-          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="relative w-6 h-6">
-              <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" priority sizes="24px" />
-            </div>
-            <span className="text-xs font-bold tracking-tight">
-              <span className="text-[#f5c542]">Cine</span>
-              <span className="text-white">Max</span>
-            </span>
-          </Link>
-
+        <div className="flex items-center gap-2">
           <div className="flex-1" />
+
+          <div className="bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-3 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50 flex-shrink-0">
+            <Link href="/" className="flex items-center gap-1.5">
+              <div className="relative w-6 h-6">
+                <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" priority sizes="24px" />
+              </div>
+              <span className="text-xs font-bold tracking-tight">
+                <span className="text-[#f5c542]">Cine</span>
+                <span className="text-white">Max</span>
+              </span>
+            </Link>
+          </div>
 
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className="w-8 h-8 rounded-full bg-[#1a1a2e] border border-[#2a2a3a] flex items-center justify-center text-[#8e8ea0] hover:text-white hover:border-[#f5c542]/50 transition-colors flex-shrink-0"
+            className="w-8 h-8 rounded-full bg-[#0a0a0f]/95 backdrop-blur-xl border border-[#2a2a3a]/50 shadow-lg shadow-black/40 flex items-center justify-center text-[#8e8ea0] hover:text-white hover:border-[#f5c542]/50 transition-colors flex-shrink-0"
           >
             <Search className="w-4 h-4" />
           </button>
         </div>
 
         {showSearch && (
-          <form onSubmit={handleSearch} className="mt-1.5 mx-2">
-            <div className="relative bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full border border-[#2a2a3a]/50 overflow-hidden">
+          <form onSubmit={handleSearch} className="mt-1.5">
+            <div className="relative bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full border border-[#2a2a3a]/50 overflow-hidden shadow-lg shadow-black/40">
               <input
                 type="text"
                 autoFocus
