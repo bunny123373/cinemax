@@ -4,6 +4,7 @@ import ContentRow from "@/components/ContentRow";
 import TopTenRow from "@/components/TopTenRow";
 import ContinueWatchingRow from "@/components/ContinueWatchingRow";
 import HeroSlider from "@/components/HeroSlider";
+import LandingSplash from "@/components/LandingSplash";
 import { Suspense } from "react";
 import { Play, ChevronRight } from "lucide-react";
 import { fetchTrending, fetchDiscover } from "@/lib/net27";
@@ -82,42 +83,44 @@ export default async function HomePage() {
   const featured = allMapped.slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
-      <HeroSlider items={heroItems} />
+    <LandingSplash>
+      <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
+        <HeroSlider items={heroItems} />
 
-      <div className="relative z-10 -mt-8 space-y-6 pb-16 px-6 max-w-[1800px] mx-auto">
-        <div className="pt-8" />
-        <ContinueWatchingRow />
-        {featured.length > 0 && (
-          <ContentRow title="Trending" items={featured.slice(0, 15)} link="/search" />
-        )}
+        <div className="relative z-10 -mt-8 space-y-6 pb-16 px-6 max-w-[1800px] mx-auto">
+          <div className="pt-8" />
+          <ContinueWatchingRow />
+          {featured.length > 0 && (
+            <ContentRow title="Trending" items={featured.slice(0, 15)} link="/search" />
+          )}
 
-        {movies.length > 0 && (
-          <TopTenRow title="Top 10 Trending Movies" items={movies.slice(0, 10).map(mapItem)} link="/search?type=movie" />
-        )}
+          {movies.length > 0 && (
+            <TopTenRow title="Top 10 Trending Movies" items={movies.slice(0, 10).map(mapItem)} link="/search?type=movie" />
+          )}
 
-        {movies.length > 0 && (
-          <ContentRow title="Movies" items={movies.slice(0, 20).map(mapItem)} link="/search?type=movie" />
-        )}
-        {series.length > 0 && (
-          <ContentRow title="Series" items={series.slice(0, 20).map(mapItem)} link="/search?type=series" />
-        )}
+          {movies.length > 0 && (
+            <ContentRow title="Movies" items={movies.slice(0, 20).map(mapItem)} link="/search?type=movie" />
+          )}
+          {series.length > 0 && (
+            <ContentRow title="Series" items={series.slice(0, 20).map(mapItem)} link="/search?type=series" />
+          )}
 
-        {series.length > 0 && (
-          <TopTenRow title="Top 10 Trending Series" items={series.slice(0, 10).map(mapItem)} link="/search?type=series" />
-        )}
+          {series.length > 0 && (
+            <TopTenRow title="Top 10 Trending Series" items={series.slice(0, 10).map(mapItem)} link="/search?type=series" />
+          )}
 
-        {genreRows.map((genre) =>
-          genre.items.length > 0 ? (
-            <ContentRow
-              key={genre.id}
-              title={genre.label}
-              items={genre.items.slice(0, 20).map(mapItem)}
-              link={`/search?type=movie&genre=${genre.id}`}
-            />
-          ) : null
-        )}
+          {genreRows.map((genre) =>
+            genre.items.length > 0 ? (
+              <ContentRow
+                key={genre.id}
+                title={genre.label}
+                items={genre.items.slice(0, 20).map(mapItem)}
+                link={`/search?type=movie&genre=${genre.id}`}
+              />
+            ) : null
+          )}
+        </div>
       </div>
-    </div>
+    </LandingSplash>
   );
 }
