@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = process.env.SITE_URL || "https://cinemax77.vercel.app";
+const BASE_URL = "https://cinemax77.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [

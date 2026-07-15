@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/"],
       },
     ],
-    sitemap: `${process.env.SITE_URL || "https://cinemax77.vercel.app"}/sitemap.xml`,
+    sitemap: "https://cinemax77.vercel.app/sitemap.xml",
   };
 }
