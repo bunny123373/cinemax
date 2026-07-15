@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ContentRow from "@/components/ContentRow";
 import TopTenRow from "@/components/TopTenRow";
-import ContinueWatchingRow from "@/components/ContinueWatchingRow";
+
 import HeroSlider from "@/components/HeroSlider";
 import { Suspense } from "react";
 import { fetchTrending, fetchDiscover } from "@/lib/net27";
@@ -86,7 +86,6 @@ export default async function HomePage() {
 
       <div className="relative z-10 -mt-8 space-y-6 pb-16 px-6 max-w-[1800px] mx-auto">
         <div className="pt-8" />
-        <ContinueWatchingRow />
         {featured.length > 0 && (
           <ContentRow title="Trending" items={featured.slice(0, 15)} link="/search" />
         )}
