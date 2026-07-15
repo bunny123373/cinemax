@@ -42,6 +42,8 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
   const [showStreamBox, setShowStreamBox] = useState(false);
   const [poster, setPoster] = useState("");
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const [showDubMenu, setShowDubMenu] = useState(false);
   const [embedData, setEmbedData] = useState<any>(null);
 
   // Download modal: closed | pick-language | fetch-lang | pick-quality
@@ -252,6 +254,36 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
                 <Download className="w-4 h-4" />
                 Download
               </button>
+              {variants.length > 0 && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDubMenu(!showDubMenu)}
+                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                  >
+                    <Globe className="w-4 h-4" />
+                    {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
+                  </button>
+                  {showDubMenu && (
+                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
+                      <button
+                        onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
+                      >
+                        Original
+                      </button>
+                      {variants.map((v) => (
+                        <button
+                          key={v.dubSubjectId}
+                          onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${selectedDub === v.dubSubjectId ? "text-[#f5c542]" : "text-white"}`}
+                        >
+                          {v.language}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {sources.length > 1 && (
                 <div className="relative">
                   <button
