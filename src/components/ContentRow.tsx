@@ -56,7 +56,7 @@ export default function ContentRow({ title, items, link }: ContentRowProps) {
         </button>
         <div
           ref={rowRef}
-          className="flex gap-3 overflow-x-auto scroll-smooth px-4 md:px-8 pb-10 pt-4 scrollbar-hide -my-4"
+          className="flex gap-3 overflow-x-auto px-4 md:px-8 pb-10 pt-4 scrollbar-hide -my-4"
         >
           {items.map((item) => (
             <div key={item.slug} className="flex-shrink-0 w-[100px] sm:w-[120px] md:w-[150px] lg:w-[170px]">

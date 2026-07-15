@@ -55,7 +55,7 @@ export default function ContinueWatchingRow() {
         </button>
         <div
           ref={rowRef}
-          className="flex gap-3 overflow-x-auto scroll-smooth px-4 md:px-8 pb-2 scrollbar-hide"
+          className="flex gap-3 overflow-x-auto px-4 md:px-8 pb-2 scrollbar-hide"
         >
           {items.map((item) => {
             const watchHref = item.type === "movie"
