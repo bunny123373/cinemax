@@ -159,20 +159,22 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
                   <Globe className="w-3.5 h-3.5 text-[#8e8ea0]" />
                   <span className="text-xs text-[#8e8ea0] font-medium">Audio & Subtitles</span>
                 </div>
-                <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0 -mx-1 px-1 border-b border-[#2a2a3a]">
-                  {variants.map((v) => (
-                    <button
-                      key={v.dubSubjectId}
-                      onClick={() => setSelectedDub(v.dubSubjectId === selectedDub ? "" : v.dubSubjectId)}
-                      className={`flex-shrink-0 px-4 py-2.5 text-xs font-medium transition-colors whitespace-nowrap border-b-2 -mb-[1px] ${
-                        selectedDub === v.dubSubjectId
-                          ? "border-[#f5c542] text-[#f5c542]"
-                          : "border-transparent text-[#8e8ea0] hover:text-white"
-                      }`}
-                    >
-                      {v.language}
-                    </button>
-                  ))}
+                <div className="w-full overflow-hidden">
+                  <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0 border-b border-[#2a2a3a]">
+                    {variants.map((v) => (
+                      <button
+                        key={v.dubSubjectId}
+                        onClick={() => setSelectedDub(v.dubSubjectId === selectedDub ? "" : v.dubSubjectId)}
+                        className={`flex-shrink-0 px-4 py-2.5 text-xs font-medium transition-colors whitespace-nowrap border-b-2 -mb-[1px] ${
+                          selectedDub === v.dubSubjectId
+                            ? "border-[#f5c542] text-[#f5c542]"
+                            : "border-transparent text-[#8e8ea0] hover:text-white"
+                        }`}
+                      >
+                        {v.language}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
