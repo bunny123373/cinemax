@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Play, Layers } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Play, Layers, Globe } from "lucide-react";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
 import SeasonEpisodes from "@/components/SeasonEpisodes";
@@ -10,6 +11,12 @@ import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
 function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+interface Variant {
+  dubSubjectId: string;
+  language: string;
+  isOriginal: boolean;
 }
 
 interface SeriesDetailProps {
@@ -20,7 +27,18 @@ interface SeriesDetailProps {
 
 export default function SeriesDetail({ item, detail, related }: SeriesDetailProps) {
   const initialSeason = detail?.initialSeason || 1;
-  const firstEpHref = `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${initialSeason}&episode=1`;
+  const [selectedDub, setSelectedDub] = useState<string>("");
+  const [variants, setVariants] = useState<Variant[]>([]);
+
+  const dubParam = selectedDub ? `&dub=${selectedDub}` : "";
+  const firstEpHref = `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${initialSeason}&episode=1${dubParam}`;
+
+  useEffect(() => {
+    fetch(`/api/net27/variants/tv/${item.tmdbId}?se=${initialSeason}&ep=1`)
+      .then((r) => r.json())
+      .then((res) => { if (res.variants && res.variants.length > 0) setVariants(res.variants); })
+      .catch(() => {});
+  }, [item.tmdbId, initialSeason]);
 
   return (
     <main className="min-h-screen pb-20">
@@ -125,6 +143,30 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
                 rating={item.rating}
               />
             </div>
+
+            {variants.length > 0 && (
+              <div className="mt-4 md:mt-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Globe className="w-3.5 h-3.5 text-[#8e8ea0]" />
+                  <span className="text-xs text-[#8e8ea0] font-medium">Audio & Subtitles</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+                  {variants.map((v) => (
+                    <button
+                      key={v.dubSubjectId}
+                      onClick={() => setSelectedDub(v.dubSubjectId === selectedDub ? "" : v.dubSubjectId)}
+                      className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium border transition-colors whitespace-nowrap ${
+                        selectedDub === v.dubSubjectId
+                          ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
+                          : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
+                      }`}
+                    >
+                      {v.language}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {detail?.cast && detail.cast.length > 0 && (
               <div className="mt-6 md:mt-8">
