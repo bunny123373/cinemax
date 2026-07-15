@@ -105,6 +105,35 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
               {item.title}
             </h1>
 
+            {detail?.cast && detail.cast.length > 0 && (
+              <div className="mb-3 md:mb-4">
+                <p className="text-[10px] sm:text-xs text-[#8e8ea0] mb-1.5 font-medium">Cast</p>
+                <div className="flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+                  {detail.cast.slice(0, 10).map((actor, idx) => (
+                    <div key={idx} className="flex-shrink-0 text-center w-14 sm:w-16 md:w-20">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto rounded-full overflow-hidden bg-[#2a2a3a] mb-1">
+                        {actor.photo ? (
+                          <Image
+                            src={actor.photo}
+                            alt={actor.name}
+                            width={56}
+                            height={56}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#8e8ea0] text-[10px] sm:text-xs">
+                            {actor.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[8px] sm:text-[10px] text-white font-medium truncate">{actor.name}</p>
+                      <p className="text-[7px] sm:text-[9px] text-[#8e8ea0] truncate">{actor.character}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-[#8e8ea0] mb-4 md:mb-6">
               <span>{item.year}</span>
               {detail?.runtime && <span>{detail.runtime} min/ep</span>}
@@ -168,34 +197,6 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
               </div>
             )}
 
-            {detail?.cast && detail.cast.length > 0 && (
-              <div className="mt-6 md:mt-8">
-                <h2 className="text-lg md:text-xl font-bold text-white mb-3 md:mb-4">Cast</h2>
-                <div className="flex gap-3 md:gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                  {detail.cast.slice(0, 10).map((actor, idx) => (
-                    <div key={idx} className="flex-shrink-0 text-center w-16 sm:w-20 md:w-24">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto rounded-full overflow-hidden bg-[#2a2a3a] mb-1 md:mb-2">
-                        {actor.photo ? (
-                          <Image
-                            src={actor.photo}
-                            alt={actor.name}
-                            width={64}
-                            height={64}
-                            className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[#8e8ea0] text-xs">
-                            {actor.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-[9px] sm:text-[10px] text-white font-medium truncate">{actor.name}</p>
-                      <p className="text-[8px] sm:text-[9px] text-[#8e8ea0] truncate">{actor.character}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

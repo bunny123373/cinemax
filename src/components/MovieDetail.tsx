@@ -89,25 +89,10 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
 
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-2">{item.title}</h1>
 
-            {detail?.tagline && (
-              <p className="text-xs sm:text-sm italic text-[#8e8ea0] mb-3 md:mb-4">&quot;{detail.tagline}&quot;</p>
-            )}
-
-            {detail?.genres && detail.genres.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 md:mb-6">
-                {detail.genres.map((g) => (
-                  <span key={g.name} className="px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs bg-[#1a1a2e] text-[#8e8ea0]">{g.name}</span>
-                ))}
-              </div>
-            )}
-
-            <p className="text-xs sm:text-sm md:text-base text-[#8e8ea0] leading-relaxed mb-4 md:mb-6 max-w-3xl line-clamp-4 md:line-clamp-6">
-              {item.overview}
-            </p>
-
             {detail?.cast && detail.cast.length > 0 && (
-              <div className="mb-4 md:mb-6">
-                <div className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="mb-3 md:mb-4">
+                <p className="text-[10px] sm:text-xs text-[#8e8ea0] mb-1.5 font-medium">Cast</p>
+                <div className="flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
                   {detail.cast.slice(0, 10).map((actor, idx) => (
                     <div key={idx} className="flex-shrink-0 text-center w-14 sm:w-16 md:w-20">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto rounded-full overflow-hidden bg-[#2a2a3a] mb-1">
@@ -132,6 +117,22 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
                 </div>
               </div>
             )}
+
+            {detail?.tagline && (
+              <p className="text-xs sm:text-sm italic text-[#8e8ea0] mb-3 md:mb-4">&quot;{detail.tagline}&quot;</p>
+            )}
+
+            {detail?.genres && detail.genres.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 md:mb-6">
+                {detail.genres.map((g) => (
+                  <span key={g.name} className="px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs bg-[#1a1a2e] text-[#8e8ea0]">{g.name}</span>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs sm:text-sm md:text-base text-[#8e8ea0] leading-relaxed mb-4 md:mb-6 max-w-3xl line-clamp-4 md:line-clamp-6">
+              {item.overview}
+            </p>
 
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
               <Link
