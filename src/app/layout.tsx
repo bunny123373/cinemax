@@ -49,6 +49,7 @@ export default function RootLayout({
         <meta name="44fd5e4d00b33980a1b07849289b58fb201392c1" content="44fd5e4d00b33980a1b07849289b58fb201392c1" />
         <meta name="monetag" content="60d1a06d562117372df72849d5db08e3"></meta>
         <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
+        <script src="https://bony-teaching.com/bB3.VL0-P-3WpCvYb/mQV/JYZ/DY0P3EM/jkIM0dNQTsYi5SLvTrcxytM/jEQw1NNNzIMy" data-cfasync="false" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
         <link rel="preconnect" href="https://streambox.sonixhub.net" crossOrigin="anonymous" />
