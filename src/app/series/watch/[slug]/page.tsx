@@ -3,10 +3,12 @@
 import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ExternalLink, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
+
+const NET27_BASE = "https://net27.cc";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -18,6 +20,7 @@ interface SourceOption {
   url: string;
   mimeType: string;
   resolution: number;
+  size?: number;
 }
 
 interface Variant {
@@ -41,9 +44,16 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [error, setError] = useState(false);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
-  const [showDubMenu, setShowDubMenu] = useState(false);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [showStreamBox, setShowStreamBox] = useState(false);
+  const [poster, setPoster] = useState("");
+  const [embedData, setEmbedData] = useState<any>(null);
+
+  const [downloadStep, setDownloadStep] = useState<"closed" | "pick-language" | "fetch-lang" | "pick-quality">("closed");
+  const [downloadLang, setDownloadLang] = useState<{ label: string; dub?: string } | null>(null);
+  const [downloadSources, setDownloadSources] = useState<SourceOption[]>([]);
+  const [downloadEmbed, setDownloadEmbed] = useState<any>(null);
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -55,6 +65,14 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       setTitle(p.slug.replace(/-/g, " "));
     });
   }, [params, searchParams]);
+
+  useEffect(() => {
+    if (!tmdbId) return;
+    fetch(`/api/tmdb/details/${tmdbId}?type=tv`)
+      .then((r) => r.json())
+      .then((data) => { if (data.poster_path) setPoster(`https://image.tmdb.org/t/p/w500${data.poster_path}`); })
+      .catch(() => {});
+  }, [tmdbId]);
 
   const loadEmbed = useCallback((tid: number, t: string, se: number, ep: number, dub?: string) => {
     setLoading(true);
@@ -68,10 +86,15 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       .then((res) => {
         if (!res.ok) { setError(true); return; }
         setTitle(res.embed?.title || "");
-        const srcs: SourceOption[] = res.sources || [];
+        setEmbedData(res.embed);
+        const srcs: SourceOption[] = (res.sources || []).map((s: any) => ({ ...s, size: s.size }));
         if (srcs.length === 0) { setError(true); return; }
         setSources(srcs);
-        setCaptions((res.captions || []).map((c: { lang: string; name?: string; url: string }) => ({ lang: c.lang, label: c.name || c.lang, url: c.url })));
+        setCaptions((res.captions || []).map((c: { lang: string; name?: string; url: string }) => ({
+          lang: c.lang,
+          label: c.name || c.lang,
+          url: c.url.startsWith("http") ? c.url : `${NET27_BASE}${c.url}`,
+        })));
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -97,6 +120,57 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   };
 
   const current = sources[selectedSource];
+
+  function formatSize(bytes?: number) {
+    if (!bytes) return "";
+    if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(1)} GB`;
+    if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(0)} MB`;
+    return `${(bytes / 1024).toFixed(0)} KB`;
+  }
+
+  function handleDownload(url: string, label: string) {
+    const name = title.replace(/[^a-zA-Z0-9\s\-_.()]/g, "").replace(/\s+/g, "_");
+    const filename = `${name}_S${seasonNum}E${episodeNum}_${label}.mp4`.replace(/[\\/:*?"<>|]/g, "");
+    const proxyUrl = `/api/download?${new URLSearchParams({ url, filename, referer: "https://netfilm.world/" }).toString()}`;
+    const a = document.createElement("a");
+    a.href = proxyUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setDownloadStep("closed");
+  }
+
+  function openDownloadModal() {
+    if (variants.length === 0) {
+      setDownloadSources(sources.filter((s) => s.mimeType === "video/mp4"));
+      setDownloadEmbed(embedData);
+      setDownloadLang({ label: "Original" });
+      setDownloadStep("pick-quality");
+    } else {
+      setDownloadStep("pick-language");
+    }
+  }
+
+  async function fetchEmbedForLang(langLabel: string, dub?: string) {
+    setDownloadLang({ label: langLabel, dub });
+    setDownloadStep("fetch-lang");
+    setDownloadLoading(true);
+    try {
+      const qs = new URLSearchParams({ type, se: String(seasonNum), ep: String(episodeNum) });
+      if (dub) qs.set("dub", dub);
+      const res = await fetch(`/api/net27/embed/${tmdbId}?${qs}`);
+      const data = await res.json();
+      const srcs: SourceOption[] = (data.sources || []).filter((s: any) => s.mimeType === "video/mp4").map((s: any) => ({ ...s, size: s.size }));
+      setDownloadSources(srcs);
+      setDownloadEmbed(data.embed);
+      setDownloadStep("pick-quality");
+    } catch {
+      setDownloadStep("closed");
+    } finally {
+      setDownloadLoading(false);
+    }
+  }
 
   if (loading && sources.length === 0) {
     return (
@@ -147,6 +221,8 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     );
   }
 
+  const downloadModalOpen = downloadStep !== "closed";
+
   return (
     <main className="min-h-screen bg-[#0a0a0f]">
       <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
@@ -172,7 +248,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                     tmdbId,
                     type: "series",
                     title,
-                    poster: "",
+                    poster: poster || "",
                     currentTime,
                     duration,
                     seasonNumber: seasonNum,
@@ -202,36 +278,16 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                 StreamBox
               </button>
               <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch(current.url);
-                    const blob = await res.blob();
-                    const ext = (current.mimeType || "").includes("mp4") ? ".mp4" : ".mp4";
-                    const a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `${title.replace(/[^a-zA-Z0-9\s\-_.()]/g, "").replace(/\s+/g, "_")}_S${seasonNum}E${episodeNum}${ext}`;
-                    a.click();
-                    URL.revokeObjectURL(a.href);
-                  } catch {}
-                }}
+                onClick={openDownloadModal}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Download
               </button>
-              {variants.length > 0 && (
-                <button
-                  onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
-                >
-                  <Globe className="w-4 h-4" />
-                  {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
-                </button>
-              )}
               {sources.length > 1 && (
                 <div className="relative">
                   <button
-                    onClick={() => { setShowQualityMenu(!showQualityMenu); setShowDubMenu(false); }}
+                    onClick={() => { setShowQualityMenu(!showQualityMenu); }}
                     className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
                     <Settings className="w-4 h-4" />
@@ -290,54 +346,108 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-
-          {variants.length > 0 && (
-            <div className="mt-6 md:mt-8">
-              <h2 className="text-base md:text-lg font-bold text-white mb-3 md:mb-4">Available Languages</h2>
-              <div className="flex flex-wrap gap-2">
-                {variants.map((v) => (
-                  <button
-                    key={v.dubSubjectId}
-                    onClick={() => setSelectedDub(v.isOriginal ? undefined : v.dubSubjectId)}
-                    className={`px-4 py-2 text-sm border transition-colors ${
-                      (selectedDub === v.dubSubjectId || (v.isOriginal && !selectedDub))
-                        ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
-                        : "border-[#2a2a3a] text-white hover:border-[#f5c542]/30"
-                    }`}
-                  >
-                    {v.language}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      {showDubMenu && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDubMenu(false)}>
-          <div className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-[90%] max-w-[360px] p-1 animate-popup" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a3a]">
-              <h3 className="text-sm font-semibold text-white">Select Language</h3>
-              <button onClick={() => setShowDubMenu(false)} className="text-[#8e8ea0] hover:text-white text-lg leading-none">&times;</button>
+      {downloadModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setDownloadStep("closed")}>
+          <div
+            className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-full sm:max-w-[420px] sm:mx-4 rounded-t-2xl sm:rounded-2xl animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3a]">
+              <div className="flex items-center gap-3">
+                {downloadStep === "pick-quality" && (
+                  <button onClick={() => { setDownloadStep("pick-language"); setDownloadSources([]); }} className="text-[#8e8ea0] hover:text-white">
+                    <Back className="w-4 h-4" />
+                  </button>
+                )}
+                <div>
+                  <h3 className="text-sm font-semibold text-white">
+                    {downloadStep === "pick-language" && "Select Language"}
+                    {downloadStep === "fetch-lang" && `Loading ${downloadLang?.label}...`}
+                    {downloadStep === "pick-quality" && `${downloadLang?.label} Quality`}
+                  </h3>
+                  <p className="text-[11px] text-[#8e8ea0] mt-0.5 truncate max-w-[250px]">{title} — S{seasonNum}E{episodeNum}</p>
+                </div>
+              </div>
+              <button onClick={() => setDownloadStep("closed")} className="text-[#8e8ea0] hover:text-white text-lg leading-none p-1">&times;</button>
             </div>
-            <div className="p-2">
-              <button
-                onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#f5c542]/10 ${!selectedDub ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
-              >
-                Original
-              </button>
-              {variants.map((v) => (
+
+            {/* Step 1: Pick Language */}
+            {downloadStep === "pick-language" && (
+              <div className="p-3 max-h-[350px] overflow-y-auto">
                 <button
-                  key={v.dubSubjectId}
-                  onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#f5c542]/10 ${selectedDub === v.dubSubjectId ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
+                  onClick={() => fetchEmbedForLang("Original")}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors text-white group"
                 >
-                  {v.language}
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
+                    Original
+                  </div>
+                  <Check className="w-4 h-4 text-[#f5c542] opacity-0 group-hover:opacity-100" />
                 </button>
-              ))}
-            </div>
+                {variants.map((v) => (
+                  <button
+                    key={v.dubSubjectId}
+                    onClick={() => fetchEmbedForLang(v.language, v.dubSubjectId)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors text-white group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Globe className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
+                      {v.language}
+                    </div>
+                    <Check className="w-4 h-4 text-[#f5c542] opacity-0 group-hover:opacity-100" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Step 1.5: Loading */}
+            {downloadStep === "fetch-lang" && (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="animate-spin w-6 h-6 border-2 border-[#f5c542] border-t-transparent rounded-full" />
+                <p className="text-xs text-[#8e8ea0]">Fetching streams for {downloadLang?.label}...</p>
+              </div>
+            )}
+
+            {/* Step 2: Pick Quality */}
+            {downloadStep === "pick-quality" && (
+              <div className="p-3 max-h-[350px] overflow-y-auto">
+                {downloadSources.length > 0 ? (
+                  downloadSources.map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleDownload(s.url, s.label)}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors text-white group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Download className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
+                        {s.label}
+                      </div>
+                      <span className="text-xs text-[#8e8ea0]">
+                        {formatSize(s.size) || s.mimeType.split("/")[1]}
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-8 text-center text-sm text-[#8e8ea0]">No MP4 sources available for this language</div>
+                )}
+                {downloadEmbed?.mp4 && (
+                  <button
+                    onClick={() => handleDownload(downloadEmbed.mp4, `${downloadEmbed.resolution || "480"}p`)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors text-[#f5c542] border-t border-[#2a2a3a] mt-1 group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Download className="w-4 h-4 group-hover:text-[#e0b530]" />
+                      Direct MP4
+                    </div>
+                    <span className="text-xs text-[#8e8ea0]">Recommended</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -9,7 +9,7 @@ const tabs = [
   { href: "/movies", label: "Movies", icon: Film },
   { href: "/series", label: "Series", icon: Tv },
   { href: "/search", label: "Search", icon: Search },
-  { href: "/download", label: "Download", icon: Download },
+  { href: "/download", label: "App", icon: Download },
 ];
 
 export default function BottomNav() {

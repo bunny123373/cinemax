@@ -41,13 +41,13 @@ export default function StreamBoxEmbed({ type, tmdbId, season, episode, title, o
           <div className="flex items-center gap-3 min-w-0">
             <h3 className="text-sm font-semibold text-white truncate">{title}</h3>
             <a
-              href={downloadUrl}
+              href={streamUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-[#1db954] text-white hover:bg-[#1ed760] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium bg-[#f5c542] text-[#0a0a0f] font-semibold hover:bg-[#e0b530] transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
-              Downloads
+              Stream Now
             </a>
           </div>
           <button onClick={onClose} className="text-[#8e8ea0] hover:text-white ml-2">
@@ -62,21 +62,21 @@ export default function StreamBoxEmbed({ type, tmdbId, season, episode, title, o
           )}
           {failed ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0f] gap-4 p-6 text-center">
-              <p className="text-sm text-[#8e8ea0]">StreamBox player is not available for this title.</p>
+              <p className="text-sm text-[#8e8ea0]">Download dashboard is not available for this title.</p>
               <a
-                href={streamUrl}
+                href={downloadUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
-                Open in StreamBox
+                Open Download Page
               </a>
             </div>
           ) : (
             <iframe
               key={`${tmdbId}-${season || ""}-${episode || ""}`}
-              src={streamUrl}
+              src={downloadUrl}
               className="w-full h-full border-0"
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen

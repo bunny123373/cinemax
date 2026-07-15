@@ -11,20 +11,12 @@ const pcNavLinks = [
   { href: "/movies", label: "Movies" },
   { href: "/series", label: "Series" },
   { href: "/watchlist", label: "Watchlist" },
-  { href: "/download", label: "Download" },
+  { href: "/download", label: "App" },
 ];
 
 const mobileNavLinks = [
   { href: "/movies", label: "Movies", icon: Film },
   { href: "/series", label: "Series", icon: Tv },
-];
-
-const bottomTabs = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/movies", label: "Movies", icon: Film },
-  { href: "/series", label: "Series", icon: Tv },
-  { href: "/watchlist", label: "Watchlist", icon: Bookmark },
-  { href: "/download", label: "Download", icon: Download },
 ];
 
 export default function Header() {
