@@ -245,7 +245,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
                 className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
-                StreamBox
+                Stream
               </button>
               <button
                 onClick={openDownloadModal}
@@ -253,6 +253,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
               >
                 <Download className="w-4 h-4" />
                 Download
+                <span className="text-[9px] font-normal opacity-70 ml-0.5">Recommended</span>
               </button>
               {variants.length > 0 && (
                 <div className="relative">
