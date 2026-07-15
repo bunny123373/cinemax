@@ -256,34 +256,13 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
                 <span className="text-[9px] font-normal opacity-70 ml-0.5">Recommended</span>
               </button>
               {variants.length > 0 && (
-                <div className="relative">
-                  <button
-                    onClick={() => setShowDubMenu(!showDubMenu)}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
-                  >
-                    <Globe className="w-4 h-4" />
-                    {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
-                  </button>
-                  {showDubMenu && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px] max-h-[300px] overflow-y-auto">
-                      <button
-                        onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
-                      >
-                        Original
-                      </button>
-                      {variants.map((v) => (
-                        <button
-                          key={v.dubSubjectId}
-                          onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-[#1a1a2e] transition-colors ${selectedDub === v.dubSubjectId ? "text-[#f5c542]" : "text-white"}`}
-                        >
-                          {v.language}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={() => setShowDubMenu(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
+                </button>
               )}
               {sources.length > 1 && (
                 <div className="relative">
@@ -431,6 +410,43 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showDubMenu && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDubMenu(false)}>
+          <div
+            className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-full sm:max-w-[420px] sm:mx-4 rounded-t-2xl sm:rounded-2xl animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3a]">
+              <h3 className="text-sm font-semibold text-white">Select Language</h3>
+              <button onClick={() => setShowDubMenu(false)} className="text-[#8e8ea0] hover:text-white text-lg leading-none p-1">&times;</button>
+            </div>
+            <div className="p-3 max-h-[350px] overflow-y-auto">
+              <button
+                onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
+                className={`w-full text-left px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors group ${!selectedDub ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Globe className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
+                  Original
+                </div>
+              </button>
+              {variants.map((v) => (
+                <button
+                  key={v.dubSubjectId}
+                  onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
+                  className={`w-full text-left px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors group ${selectedDub === v.dubSubjectId ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
+                    {v.language}
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
