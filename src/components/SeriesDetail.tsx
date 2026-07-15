@@ -182,9 +182,9 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
                 </p>
                 <button
                   onClick={() => setShowDubDropdown(!showDubDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-2.5 bg-[#12121a] border border-[#2a2a3a] text-sm text-white hover:border-[#f5c542]/50 transition-colors"
+                  className="w-full flex items-center justify-between py-2 border-b border-[#2a2a3a] hover:border-[#f5c542]/50 transition-colors"
                 >
-                  <span>{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language : "Original"}</span>
+                  <span className="text-sm text-white">{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language : "Original"}</span>
                   <ChevronDown className={`w-4 h-4 text-[#8e8ea0] transition-transform ${showDubDropdown ? "rotate-180" : ""}`} />
                 </button>
                 {showDubDropdown && (
