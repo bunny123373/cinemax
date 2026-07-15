@@ -244,8 +244,8 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
                 onClick={() => setShowStreamBox(true)}
                 className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
-                Stream
+                <Download className="w-4 h-4" />
+                Download 2
               </button>
               <button
                 onClick={openDownloadModal}
