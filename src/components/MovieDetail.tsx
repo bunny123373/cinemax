@@ -159,8 +159,8 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
                   <Globe className="w-3.5 h-3.5 text-[#8e8ea0]" />
                   <span className="text-xs text-[#8e8ea0] font-medium">Audio & Subtitles</span>
                 </div>
-                <div className="w-full min-w-0 overflow-hidden">
-                  <div className="flex flex-nowrap gap-0 overflow-x-auto scrollbar-hide pb-0 border-b border-[#2a2a3a]">
+                <div className="w-full overflow-hidden border-b border-[#2a2a3a]">
+                  <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0">
                     {variants.map((v) => (
                       <button
                         key={v.dubSubjectId}
