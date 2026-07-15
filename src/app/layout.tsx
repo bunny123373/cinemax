@@ -49,13 +49,24 @@ export default function RootLayout({
         <meta name="44fd5e4d00b33980a1b07849289b58fb201392c1" content="44fd5e4d00b33980a1b07849289b58fb201392c1" />
         <meta name="monetag" content="60d1a06d562117372df72849d5db08e3"></meta>
         <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
-        <script src="https://bony-teaching.com/bB3.VL0-P-3WpCvYb/mQV/JYZ/DY0P3EM/jkIM0dNQTsYi5SLvTrcxytM/jEQw1NNNzIMy" data-cfasync="false" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
         <link rel="preconnect" href="https://streambox.sonixhub.net" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
       <script src="https://pl30358092.effectivecpmnetwork.com/83/ae/1d/83ae1d8e37ab5ebba22d210675001f57.js"></script>
+      <script dangerouslySetInnerHTML={{ __html: `
+        (function(kygw){
+          var d = document,
+              s = d.createElement('script'),
+              l = d.scripts[d.scripts.length - 1];
+          s.settings = kygw || {};
+          s.src = "//physicaldad.com/cQDw9.6ibU2/5FlVSFWcQ/9_NCzrI/yaNKD/UO2/OkS/0w3JM/joIo0TNuTGcTzS";
+          s.async = true;
+          s.referrerPolicy = 'no-referrer-when-downgrade';
+          l.parentNode.insertBefore(s, l);
+        })({})
+      ` }} />
         <ReduxProvider>
           <Header />
           <main className="pt-8 md:pt-16 min-h-screen pb-16 md:pb-0">
