@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Star, Play, Globe } from "lucide-react";
+import { Star, Play, Globe, ChevronDown } from "lucide-react";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
@@ -27,6 +27,7 @@ interface MovieDetailProps {
 export default function MovieDetail({ item, detail, related }: MovieDetailProps) {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string>("");
+  const [showDubDropdown, setShowDubDropdown] = useState(false);
 
   useEffect(() => {
     fetch(`/api/net27/variants/movie/${item.tmdbId}`)
@@ -154,28 +155,37 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
             </div>
 
             {variants.length > 0 && (
-              <div className="mt-4 md:mt-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Globe className="w-3.5 h-3.5 text-[#8e8ea0]" />
-                  <span className="text-xs text-[#8e8ea0] font-medium">Audio & Subtitles</span>
-                </div>
-                <div className="w-full overflow-hidden border-b border-[#2a2a3a]">
-                  <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0 w-full">
+              <div className="mt-4 md:mt-5 relative">
+                <p className="text-[10px] sm:text-xs text-[#8e8ea0] mb-1.5 font-medium flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5" />
+                  Audio & Subtitles
+                </p>
+                <button
+                  onClick={() => setShowDubDropdown(!showDubDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 bg-[#12121a] border border-[#2a2a3a] text-sm text-white hover:border-[#f5c542]/50 transition-colors"
+                >
+                  <span>{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language : "Original"}</span>
+                  <ChevronDown className={`w-4 h-4 text-[#8e8ea0] transition-transform ${showDubDropdown ? "rotate-180" : ""}`} />
+                </button>
+                {showDubDropdown && (
+                  <div className="absolute z-50 w-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl max-h-[250px] overflow-y-auto">
+                    <button
+                      onClick={() => { setSelectedDub(""); setShowDubDropdown(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#f5c542]/10 transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
+                    >
+                      Original
+                    </button>
                     {variants.map((v) => (
                       <button
                         key={v.dubSubjectId}
-                        onClick={() => setSelectedDub(v.dubSubjectId === selectedDub ? "" : v.dubSubjectId)}
-                        className={`flex-shrink-0 px-4 py-2.5 text-xs font-medium transition-colors whitespace-nowrap border-b-2 -mb-[1px] ${
-                          selectedDub === v.dubSubjectId
-                            ? "border-[#f5c542] text-[#f5c542]"
-                            : "border-transparent text-[#8e8ea0] hover:text-white"
-                        }`}
+                        onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubDropdown(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#f5c542]/10 transition-colors ${selectedDub === v.dubSubjectId ? "text-[#f5c542]" : "text-white"}`}
                       >
                         {v.language}
                       </button>
                     ))}
                   </div>
-                </div>
+                )}
               </div>
             )}
           </div>
