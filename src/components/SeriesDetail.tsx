@@ -146,19 +146,19 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
 
             {variants.length > 0 && (
               <div className="mt-4 md:mt-5">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <Globe className="w-3.5 h-3.5 text-[#8e8ea0]" />
                   <span className="text-xs text-[#8e8ea0] font-medium">Audio & Subtitles</span>
                 </div>
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+                <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0 -mx-1 px-1 border-b border-[#2a2a3a]">
                   {variants.map((v) => (
                     <button
                       key={v.dubSubjectId}
                       onClick={() => setSelectedDub(v.dubSubjectId === selectedDub ? "" : v.dubSubjectId)}
-                      className={`flex-shrink-0 px-3 py-1.5 text-xs font-medium border transition-colors whitespace-nowrap ${
+                      className={`flex-shrink-0 px-4 py-2.5 text-xs font-medium transition-colors whitespace-nowrap border-b-2 -mb-[1px] ${
                         selectedDub === v.dubSubjectId
-                          ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
-                          : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
+                          ? "border-[#f5c542] text-[#f5c542]"
+                          : "border-transparent text-[#8e8ea0] hover:text-white"
                       }`}
                     >
                       {v.language}
