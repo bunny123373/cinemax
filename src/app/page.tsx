@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ContentRow from "@/components/ContentRow";
 import TopTenRow from "@/components/TopTenRow";
+import GenreFilter from "@/components/GenreFilter";
 
 import HeroSlider from "@/components/HeroSlider";
 import { Suspense } from "react";
@@ -51,10 +52,12 @@ const GENRES = [
 
 async function getContent() {
   try {
-    const [trending, movies, series] = await Promise.all([
+    const [trending, movies, series, recentMovies, recentSeries] = await Promise.all([
       fetchTrending(),
       fetchDiscover({ type: "movie", sort: "trending" }),
       fetchDiscover({ type: "tv", sort: "trending" }),
+      fetchDiscover({ type: "movie", sort: "latest" }),
+      fetchDiscover({ type: "tv", sort: "latest" }),
     ]);
 
     const genreRows = await Promise.all(
@@ -64,14 +67,14 @@ async function getContent() {
       })
     );
 
-    return { trending, movies, series, genreRows };
+    return { trending, movies, series, recentMovies, recentSeries, genreRows };
   } catch {
-    return { trending: [], movies: [], series: [], genreRows: [] };
+    return { trending: [], movies: [], series: [], recentMovies: [], recentSeries: [], genreRows: [] };
   }
 }
 
 export default async function HomePage() {
-  const { trending, movies, series, genreRows } = await getContent();
+  const { trending, movies, series, recentMovies, recentSeries, genreRows } = await getContent();
   const allItems = [...trending, ...movies, ...series];
   const uniqueItems = allItems.filter(
     (item, index, self) => index === self.findIndex((t) => t.tmdbId === item.tmdbId)
@@ -79,6 +82,9 @@ export default async function HomePage() {
   const heroItems = uniqueItems.slice(0, 5);
   const allMapped = uniqueItems.map(mapItem);
   const featured = allMapped.slice(0, 10);
+  const recentAll = [...recentMovies, ...recentSeries]
+    .filter((item, index, self) => index === self.findIndex((t) => t.tmdbId === item.tmdbId))
+    .slice(0, 20);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
@@ -88,6 +94,15 @@ export default async function HomePage() {
         <div className="pt-8" />
         {featured.length > 0 && (
           <ContentRow title="Trending" items={featured.slice(0, 15)} link="/search" />
+        )}
+
+        <div>
+          <p className="text-sm text-[#8e8ea0] mb-3 font-medium">Browse by Genre</p>
+          <GenreFilter />
+        </div>
+
+        {recentAll.length > 0 && (
+          <ContentRow title="Recently Added" items={recentAll.map(mapItem)} link="/search" />
         )}
 
         {movies.length > 0 && (
