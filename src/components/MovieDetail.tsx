@@ -39,7 +39,7 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
   const watchHref = `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie${dubParam}`;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0f]">
       <div className="relative w-full h-[40vh] min-h-[260px] sm:h-[50vh] md:h-[60vh] lg:h-[70vh]">
         <Image
           src={item.backdrop || item.poster || ""}
@@ -160,7 +160,7 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
                   <span className="text-xs text-[#8e8ea0] font-medium">Audio & Subtitles</span>
                 </div>
                 <div className="w-full overflow-hidden border-b border-[#2a2a3a]">
-                  <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0">
+                  <div className="flex gap-0 overflow-x-auto scrollbar-hide pb-0 w-full">
                     {variants.map((v) => (
                       <button
                         key={v.dubSubjectId}
