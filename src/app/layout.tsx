@@ -46,6 +46,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#0a0a0f" />
+        <meta name="google-site-verification" content="2SHeOs3N1yV8TazjEYaWv_PyXlykKgemyDSJh-FY16w" />
         <meta name="44fd5e4d00b33980a1b07849289b58fb201392c1" content="44fd5e4d00b33980a1b07849289b58fb201392c1" />
         <meta name="monetag" content="60d1a06d562117372df72849d5db08e3"></meta>
         <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
