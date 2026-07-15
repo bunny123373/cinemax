@@ -270,7 +270,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                 Season {seasonNum} &middot; Episode {episodeNum}
               </p>
             </div>
-            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
               <button
                 onClick={() => setShowStreamBox(true)}
                 className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"

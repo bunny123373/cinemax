@@ -239,7 +239,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         <div className="mt-4 md:mt-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
-            <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
               <button
                 onClick={() => setShowStreamBox(true)}
                 className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
