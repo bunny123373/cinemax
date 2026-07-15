@@ -12,7 +12,7 @@ const NET27_BASE = "https://net27.cc";
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tmdbId?: string; type?: string; season?: string; episode?: string }>;
+  searchParams: Promise<{ tmdbId?: string; type?: string; season?: string; episode?: string; dub?: string }>;
 }
 
 interface SourceOption {
@@ -64,6 +64,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       setSeasonNum(parseInt(sp.season || "1"));
       setEpisodeNum(parseInt(sp.episode || "1"));
       setTitle(p.slug.replace(/-/g, " "));
+      if (sp.dub) setSelectedDub(sp.dub);
     });
   }, [params, searchParams]);
 

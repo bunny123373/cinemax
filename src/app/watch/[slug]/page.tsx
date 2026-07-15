@@ -11,7 +11,7 @@ const NET27_BASE = "https://net27.cc";
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tmdbId?: string; type?: string }>;
+  searchParams: Promise<{ tmdbId?: string; type?: string; dub?: string }>;
 }
 
 interface SourceOption {
@@ -58,6 +58,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
       setSlug(p.slug);
       setTmdbId(sp.tmdbId ? Number(sp.tmdbId) : null);
       setTitle(p.slug.replace(/-/g, " "));
+      if (sp.dub) setSelectedDub(sp.dub);
     });
   }, [params, searchParams]);
 
