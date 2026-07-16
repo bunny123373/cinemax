@@ -50,7 +50,6 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-
   const buildParams = useCallback((overrides?: { q?: string; type?: string; genre?: string; year?: string }) => {
     const q = overrides?.q ?? query;
     const t = overrides?.type ?? typeFilter;
@@ -252,7 +251,7 @@ function SearchContent() {
           </div>
         )}
 
-        {!loading && results.length > 0 && (
+        {!loading && searched && results.length > 0 && (
           <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             {results.map((item) => {
               const slug = toSlug(item.title);

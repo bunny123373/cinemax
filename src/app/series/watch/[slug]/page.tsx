@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ExternalLink, ArrowLeft as Back, Check } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
@@ -118,7 +118,8 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const goToEpisode = (se: number, ep: number) => {
     setSeasonNum(se);
     setEpisodeNum(ep);
-    router.push(`/series/watch/${slug}?tmdbId=${tmdbId}&type=${type}&season=${se}&episode=${ep}`);
+    const qs = new URLSearchParams({ tmdbId: String(tmdbId || ""), type, season: String(se), episode: String(ep) });
+    router.push(`/series/watch/${slug}?${qs.toString()}`);
   };
 
   const current = sources[selectedSource];
@@ -174,7 +175,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     }
   }
 
-  if (loading && sources.length === 0) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
         <div className="animate-spin w-8 h-8 border-2 border-[#f5c542] border-t-transparent rounded-full" />
@@ -182,7 +183,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     );
   }
 
-  if (error && sources.length === 0 && !loading) {
+  if (error || !current) {
     return (
       <div className="min-h-screen bg-[#0a0a0f]">
         <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
@@ -198,7 +199,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             <p className="text-[#8e8ea0]">Stream not available for this episode</p>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => { setError(false); loadEmbed(tmdbId!, type, seasonNum, episodeNum, selectedDub); }}
+                onClick={() => { setError(false); if (tmdbId) loadEmbed(tmdbId, type, seasonNum, episodeNum, selectedDub); }}
                 className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
               >
                 Retry
@@ -236,32 +237,30 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           Back to series
         </Link>
 
-        {current && (
-          <div className="w-full aspect-video bg-black">
-            <Player
-              key={current.url}
-              src={current.url}
-              autoPlay
-              captions={captions}
-              onProgress={(currentTime, duration) => {
-                if (slug && tmdbId) {
-                  saveContinueWatching({
-                    slug,
-                    tmdbId,
-                    type: "series",
-                    title,
-                    poster: poster || "",
-                    currentTime,
-                    duration,
-                    seasonNumber: seasonNum,
-                    episodeNumber: episodeNum,
-                    updatedAt: Date.now(),
-                  });
-                }
-              }}
-            />
-          </div>
-        )}
+        <div className="w-full aspect-video bg-black">
+          <Player
+            key={current.url}
+            src={current.url}
+            autoPlay
+            captions={captions}
+            onProgress={(currentTime, duration) => {
+              if (slug && tmdbId) {
+                saveContinueWatching({
+                  slug,
+                  tmdbId,
+                  type: "series",
+                  title,
+                  poster: poster || "",
+                  currentTime,
+                  duration,
+                  seasonNumber: seasonNum,
+                  episodeNumber: episodeNum,
+                  updatedAt: Date.now(),
+                });
+              }
+            }}
+          />
+        </div>
 
         <div className="mt-4 md:mt-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
@@ -299,7 +298,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               {sources.length > 1 && (
                 <div className="relative">
                   <button
-                    onClick={() => { setShowQualityMenu(!showQualityMenu); }}
+                    onClick={() => setShowQualityMenu(!showQualityMenu)}
                     className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
                     <Settings className="w-4 h-4" />
@@ -367,7 +366,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-full sm:max-w-[420px] sm:mx-4 rounded-t-2xl sm:rounded-2xl animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3a]">
               <div className="flex items-center gap-3">
                 {downloadStep === "pick-quality" && (
@@ -387,7 +385,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               <button onClick={() => setDownloadStep("closed")} className="text-[#8e8ea0] hover:text-white text-lg leading-none p-1">&times;</button>
             </div>
 
-            {/* Step 1: Pick Language */}
             {downloadStep === "pick-language" && (
               <div className="p-3 max-h-[350px] overflow-y-auto">
                 <button
@@ -416,7 +413,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Step 1.5: Loading */}
             {downloadStep === "fetch-lang" && (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
                 <div className="animate-spin w-6 h-6 border-2 border-[#f5c542] border-t-transparent rounded-full" />
@@ -424,7 +420,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Step 2: Pick Quality */}
             {downloadStep === "pick-quality" && (
               <div className="p-3 max-h-[350px] overflow-y-auto">
                 {downloadSources.length > 0 ? (

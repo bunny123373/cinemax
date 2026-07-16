@@ -1,0 +1,30 @@
+declare module "lucide-react" {
+  import { ComponentType, SVGProps } from "react";
+  export const ArrowLeft: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const ChevronLeft: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const ChevronRight: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const ChevronDown: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Settings: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Globe: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Download: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const ExternalLink: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Check: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Search: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Film: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Tv: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Home: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const SlidersHorizontal: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const X: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Star: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Play: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Plus: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Bookmark: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const BookmarkCheck: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Trash2: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Loader2: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Smartphone: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Shield: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Zap: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const CheckCircle: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const Layers: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+}

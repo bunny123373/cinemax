@@ -13,6 +13,7 @@ interface PlayerProps {
   poster?: string;
   autoPlay?: boolean;
   captions?: { lang: string; label: string; url: string }[];
+  headers?: Record<string, string>;
   onProgress?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
   onError?: () => void;
@@ -27,7 +28,7 @@ function detectType(src: string): string {
   return "video/mp4";
 }
 
-export default function Player({ src, type, poster, autoPlay, captions, onProgress, onEnded, onError }: PlayerProps) {
+export default function Player({ src, type, poster, autoPlay, captions, headers, onProgress, onEnded, onError }: PlayerProps) {
   const playerRef = useRef<MediaPlayerInstance>(null);
   const lastProgressRef = useRef(0);
   const mountedRef = useRef(true);
@@ -48,11 +49,19 @@ export default function Player({ src, type, poster, autoPlay, captions, onProgre
   const onProviderChange = useCallback((provider: MediaProviderAdapter | null) => {
     if (!provider || !isHLSProvider(provider)) return;
     provider.library = Hls;
-    provider.config = {
+    const config: any = {
       enableWorker: false,
       backBufferLength: 90,
     };
-  }, []);
+    if (headers && Object.keys(headers).length > 0) {
+      config.xhrSetup = (xhr: XMLHttpRequest) => {
+        Object.entries(headers).forEach(([key, value]) => {
+          xhr.setRequestHeader(key, value);
+        });
+      };
+    }
+    provider.config = config;
+  }, [headers]);
 
   const onTimeUpdate = useCallback(({ currentTime }: { currentTime: number }) => {
     const player = playerRef.current;

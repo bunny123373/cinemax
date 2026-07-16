@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Settings, Globe, Download, ExternalLink, ArrowLeft as Back, Check } from "lucide-react";
+import { ArrowLeft, Settings, Globe, Download, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
@@ -42,11 +42,9 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
   const [showStreamBox, setShowStreamBox] = useState(false);
   const [poster, setPoster] = useState("");
-  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [showDubMenu, setShowDubMenu] = useState(false);
   const [embedData, setEmbedData] = useState<any>(null);
 
-  // Download modal: closed | pick-language | fetch-lang | pick-quality
   const [downloadStep, setDownloadStep] = useState<"closed" | "pick-language" | "fetch-lang" | "pick-quality">("closed");
   const [downloadLang, setDownloadLang] = useState<{ label: string; dub?: string } | null>(null);
   const [downloadSources, setDownloadSources] = useState<SourceOption[]>([]);
@@ -133,7 +131,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
 
   function openDownloadModal() {
     if (variants.length === 0) {
-      // no dub options, go straight to quality
       setDownloadSources(sources.filter((s) => s.mimeType === "video/mp4"));
       setDownloadEmbed(embedData);
       setDownloadLang({ label: "Original" });
@@ -318,7 +315,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-full sm:max-w-[420px] sm:mx-4 rounded-t-2xl sm:rounded-2xl animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3a]">
               <div className="flex items-center gap-3">
                 {downloadStep === "pick-quality" && (
@@ -338,7 +334,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
               <button onClick={() => setDownloadStep("closed")} className="text-[#8e8ea0] hover:text-white text-lg leading-none p-1">&times;</button>
             </div>
 
-            {/* Step 1: Pick Language */}
             {downloadStep === "pick-language" && (
               <div className="p-3 max-h-[350px] overflow-y-auto">
                 <button
@@ -367,7 +362,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Step 1.5: Loading */}
             {downloadStep === "fetch-lang" && (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
                 <div className="animate-spin w-6 h-6 border-2 border-[#f5c542] border-t-transparent rounded-full" />
@@ -375,7 +369,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Step 2: Pick Quality */}
             {downloadStep === "pick-quality" && (
               <div className="p-3 max-h-[350px] overflow-y-auto">
                 {downloadSources.length > 0 ? (
