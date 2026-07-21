@@ -48,7 +48,6 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
   const [streamState, setStreamState] = useState<"loading" | "playing" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState("");
-  const [isBuffering, setIsBuffering] = useState(false);
   const [showKeyboardHint, setShowKeyboardHint] = useState<string | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
@@ -72,19 +71,6 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
     return () => player.removeEventListener("can-play", handler);
   }, [startTime, src]);
 
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-    const onWaiting = () => setIsBuffering(true);
-    const onPlay = () => setIsBuffering(false);
-    player.addEventListener("waiting", onWaiting);
-    player.addEventListener("play", onPlay);
-    return () => {
-      player.removeEventListener("waiting", onWaiting);
-      player.removeEventListener("play", onPlay);
-    };
-  });
-
   const flashHint = useCallback((text: string) => {
     setShowKeyboardHint(text);
     setTimeout(() => setShowKeyboardHint(null), 800);
@@ -96,6 +82,20 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
     setErrorMsg(msg || "Stream unavailable");
     if (onError) onError();
   }, [onError]);
+
+  const unmuteOnPlay = useCallback(() => {
+    const player = playerRef.current;
+    if (!player || !autoPlay) return;
+    player.muted = false;
+    player.removeEventListener("play", unmuteOnPlay);
+  }, [autoPlay]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player || !autoPlay) return;
+    player.addEventListener("play", unmuteOnPlay);
+    return () => player.removeEventListener("play", unmuteOnPlay);
+  }, [autoPlay, unmuteOnPlay, src]);
 
   const onProviderChange = useCallback((provider: MediaProviderAdapter | null) => {
     if (!provider || !isHLSProvider(provider)) return;
@@ -329,6 +329,7 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
         src={[{ src, type: mimeType }]}
         poster={poster}
         autoPlay={autoPlay}
+        muted={autoPlay}
         playsInline
         viewType="video"
         volume={0.5}
@@ -352,12 +353,6 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
         ))}
         <DefaultVideoLayout icons={defaultLayoutIcons} />
       </MediaPlayer>
-
-      {isBuffering && streamState === "playing" && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-          <div className="w-10 h-10 rounded-full border-2 border-[#f5c542] border-t-transparent animate-spin" />
-        </div>
-      )}
 
       {showKeyboardHint && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
