@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Star, Play, Globe, ChevronDown, RefreshCw } from "lucide-react";
+import { Star, Play, Globe, RefreshCw } from "lucide-react";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
 import { getContinueWatching } from "@/lib/storage";
@@ -28,7 +28,6 @@ interface MovieDetailProps {
 export default function MovieDetail({ item, detail, related }: MovieDetailProps) {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string>("");
-  const [showDubDropdown, setShowDubDropdown] = useState(false);
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
 
   useEffect(() => {
@@ -175,37 +174,36 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
             </div>
 
             {variants.length > 0 && (
-              <div className="mt-4 md:mt-5 relative">
-                <p className="text-[10px] sm:text-xs text-[#8e8ea0] mb-1.5 font-medium flex items-center gap-1.5">
+              <div className="mt-4 md:mt-5">
+                <p className="text-[10px] sm:text-xs text-[#8e8ea0] mb-2 font-medium flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5" />
-                  Audio & Subtitles
+                  Audio
                 </p>
-                <button
-                  onClick={() => setShowDubDropdown(!showDubDropdown)}
-                  className="w-full flex items-center justify-between py-2 border-b border-[#2a2a3a] hover:border-[#f5c542]/50 transition-colors"
-                >
-                  <span className="text-sm text-white">{selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language : "Original"}</span>
-                  <ChevronDown className={`w-4 h-4 text-[#8e8ea0] transition-transform ${showDubDropdown ? "rotate-180" : ""}`} />
-                </button>
-                {showDubDropdown && (
-                  <div className="absolute z-50 w-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl max-h-[250px] overflow-y-auto">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedDub("")}
+                    className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                      !selectedDub
+                        ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
+                        : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
+                    }`}
+                  >
+                    Original
+                  </button>
+                  {variants.map((v) => (
                     <button
-                      onClick={() => { setSelectedDub(""); setShowDubDropdown(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#f5c542]/10 transition-colors ${!selectedDub ? "text-[#f5c542]" : "text-white"}`}
+                      key={v.dubSubjectId}
+                      onClick={() => setSelectedDub(v.dubSubjectId)}
+                      className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                        selectedDub === v.dubSubjectId
+                          ? "border-[#f5c542] text-[#f5c542] bg-[#f5c542]/10"
+                          : "border-[#2a2a3a] text-[#8e8ea0] hover:border-[#f5c542]/30 hover:text-white"
+                      }`}
                     >
-                      Original
+                      {v.language}
                     </button>
-                    {variants.map((v) => (
-                      <button
-                        key={v.dubSubjectId}
-                        onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubDropdown(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[#f5c542]/10 transition-colors ${selectedDub === v.dubSubjectId ? "text-[#f5c542]" : "text-white"}`}
-                      >
-                        {v.language}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
             )}
           </div>
