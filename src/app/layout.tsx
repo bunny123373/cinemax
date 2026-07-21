@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s | CineMax",
   },
   description: "Stream premium movies and web series online in HD. CineMax - your ultimate streaming platform for premium entertainment.",
-  metadataBase: new URL(process.env.SITE_URL || "http://localhost:4000"),
+  metadataBase: new URL(process.env.SITE_URL || "https://cinemax77.vercel.app"),
   icons: {
     icon: "/favicon.png",
   },
@@ -49,7 +49,6 @@ export default function RootLayout({
         <meta name="google-site-verification" content="kvuNK7ktH6fjJ8C5y1v12mFaCGUD209uv554HqUyO4c" />
         <meta name="44fd5e4d00b33980a1b07849289b58fb201392c1" content="44fd5e4d00b33980a1b07849289b58fb201392c1" />
         <meta name="monetag" content="60d1a06d562117372df72849d5db08e3"></meta>
-        <script src="http://cinemax77.vercel.app"></script>
         <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
