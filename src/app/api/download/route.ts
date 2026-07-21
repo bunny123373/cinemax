@@ -1,36 +1,28 @@
 import { NextRequest } from "next/server";
 
-function detectReferer(url: string): string {
-  try {
-    const host = new URL(url).hostname;
-    if (host.includes("hakunaymatata") || host.includes("bcdnxw")) return "https://moviebox.ph/";
-    if (host.includes("sonixhub") || host.includes("streambox")) return "https://streambox.sonixhub.net/";
-    if (host.includes("net27")) return "https://net27.cc/";
-    return "https://net27.cc/";
-  } catch {
-    return "https://net27.cc/";
-  }
-}
+const STREAMBOX_BASE = "https://streambox.sonixhub.net";
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
   const filename = req.nextUrl.searchParams.get("filename") || "download.mp4";
-  const referer = req.nextUrl.searchParams.get("referer") || detectReferer(url || "");
+  const referer = req.nextUrl.searchParams.get("referer") || "https://net27.cc/";
 
   if (!url) {
     return new Response("Missing url param", { status: 400 });
   }
 
+  const proxyUrl = `${STREAMBOX_BASE}/api/proxy-stream?${new URLSearchParams({
+    url,
+    referer,
+    filename,
+  }).toString()}`;
+
   let upstream: Response;
   try {
-    upstream = await fetch(url, {
-      headers: {
-        referer,
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-      },
+    upstream = await fetch(proxyUrl, {
+      headers: { referer: STREAMBOX_BASE + "/" },
       redirect: "follow",
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(60000),
     });
   } catch {
     return new Response("Proxy fetch failed", { status: 502 });

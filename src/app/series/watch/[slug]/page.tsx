@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ArrowLeft as Back, Check, ListOrdered, X, Play } from "lucide-react";
 import Player from "@/components/Player";
+import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching, getContinueWatching } from "@/lib/storage";
 import type { ContinueWatchingItem } from "@/types";
 
@@ -57,6 +58,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [showUpNext, setShowUpNext] = useState(false);
   const [showEpisodePanel, setShowEpisodePanel] = useState(false);
+  const [showStreamBox, setShowStreamBox] = useState(false);
   const [episodeCount, setEpisodeCount] = useState(0);
   const [allSeasons, setAllSeasons] = useState<{ season_number: number; name: string; episode_count: number }[]>([]);
   const [continueWatching, setContinueWatching] = useState<ContinueWatchingItem[]>([]);
@@ -188,11 +190,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   }
 
   function openDownloadModal() {
-    const adScript = document.createElement("script");
-    adScript.src = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
-    adScript.async = true;
-    document.body.appendChild(adScript);
-    setTimeout(() => { document.body.removeChild(adScript); }, 5000);
     if (variants.length === 0) {
       setDownloadSources(sources.filter((s) => s.mimeType === "video/mp4"));
       setDownloadEmbed(embedData);
@@ -330,6 +327,13 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               >
                 <ListOrdered className="w-4 h-4" />
                 Episodes
+              </button>
+              <button
+                onClick={() => setShowStreamBox(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download 2
               </button>
               <button
                 onClick={openDownloadModal}
@@ -540,6 +544,17 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             )}
           </div>
         </div>
+      )}
+
+      {showStreamBox && tmdbId && (
+        <StreamBoxEmbed
+          type="series"
+          tmdbId={tmdbId}
+          season={seasonNum}
+          episode={episodeNum}
+          title={title}
+          onClose={() => setShowStreamBox(false)}
+        />
       )}
 
       {showUpNext && (

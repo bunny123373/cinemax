@@ -308,14 +308,6 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
 
   const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => { document.body.removeChild(script); };
-  }, []);
-
   return (
     <div ref={containerRef} className="relative w-full group/player">
       <style>{`

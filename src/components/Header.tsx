@@ -112,7 +112,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
               <div className="relative w-9 h-9">
-                <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" priority sizes="36px" />
+                <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" sizes="36px" />
               </div>
               <span className="text-xl font-bold tracking-tight">
                 <span className="text-[#f5c542]">Cine</span>
@@ -150,7 +150,7 @@ export default function Header() {
           <div className="bg-[#0a0a0f]/95 backdrop-blur-xl rounded-full px-3 py-1.5 shadow-lg shadow-black/40 border border-[#2a2a3a]/50">
             <Link href="/" className="flex items-center gap-1.5">
               <div className="relative w-6 h-6">
-                <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" priority sizes="24px" />
+                <Image src="/header_logo.png" alt="CineMax" fill className="object-contain" sizes="24px" />
               </div>
               <span className="text-xs font-bold tracking-tight">
                 <span className="text-[#f5c542]">Cine</span>

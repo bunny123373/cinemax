@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Settings, Globe, Download, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
+import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
 
 const NET27_BASE = "https://net27.cc";
@@ -49,6 +50,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [downloadEmbed, setDownloadEmbed] = useState<any>(null);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [resumeTime, setResumeTime] = useState<number | null>(null);
+  const [showStreamBox, setShowStreamBox] = useState(false);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -130,11 +132,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   }
 
   function openDownloadModal() {
-    const adScript = document.createElement("script");
-    adScript.src = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
-    adScript.async = true;
-    document.body.appendChild(adScript);
-    setTimeout(() => { document.body.removeChild(adScript); }, 5000);
     if (variants.length === 0) {
       setDownloadSources(sources.filter((s) => s.mimeType === "video/mp4"));
       setDownloadEmbed(embedData);
@@ -245,6 +242,13 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-6">
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
+              <button
+                onClick={() => setShowStreamBox(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download 2
+              </button>
               <button
                 onClick={openDownloadModal}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
@@ -442,6 +446,15 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {showStreamBox && tmdbId && (
+        <StreamBoxEmbed
+          type="movie"
+          tmdbId={tmdbId}
+          title={title}
+          onClose={() => setShowStreamBox(false)}
+        />
       )}
 
     </main>
