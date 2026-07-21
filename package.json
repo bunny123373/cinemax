@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 5000 --webpack",
-    "build": "next build",
+    "dev": "next dev -p 5000 --turbopack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@next/swc-win32-x64-msvc": "^16.2.10",
     "@reduxjs/toolkit": "^2.11.2",
     "@spider-cloud/spider-client": "^0.2.0",
     "@vidstack/react": "^1.15.6",

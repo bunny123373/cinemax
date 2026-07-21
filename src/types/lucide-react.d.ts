@@ -27,4 +27,7 @@ declare module "lucide-react" {
   export const Zap: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
   export const CheckCircle: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
   export const Layers: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const ListOrdered: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const RefreshCw: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
+  export const RotateCcw: ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
 }

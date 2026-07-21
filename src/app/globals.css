@@ -150,3 +150,12 @@ body {
 .animate-slide-up {
   animation: slideUpIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@keyframes upnextCountdown {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.animate-upnext-countdown {
+  animation: upnextCountdown 10s linear forwards;
+}

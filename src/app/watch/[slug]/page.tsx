@@ -4,14 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Settings, Globe, Download, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
-import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import { saveContinueWatching } from "@/lib/storage";
 
 const NET27_BASE = "https://net27.cc";
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tmdbId?: string; type?: string; dub?: string }>;
+  searchParams: Promise<{ tmdbId?: string; type?: string; dub?: string; t?: string }>;
 }
 
 interface SourceOption {
@@ -40,7 +39,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
-  const [showStreamBox, setShowStreamBox] = useState(false);
   const [poster, setPoster] = useState("");
   const [showDubMenu, setShowDubMenu] = useState(false);
   const [embedData, setEmbedData] = useState<any>(null);
@@ -50,6 +48,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [downloadSources, setDownloadSources] = useState<SourceOption[]>([]);
   const [downloadEmbed, setDownloadEmbed] = useState<any>(null);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [resumeTime, setResumeTime] = useState<number | null>(null);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -57,6 +56,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
       setTmdbId(sp.tmdbId ? Number(sp.tmdbId) : null);
       setTitle(p.slug.replace(/-/g, " "));
       if (sp.dub) setSelectedDub(sp.dub);
+      if (sp.t) setResumeTime(Number(sp.t));
     });
   }, [params, searchParams]);
 
@@ -119,7 +119,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   function handleDownload(url: string, label: string) {
     const name = title.replace(/[^a-zA-Z0-9\s\-_.()]/g, "").replace(/\s+/g, "_");
     const filename = `${name}_${label}.mp4`.replace(/[\\/:*?"<>|]/g, "");
-    const proxyUrl = `/api/download?${new URLSearchParams({ url, filename, referer: "https://netfilm.world/" }).toString()}`;
+    const proxyUrl = `/api/download?${new URLSearchParams({ url, filename }).toString()}`;
     const a = document.createElement("a");
     a.href = proxyUrl;
     a.download = filename;
@@ -130,6 +130,11 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   }
 
   function openDownloadModal() {
+    const adScript = document.createElement("script");
+    adScript.src = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
+    adScript.async = true;
+    document.body.appendChild(adScript);
+    setTimeout(() => { document.body.removeChild(adScript); }, 5000);
     if (variants.length === 0) {
       setDownloadSources(sources.filter((s) => s.mimeType === "video/mp4"));
       setDownloadEmbed(embedData);
@@ -162,8 +167,9 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0f] gap-4">
         <div className="animate-spin w-8 h-8 border-2 border-[#f5c542] border-t-transparent rounded-full" />
+        <p className="text-sm text-[#8e8ea0]">Waiting for moment...</p>
       </div>
     );
   }
@@ -216,6 +222,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             key={current.url}
             src={current.url}
             autoPlay
+            startTime={resumeTime || undefined}
             captions={captions}
             onProgress={(currentTime, duration) => {
               if (slug && tmdbId) {
@@ -239,19 +246,11 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
               <button
-                onClick={() => setShowStreamBox(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download 2
-              </button>
-              <button
                 onClick={openDownloadModal}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Download
-                <span className="text-[9px] font-normal opacity-70 ml-0.5">Recommended</span>
               </button>
               {variants.length > 0 && (
                 <button
@@ -445,14 +444,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         </div>
       )}
 
-      {showStreamBox && tmdbId && (
-        <StreamBoxEmbed
-          type="movie"
-          tmdbId={tmdbId}
-          title={title}
-          onClose={() => setShowStreamBox(false)}
-        />
-      )}
     </main>
   );
 }

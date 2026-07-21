@@ -47,6 +47,7 @@ export default function ContentCard({ item }: ContentCardProps) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
           />
         </div>
+        <p className="mt-1.5 px-0.5 text-xs text-white font-medium truncate">{item.title}</p>
       </Link>
 
       {hovered && (

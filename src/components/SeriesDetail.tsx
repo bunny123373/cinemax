@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Star, Play, Layers, Globe, ChevronDown } from "lucide-react";
+import { Star, Play, Layers, Globe, ChevronDown, RefreshCw } from "lucide-react";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
 import SeasonEpisodes from "@/components/SeasonEpisodes";
+import { getContinueWatching } from "@/lib/storage";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
 function toSlug(title: string) {
@@ -30,6 +31,7 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
   const [selectedDub, setSelectedDub] = useState<string>("");
   const [variants, setVariants] = useState<Variant[]>([]);
   const [showDubDropdown, setShowDubDropdown] = useState(false);
+  const [resumeData, setResumeData] = useState<{ season: number; episode: number } | null>(null);
 
   const dubParam = selectedDub ? `&dub=${selectedDub}` : "";
   const firstEpHref = `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${initialSeason}&episode=1${dubParam}`;
@@ -40,6 +42,14 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
       .then((res) => { if (res.variants && res.variants.length > 0) setVariants(res.variants); })
       .catch(() => {});
   }, [item.tmdbId, initialSeason]);
+
+  useEffect(() => {
+    const cw = getContinueWatching();
+    const existing = cw.find((i) => i.slug === toSlug(item.title) && i.type === "series");
+    if (existing && existing.seasonNumber && existing.episodeNumber && existing.currentTime > 30 && existing.currentTime < existing.duration * 0.95) {
+      setResumeData({ season: existing.seasonNumber, episode: existing.episodeNumber });
+    }
+  }, [item.title]);
 
   return (
     <main className="min-h-screen pb-20">
@@ -89,8 +99,8 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
                 Series
               </span>
               {item.rating > 0 && (
-                <span className="flex items-center gap-1 text-xs sm:text-sm text-[#f5c542]">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-current" />
+                <span className="flex items-center gap-1 text-xs sm:text-sm text-[#46d369]">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-[#46d369]" />
                   {item.rating.toFixed(1)}
                 </span>
               )}
@@ -157,12 +167,21 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
 
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
               <Link
-                href={firstEpHref}
+                href={resumeData ? `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${resumeData.season}&episode=${resumeData.episode}${dubParam}` : firstEpHref}
                 className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-[#f5c542] text-[#0a0a0f] text-sm sm:text-base font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5" fill="#0a0a0f" />
-                Start Watching
+                {resumeData ? `Resume S${resumeData.season}:E${resumeData.episode}` : "Start Watching"}
               </Link>
+              {resumeData && (
+                <Link
+                  href={firstEpHref}
+                  className="inline-flex items-center gap-2 px-4 py-2 sm:py-3 border border-[#2a2a3a] text-[#8e8ea0] text-sm hover:text-white hover:border-[#f5c542]/30 transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Start from Beginning
+                </Link>
+              )}
               <WatchlistButton
                 slug={toSlug(item.title)}
                 tmdbId={item.tmdbId}

@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Star, Play, Globe, ChevronDown } from "lucide-react";
+import { Star, Play, Globe, ChevronDown, RefreshCw } from "lucide-react";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
+import { getContinueWatching } from "@/lib/storage";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
 function toSlug(title: string) {
@@ -28,6 +29,7 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string>("");
   const [showDubDropdown, setShowDubDropdown] = useState(false);
+  const [resumeFrom, setResumeFrom] = useState<number | null>(null);
 
   useEffect(() => {
     fetch(`/api/net27/variants/movie/${item.tmdbId}`)
@@ -36,8 +38,17 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
       .catch(() => {});
   }, [item.tmdbId]);
 
+  useEffect(() => {
+    const cw = getContinueWatching();
+    const existing = cw.find((i) => i.slug === toSlug(item.title) && i.type === "movie");
+    if (existing && existing.currentTime > 30 && existing.currentTime < existing.duration * 0.95) {
+      setResumeFrom(Math.floor(existing.currentTime));
+    }
+  }, [item.title]);
+
   const dubParam = selectedDub ? `&dub=${selectedDub}` : "";
   const watchHref = `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie${dubParam}`;
+  const resumeHref = resumeFrom ? `${watchHref}&t=${resumeFrom}` : watchHref;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -75,8 +86,8 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
               </span>
               <span className="text-xs sm:text-sm text-[#8e8ea0]">{item.year}</span>
               {item.rating > 0 && (
-                <span className="flex items-center gap-1 text-xs sm:text-sm text-[#f5c542]">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-current" />
+                <span className="flex items-center gap-1 text-xs sm:text-sm text-[#46d369]">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-[#46d369]" />
                   {item.rating.toFixed(1)}
                 </span>
               )}
@@ -137,12 +148,21 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
 
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
               <Link
-                href={watchHref}
+                href={resumeFrom ? resumeHref : watchHref}
                 className="inline-flex items-center gap-2 px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 bg-[#f5c542] text-[#0a0a0f] text-sm sm:text-base font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5" fill="#0a0a0f" />
-                Watch Now
+                {resumeFrom ? "Resume" : "Watch Now"}
               </Link>
+              {resumeFrom && (
+                <Link
+                  href={watchHref}
+                  className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 border border-[#2a2a3a] text-[#8e8ea0] text-sm hover:text-white hover:border-[#f5c542]/30 transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Restart
+                </Link>
+              )}
               <WatchlistButton
                 slug={toSlug(item.title)}
                 tmdbId={item.tmdbId}

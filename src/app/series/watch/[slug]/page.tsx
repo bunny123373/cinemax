@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ArrowLeft as Back, Check } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ArrowLeft as Back, Check, ListOrdered, X, Play } from "lucide-react";
 import Player from "@/components/Player";
-import StreamBoxEmbed from "@/components/StreamBoxEmbed";
-import { saveContinueWatching } from "@/lib/storage";
+import { saveContinueWatching, getContinueWatching } from "@/lib/storage";
+import type { ContinueWatchingItem } from "@/types";
 
 const NET27_BASE = "https://net27.cc";
 
@@ -45,7 +46,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string | undefined>(undefined);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
-  const [showStreamBox, setShowStreamBox] = useState(false);
   const [showDubMenu, setShowDubMenu] = useState(false);
   const [poster, setPoster] = useState("");
   const [embedData, setEmbedData] = useState<any>(null);
@@ -55,6 +55,12 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [downloadSources, setDownloadSources] = useState<SourceOption[]>([]);
   const [downloadEmbed, setDownloadEmbed] = useState<any>(null);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [showUpNext, setShowUpNext] = useState(false);
+  const [showEpisodePanel, setShowEpisodePanel] = useState(false);
+  const [episodeCount, setEpisodeCount] = useState(0);
+  const [allSeasons, setAllSeasons] = useState<{ season_number: number; name: string; episode_count: number }[]>([]);
+  const [continueWatching, setContinueWatching] = useState<ContinueWatchingItem[]>([]);
+  const upNextTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -115,11 +121,48 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       .catch(() => {});
   }, [tmdbId, type, seasonNum, episodeNum]);
 
+  useEffect(() => {
+    if (!tmdbId) return;
+    fetch(`/api/tmdb/details/${tmdbId}?type=tv`)
+      .then((r) => r.json())
+      .then((data) => {
+        const seasons = (data.seasons || []).filter((s: any) => s.season_number > 0);
+        setAllSeasons(seasons);
+        const cur = seasons.find((s: any) => s.season_number === seasonNum);
+        if (cur) setEpisodeCount(cur.episode_count || 0);
+      })
+      .catch(() => {});
+  }, [tmdbId, seasonNum]);
+
+  const handleEpisodeEnd = useCallback(() => {
+    setShowUpNext(true);
+    upNextTimerRef.current = setTimeout(() => {
+      goToEpisode(seasonNum, episodeNum + 1);
+    }, 10000);
+  }, [seasonNum, episodeNum]);
+
+  const cancelUpNext = useCallback(() => {
+    setShowUpNext(false);
+    if (upNextTimerRef.current) {
+      clearTimeout(upNextTimerRef.current);
+      upNextTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => { if (upNextTimerRef.current) clearTimeout(upNextTimerRef.current); };
+  }, []);
+
   const goToEpisode = (se: number, ep: number) => {
     setSeasonNum(se);
     setEpisodeNum(ep);
     const qs = new URLSearchParams({ tmdbId: String(tmdbId || ""), type, season: String(se), episode: String(ep) });
     router.push(`/series/watch/${slug}?${qs.toString()}`);
+  };
+
+  const openEpisodePanel = () => {
+    setContinueWatching(getContinueWatching());
+    setShowEpisodePanel(true);
   };
 
   const current = sources[selectedSource];
@@ -134,7 +177,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   function handleDownload(url: string, label: string) {
     const name = title.replace(/[^a-zA-Z0-9\s\-_.()]/g, "").replace(/\s+/g, "_");
     const filename = `${name}_S${seasonNum}E${episodeNum}_${label}.mp4`.replace(/[\\/:*?"<>|]/g, "");
-    const proxyUrl = `/api/download?${new URLSearchParams({ url, filename, referer: "https://netfilm.world/" }).toString()}`;
+    const proxyUrl = `/api/download?${new URLSearchParams({ url, filename }).toString()}`;
     const a = document.createElement("a");
     a.href = proxyUrl;
     a.download = filename;
@@ -145,6 +188,11 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   }
 
   function openDownloadModal() {
+    const adScript = document.createElement("script");
+    adScript.src = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
+    adScript.async = true;
+    document.body.appendChild(adScript);
+    setTimeout(() => { document.body.removeChild(adScript); }, 5000);
     if (variants.length === 0) {
       setDownloadSources(sources.filter((s) => s.mimeType === "video/mp4"));
       setDownloadEmbed(embedData);
@@ -177,8 +225,9 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0f] gap-4">
         <div className="animate-spin w-8 h-8 border-2 border-[#f5c542] border-t-transparent rounded-full" />
+        <p className="text-sm text-[#8e8ea0]">Waiting for moment...</p>
       </div>
     );
   }
@@ -243,6 +292,9 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             src={current.url}
             autoPlay
             captions={captions}
+            dubOptions={variants.map((v) => ({ id: v.dubSubjectId, label: v.language }))}
+            selectedDub={selectedDub || ""}
+            onDubChange={(dubId) => { setSelectedDub(dubId); }}
             onProgress={(currentTime, duration) => {
               if (slug && tmdbId) {
                 saveContinueWatching({
@@ -259,6 +311,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                 });
               }
             }}
+            onEnded={handleEpisodeEnd}
           />
         </div>
 
@@ -272,11 +325,11 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
             <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
               <button
-                onClick={() => setShowStreamBox(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
+                onClick={openEpisodePanel}
+                className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
               >
-                <Download className="w-4 h-4" />
-                Download 2
+                <ListOrdered className="w-4 h-4" />
+                Episodes
               </button>
               <button
                 onClick={openDownloadModal}
@@ -284,21 +337,51 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               >
                 <Download className="w-4 h-4" />
                 Download
-                <span className="text-[9px] font-normal opacity-70 ml-0.5">Recommended</span>
               </button>
               {variants.length > 0 && (
-                <button
-                  onClick={() => setShowDubMenu(true)}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
-                >
-                  <Globe className="w-4 h-4" />
-                  {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => { setShowDubMenu(!showDubMenu); setShowQualityMenu(false); }}
+                    className={`flex items-center gap-2 px-3 py-2 bg-[#12121a] border text-white text-sm transition-colors ${
+                      showDubMenu ? "border-[#f5c542]/50" : "border-[#2a2a3a] hover:border-[#f5c542]/50"
+                    }`}
+                  >
+                    <Globe className="w-4 h-4" />
+                    {selectedDub ? variants.find((v) => v.dubSubjectId === selectedDub)?.language || "Dub" : "Original"}
+                  </button>
+                  {showDubMenu && (
+                    <div className="absolute right-0 top-full mt-1 bg-[#12121a] border border-[#2a2a3a] shadow-xl z-50 min-w-[180px] py-1 rounded-lg">
+                      <button
+                        onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition-colors ${
+                          !selectedDub ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white hover:bg-[#1a1a2e]"
+                        }`}
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        Original
+                        {!selectedDub && <span className="ml-auto text-[10px] text-[#f5c542]">&#10003;</span>}
+                      </button>
+                      {variants.map((v) => (
+                        <button
+                          key={v.dubSubjectId}
+                          onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
+                          className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition-colors ${
+                            selectedDub === v.dubSubjectId ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white hover:bg-[#1a1a2e]"
+                          }`}
+                        >
+                          <Globe className="w-3.5 h-3.5" />
+                          {v.language}
+                          {selectedDub === v.dubSubjectId && <span className="ml-auto text-[10px] text-[#f5c542]">&#10003;</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
               {sources.length > 1 && (
                 <div className="relative">
                   <button
-                    onClick={() => setShowQualityMenu(!showQualityMenu)}
+                    onClick={() => { setShowQualityMenu(!showQualityMenu); setShowDubMenu(false); }}
                     className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
                   >
                     <Settings className="w-4 h-4" />
@@ -459,52 +542,123 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      {showDubMenu && (
-        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDubMenu(false)}>
-          <div
-            className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-full sm:max-w-[420px] sm:mx-4 rounded-t-2xl sm:rounded-2xl animate-slide-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3a]">
-              <h3 className="text-sm font-semibold text-white">Select Language</h3>
-              <button onClick={() => setShowDubMenu(false)} className="text-[#8e8ea0] hover:text-white text-lg leading-none p-1">&times;</button>
-            </div>
-            <div className="p-3 max-h-[350px] overflow-y-auto">
-              <button
-                onClick={() => { setSelectedDub(undefined); setShowDubMenu(false); }}
-                className={`w-full text-left px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors group ${!selectedDub ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
-              >
-                <div className="flex items-center gap-3">
-                  <Globe className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
-                  Original
-                </div>
-              </button>
-              {variants.map((v) => (
-                <button
-                  key={v.dubSubjectId}
-                  onClick={() => { setSelectedDub(v.dubSubjectId); setShowDubMenu(false); }}
-                  className={`w-full text-left px-4 py-3 text-sm rounded-lg hover:bg-[#f5c542]/10 transition-colors group ${selectedDub === v.dubSubjectId ? "text-[#f5c542] bg-[#f5c542]/5" : "text-white"}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-4 h-4 text-[#8e8ea0] group-hover:text-[#f5c542]" />
-                    {v.language}
-                  </div>
+      {showUpNext && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#18181f] border border-[#2a2a3a] shadow-2xl w-full max-w-[400px] mx-4 rounded-2xl animate-popup overflow-hidden">
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs text-[#8e8ea0] font-medium uppercase tracking-wider">Up Next</p>
+                <button onClick={cancelUpNext} className="text-[#8e8ea0] hover:text-white">
+                  <X className="w-4 h-4" />
                 </button>
-              ))}
+              </div>
+              <p className="text-white font-semibold mb-1">Season {seasonNum} &middot; Episode {episodeNum + 1}</p>
+              <p className="text-sm text-[#8e8ea0] mb-5">Starting in 10 seconds...</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelUpNext}
+                  className="flex-1 px-4 py-2.5 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => { cancelUpNext(); goToEpisode(seasonNum, episodeNum + 1); }}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
+                >
+                  <Play className="w-4 h-4" fill="#0a0a0f" />
+                  Play Now
+                </button>
+              </div>
+            </div>
+            <div className="h-1 bg-[#2a2a3a]">
+              <div className="h-full bg-[#f5c542] animate-upnext-countdown" />
             </div>
           </div>
         </div>
       )}
 
-      {showStreamBox && tmdbId && (
-        <StreamBoxEmbed
-          type="series"
-          tmdbId={tmdbId}
-          season={seasonNum}
-          episode={episodeNum}
-          title={title}
-          onClose={() => setShowStreamBox(false)}
-        />
+      {showEpisodePanel && (
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowEpisodePanel(false)}>
+          <div
+            className="bg-[#12121a] border border-[#2a2a3a] shadow-2xl w-full sm:max-w-[360px] sm:mx-4 rounded-t-2xl sm:rounded-2xl animate-slide-up max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#2a2a3a] shrink-0">
+              <div>
+                <h3 className="text-xs font-semibold text-white">Episodes</h3>
+                <p className="text-[10px] text-[#8e8ea0] mt-0.5">{title}</p>
+              </div>
+              <button onClick={() => setShowEpisodePanel(false)} className="text-[#8e8ea0] hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {allSeasons.length > 1 && (
+              <div className="px-3 pt-2.5 pb-2 border-b border-[#2a2a3a]/50 shrink-0">
+                <div className="flex gap-1 overflow-x-auto scrollbar-hide pb-1">
+                  {allSeasons.map((s) => (
+                    <button
+                      key={s.season_number}
+                      onClick={() => {
+                        setSeasonNum(s.season_number);
+                        setEpisodeCount(s.episode_count);
+                        const qs = new URLSearchParams({ tmdbId: String(tmdbId || ""), type, season: String(s.season_number), episode: "1" });
+                        router.push(`/series/watch/${slug}?${qs.toString()}`);
+                        setShowEpisodePanel(false);
+                      }}
+                      className={`px-2.5 py-1 text-[10px] font-medium rounded-full whitespace-nowrap transition-colors ${
+                        s.season_number === seasonNum
+                          ? "bg-[#f5c542] text-[#0a0a0f]"
+                          : "bg-[#1a1a26] text-[#8e8ea0] border border-[#2a2a3a] hover:border-[#f5c542]/30 hover:text-white"
+                      }`}
+                    >
+                      S{s.season_number}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="overflow-y-auto p-3">
+              <div className="grid grid-cols-6 sm:grid-cols-7 gap-1.5">
+                {Array.from({ length: episodeCount || 20 }, (_, i) => {
+                  const ep = i + 1;
+                  const isCurrent = ep === episodeNum;
+                  const cwItem = continueWatching.find(
+                    (c) => c.slug === slug && c.seasonNumber === seasonNum && c.episodeNumber === ep
+                  );
+                  const progress = cwItem && cwItem.duration > 0
+                    ? Math.min((cwItem.currentTime / cwItem.duration) * 100, 100)
+                    : 0;
+                  return (
+                    <button
+                      key={ep}
+                      onClick={() => { setShowEpisodePanel(false); goToEpisode(seasonNum, ep); }}
+                      className={`relative aspect-square flex items-center justify-center rounded-md text-xs font-bold transition-all overflow-hidden ${
+                        isCurrent
+                          ? "bg-[#f5c542] text-[#0a0a0f] shadow-lg shadow-[#f5c542]/20 scale-105"
+                          : "bg-[#1a1a26] text-[#8e8ea0] border border-[#2a2a3a] hover:bg-[#22223a] hover:text-white hover:border-[#f5c542]/30"
+                      }`}
+                    >
+                      {ep}
+                      {isCurrent && (
+                        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#f5c542] rounded-full border-1.5 border-[#12121a]" />
+                      )}
+                      {progress > 0 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-black/40">
+                          <div
+                            className="h-full bg-[#f5c542]/80"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );

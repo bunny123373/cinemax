@@ -151,6 +151,10 @@ export function resolveStreamUrl(resp: Net27EmbedResponse, quality?: number): { 
     return { url: proxy(resp.mp4), mimeType: "video/mp4" };
   }
 
+  if (resp.fallbackHls) {
+    return { url: resp.fallbackHls, mimeType: "application/x-mpegURL" };
+  }
+
   return null;
 }
 
@@ -182,6 +186,10 @@ export function resolveAllSources(resp: Net27EmbedResponse): { label: string; ur
     if (!already) {
       sources.push({ label: `${resp.resolution || "480"}p (MP4)`, url: proxy(resp.mp4), mimeType: "video/mp4", resolution: parseInt(resp.resolution) || 480 });
     }
+  }
+
+  if (resp.fallbackHls && !sources.some((s) => s.url.includes(resp.fallbackHls!))) {
+    sources.push({ label: "HLS (Fallback)", url: resp.fallbackHls, mimeType: "application/x-mpegURL", resolution: 0 });
   }
 
   return sources;

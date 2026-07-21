@@ -1,112 +1,105 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { ContinueWatchingItem } from "@/types";
+import { Play, X } from "lucide-react";
 import { getContinueWatching, removeContinueWatching } from "@/lib/storage";
-
-function toSlug(title: string) {
-  return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
+import type { ContinueWatchingItem } from "@/types";
 
 export default function ContinueWatchingRow() {
   const [items, setItems] = useState<ContinueWatchingItem[]>([]);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
-    setItems(getContinueWatching());
+    setItems(getContinueWatching().slice(0, 12));
   }, []);
 
-  const remove = (slug: string) => {
+  if (items.length === 0) return null;
+
+  function getWatchHref(item: ContinueWatchingItem) {
+    if (item.type === "movie") {
+      return `/watch/${item.slug}?tmdbId=${item.tmdbId}&t=${item.currentTime}`;
+    }
+    const se = item.seasonNumber || 1;
+    const ep = item.episodeNumber || 1;
+    return `/series/watch/${item.slug}?tmdbId=${item.tmdbId}&type=tv&season=${se}&episode=${ep}&t=${item.currentTime}`;
+  }
+
+  function getDetailHref(item: ContinueWatchingItem) {
+    return item.type === "movie"
+      ? `/movie/${item.slug}?tmdbId=${item.tmdbId}`
+      : `/series/${item.slug}?tmdbId=${item.tmdbId}`;
+  }
+
+  function remove(slug: string, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     removeContinueWatching(slug);
     setItems((prev) => prev.filter((i) => i.slug !== slug));
-  };
-
-  const scroll = (direction: "left" | "right") => {
-    if (!rowRef.current) return;
-    rowRef.current.scrollBy({
-      left: direction === "left" ? -rowRef.current.clientWidth : rowRef.current.clientWidth,
-      behavior: "smooth",
-    });
-  };
-
-  if (!items.length) return null;
+  }
 
   return (
-    <section className="relative">
+    <section className="relative overflow-hidden">
       <div className="flex items-center justify-between mb-4 px-4 md:px-8">
         <h2 className="text-xl md:text-2xl font-bold text-white">Continue Watching</h2>
       </div>
-      <div
-        className="relative"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        <button
-          onClick={() => scroll("left")}
-          className={`absolute left-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-gradient-to-r from-[#0a0a0f] to-transparent flex items-center justify-start pl-2 transition-opacity ${
-            hovered ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
-        <div
-          ref={rowRef}
-          className="flex gap-3 overflow-x-auto px-4 md:px-8 pb-2 scrollbar-hide"
-        >
-          {items.map((item) => {
-            const watchHref = item.type === "movie"
-              ? `/watch/${item.slug}?tmdbId=${item.tmdbId || ""}&type=movie`
-              : `/series/watch/${item.slug}?tmdbId=${item.tmdbId || ""}&type=tv&season=${item.seasonNumber || 1}&episode=${item.episodeNumber || 1}`;
-            const progress = item.duration > 0 ? (item.currentTime / item.duration) * 100 : 0;
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 md:px-8 pb-4">
+        {items.map((item) => {
+          const progress = item.duration > 0 ? Math.min((item.currentTime / item.duration) * 100, 100) : 0;
+          const remaining = item.duration - item.currentTime;
+          const mins = Math.floor(remaining / 60);
 
-            return (
-              <div key={`${item.slug}-${item.seasonNumber}-${item.episodeNumber}`} className="flex-shrink-0 w-[100px] sm:w-[120px] md:w-[150px] lg:w-[170px] relative group">
-                <Link href={watchHref} className="block">
-                  <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a]">
-                    <Image
-                      src={item.poster || "https://image.tmdb.org/t/p/w500/placeholder.svg"}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 px-2 pb-2">
-                      <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden mb-1.5">
-                        <div
-                          className="h-full bg-[#f5c542] rounded-full"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <p className="text-white text-xs font-semibold truncate">{item.title}</p>
-                      {item.type === "series" && item.seasonNumber && item.episodeNumber && (
-                        <p className="text-[#8e8ea0] text-[10px]">S{item.seasonNumber} E{item.episodeNumber}</p>
-                      )}
-                    </div>
+          return (
+            <Link
+              key={`${item.slug}-${item.seasonNumber}-${item.episodeNumber}`}
+              href={getWatchHref(item)}
+              className="relative flex-shrink-0 w-[140px] md:w-[180px] group"
+            >
+              <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
+                <Image
+                  src={item.poster || "https://image.tmdb.org/t/p/w500/placeholder.svg"}
+                  alt={item.title}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="180px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-10 h-10 rounded-full bg-[#f5c542] flex items-center justify-center shadow-lg">
+                    <Play className="w-5 h-5 text-[#0a0a0f] fill-[#0a0a0f] ml-0.5" />
                   </div>
-                </Link>
+                </div>
+
                 <button
-                  onClick={(e) => { e.preventDefault(); remove(item.slug); }}
-                  className="absolute top-1 right-1 w-5 h-5 bg-[#0a0a0f]/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  onClick={(e) => remove(item.slug, e)}
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
                 >
                   <X className="w-3 h-3 text-white" />
                 </button>
+
+                <div className="absolute bottom-0 left-0 right-0 px-2 pb-2">
+                  <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#f5c542] rounded-full"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-white/60 mt-1 text-right">{mins}m left</p>
+                </div>
               </div>
-            );
-          })}
-        </div>
-        <button
-          onClick={() => scroll("right")}
-          className={`absolute right-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-gradient-to-l from-[#0a0a0f] to-transparent flex items-center justify-end pr-2 transition-opacity ${
-            hovered ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <ChevronRight className="w-6 h-6 text-white" />
-        </button>
+
+              <div className="mt-2 px-0.5">
+                <p className="text-xs text-white font-medium truncate">{item.title}</p>
+                {item.type === "series" && item.seasonNumber && item.episodeNumber && (
+                  <p className="text-[10px] text-[#8e8ea0]">
+                    S{item.seasonNumber} E{item.episodeNumber}
+                  </p>
+                )}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

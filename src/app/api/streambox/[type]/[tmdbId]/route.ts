@@ -30,11 +30,18 @@ export async function GET(
       signal: AbortSignal.timeout(15000),
     });
 
+    let streamData: any = null;
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("json")) {
+      try { streamData = await res.json(); } catch {}
+    }
+
     return NextResponse.json({
       ok: res.ok,
-      streamUrl: `${STREAMBOX_BASE}${streamPath}`,
-      downloadUrl: `${STREAMBOX_BASE}${downloadPath}`,
+      streamUrl: streamData?.streamUrl || `${STREAMBOX_BASE}${streamPath}`,
+      downloadUrl: streamData?.downloadUrl || `${STREAMBOX_BASE}${downloadPath}`,
       embedUrl: `${STREAMBOX_BASE}${streamPath}?server=blaze&download=true`,
+      data: streamData,
     });
   } catch {
     return NextResponse.json({
@@ -42,6 +49,7 @@ export async function GET(
       streamUrl: `${STREAMBOX_BASE}${streamPath}`,
       downloadUrl: `${STREAMBOX_BASE}${downloadPath}`,
       embedUrl: `${STREAMBOX_BASE}${streamPath}?server=blaze&download=true`,
+      data: null,
     });
   }
 }
