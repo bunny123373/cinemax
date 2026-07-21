@@ -52,6 +52,19 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
 
   return (
     <main className="min-h-screen pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "TVSeries",
+          name: item.title,
+          image: item.poster || undefined,
+          dateCreated: item.year ? `${item.year}` : undefined,
+          aggregateRating: item.rating > 0 ? { "@type": "AggregateRating", ratingValue: item.rating, bestRating: 10 } : undefined,
+          description: detail?.overview || undefined,
+          genre: detail?.genres?.map((g: any) => g.name || g) || undefined,
+        })}}
+      />
       <div className="relative w-full h-[40vh] min-h-[260px] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] group/banner">
         <Image
           src={item.backdrop || item.poster || ""}

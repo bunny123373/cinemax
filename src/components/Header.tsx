@@ -7,6 +7,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Film, Tv, X } from "lucide-react";
 import type { Net27Item } from "@/types/net27";
 
+const TELEGRAM_URL = "https://t.me/YOUR_CHANNEL";
+
 const pcNavLinks = [
   { href: "/", label: "Home" },
   { href: "/movies", label: "Movies" },
@@ -134,13 +136,24 @@ export default function Header() {
               ))}
             </nav>
 
-            <button
-              onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#12121a] border border-[#2a2a3a] text-sm text-[#8e8ea0] hover:text-white hover:border-[#f5c542]/30 transition-colors"
-            >
-              <Search className="w-4 h-4" />
-              <span>Search</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <a
+                href={TELEGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#12121a] border border-[#2a2a3a] text-sm text-[#8e8ea0] hover:text-[#2CA5E0] hover:border-[#2CA5E0]/30 transition-colors"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                <span className="hidden lg:inline">Join Telegram</span>
+              </a>
+              <button
+                onClick={() => setShowSearch(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#12121a] border border-[#2a2a3a] text-sm text-[#8e8ea0] hover:text-white hover:border-[#f5c542]/30 transition-colors"
+              >
+                <Search className="w-4 h-4" />
+                <span>Search</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>

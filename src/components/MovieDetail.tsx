@@ -51,6 +51,20 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Movie",
+          name: item.title,
+          image: item.poster || undefined,
+          dateCreated: item.year ? `${item.year}` : undefined,
+          aggregateRating: item.rating > 0 ? { "@type": "AggregateRating", ratingValue: item.rating, bestRating: 10 } : undefined,
+          duration: detail?.runtime ? `PT${detail.runtime}M` : undefined,
+          description: detail?.overview || undefined,
+          genre: detail?.genres?.map((g: any) => g.name || g) || undefined,
+        })}}
+      />
       <div className="relative w-full h-[40vh] min-h-[260px] sm:h-[50vh] md:h-[60vh] lg:h-[70vh]">
         <Image
           src={item.backdrop || item.poster || ""}
