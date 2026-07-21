@@ -114,6 +114,26 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "CineMax",
+            url: "https://cinemax77.vercel.app",
+            description:
+              "Watch thousands of premium movies and web series online for free in HD quality.",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://cinemax77.vercel.app/search?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+            sameAs: ["https://t.me/MultiMirror"],
+          }),
+        }}
+      />
+
       <HeroSlider items={heroItems} />
 
       <div className="relative z-10 -mt-8 space-y-6 pb-16 px-6 max-w-[1800px] mx-auto">

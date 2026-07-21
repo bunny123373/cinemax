@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/search`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
     { url: `${BASE_URL}/support`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
     { url: `${BASE_URL}/download`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
+    { url: `${BASE_URL}/watchlist`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.4 },
   ];
 
   return routes;

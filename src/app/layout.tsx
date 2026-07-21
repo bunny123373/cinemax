@@ -20,25 +20,74 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "CineMax - Stream Premium Movies & Series",
+    default: "CineMax - Stream Premium Movies & Series in HD",
     template: "%s | CineMax",
   },
-  description: "Stream premium movies and web series online in HD. CineMax - your ultimate streaming platform for premium entertainment.",
+  description:
+    "Watch thousands of premium movies and web series online for free in HD quality. CineMax brings you the latest Bollywood, Hollywood, Korean, and Anime content with subtitles and multiple audio tracks.",
+  keywords: [
+    "watch movies online free",
+    "stream series HD",
+    "CineMax",
+    "free movies",
+    "web series",
+    "Bollywood movies",
+    "Hollywood movies",
+    "Korean drama",
+    "anime streaming",
+    "HD movies online",
+    "watch series free",
+    "movie streaming site",
+  ],
   metadataBase: new URL(process.env.SITE_URL || "https://cinemax77.vercel.app"),
   icons: {
     icon: "/favicon.png",
+    apple: "/favicon.png",
   },
   openGraph: {
+    title: "CineMax - Stream Premium Movies & Series in HD",
+    description:
+      "Watch thousands of premium movies and web series online for free in HD quality. Bollywood, Hollywood, Korean, and Anime with subtitles.",
     siteName: "CineMax",
+    url: process.env.SITE_URL || "https://cinemax77.vercel.app",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1280,
+        height: 720,
+        alt: "CineMax - Stream Premium Movies & Series",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
+    title: "CineMax - Stream Premium Movies & Series in HD",
+    description:
+      "Watch thousands of premium movies and web series online for free in HD quality.",
+    images: ["/preview.png"],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "kvuNK7ktH6fjJ8C5y1v12mFaCGUD209uv554HqUyO4c",
+  },
+  other: {
+    "application-name": "CineMax",
+    "apple-mobile-web-app-title": "CineMax",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "mobile-web-app-capable": "yes",
   },
 };
 
@@ -51,8 +100,6 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#0a0a0f" />
-        <meta name="google-site-verification" content="kvuNK7ktH6fjJ8C5y1v12mFaCGUD209uv554HqUyO4c" />
-        <meta name="44fd5e4d00b33980a1b07849289b58fb201392c1" content="44fd5e4d00b33980a1b07849289b58fb201392c1" />
         <meta name="monetag" content="60d1a06d562117372df72849d5db08e3"></meta>
         <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
         <script src="https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044" async></script>
