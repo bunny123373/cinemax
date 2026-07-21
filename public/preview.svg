@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0f"/>
+      <stop offset="50%" style="stop-color:#12121a"/>
+      <stop offset="100%" style="stop-color:#0a0a0f"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f5c542"/>
+      <stop offset="100%" style="stop-color:#e0a800"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5c542;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#f5c542;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.03" stroke="#f5c542" stroke-width="1">
+    <line x1="0" y1="0" x2="1280" y2="720"/>
+    <line x1="1280" y1="0" x2="0" y2="720"/>
+    <line x1="640" y1="0" x2="640" y2="720"/>
+    <line x1="0" y1="360" x2="1280" y2="360"/>
+  </g>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1280" height="4" fill="url(#gold)"/>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="716" width="1280" height="4" fill="url(#gold)"/>
+
+  <!-- Left decorative bar -->
+  <rect x="60" y="180" width="4" height="360" rx="2" fill="url(#gold)" opacity="0.6"/>
+
+  <!-- Right decorative bar -->
+  <rect x="1216" y="180" width="4" height="360" rx="2" fill="url(#gold)" opacity="0.6"/>
+
+  <!-- Glow circle behind logo -->
+  <circle cx="640" cy="260" r="120" fill="url(#glow)"/>
+
+  <!-- Play button icon -->
+  <g transform="translate(640, 260)">
+    <circle r="50" fill="none" stroke="url(#gold)" stroke-width="3" opacity="0.4"/>
+    <polygon points="-18,-28 -18,28 26,0" fill="url(#gold)" opacity="0.9"/>
+  </g>
+
+  <!-- CineMax text -->
+  <text x="640" y="380" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="bold" fill="url(#gold)" letter-spacing="6">
+    CINEMAX
+  </text>
+
+  <!-- Tagline -->
+  <text x="640" y="425" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#8e8ea0" letter-spacing="8" text-transform="uppercase">
+    STREAM PREMIUM MOVIES &amp; SERIES
+  </text>
+
+  <!-- Separator line -->
+  <rect x="540" y="450" width="200" height="2" rx="1" fill="url(#gold)" opacity="0.5"/>
+
+  <!-- Features row -->
+  <g font-family="Arial, Helvetica, sans-serif" font-size="16" fill="#8e8ea0" text-anchor="middle">
+    <text x="380" y="510" fill="#46d369">●</text>
+    <text x="405" y="510">HD Quality</text>
+    <text x="560" y="510" fill="#46d369">●</text>
+    <text x="595" y="510">Multi Language</text>
+    <text x="775" y="510" fill="#46d369">●</text>
+    <text x="810" y="510">Free Streaming</text>
+  </g>
+
+  <!-- Website URL -->
+  <text x="640" y="580" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#f5c542" opacity="0.7">
+    cinemax77.vercel.app
+  </text>
+
+  <!-- Corner accents -->
+  <rect x="40" y="40" width="40" height="3" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="40" y="40" width="3" height="40" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="1200" y="40" width="40" height="3" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="1237" y="40" width="3" height="40" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="40" y="677" width="40" height="3" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="40" y="640" width="3" height="40" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="1200" y="677" width="40" height="3" rx="1" fill="#f5c542" opacity="0.3"/>
+  <rect x="1237" y="640" width="3" height="40" rx="1" fill="#f5c542" opacity="0.3"/>
+</svg>

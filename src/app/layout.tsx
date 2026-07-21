@@ -54,10 +54,11 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/preview.png",
+        url: "/api/og",
         width: 1280,
         height: 720,
         alt: "CineMax - Stream Premium Movies & Series",
+        type: "image/png",
       },
     ],
   },
@@ -66,7 +67,7 @@ export const metadata: Metadata = {
     title: "CineMax - Stream Premium Movies & Series in HD",
     description:
       "Watch thousands of premium movies and web series online for free in HD quality.",
-    images: ["/preview.png"],
+    images: ["/api/og"],
   },
   robots: {
     index: true,
