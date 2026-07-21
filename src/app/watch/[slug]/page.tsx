@@ -69,7 +69,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   useEffect(() => {
     if (!tmdbId) return;
     fetch(`/api/tmdb/details/${tmdbId}?type=movie`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((data) => { if (data.poster_path) setPoster(`https://image.tmdb.org/t/p/w500${data.poster_path}`); })
       .catch(() => {});
   }, [tmdbId]);
@@ -81,7 +81,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
     const qs = new URLSearchParams({ type: "movie" });
     if (dub) qs.set("dub", dub);
     fetch(`/api/net27/embed/${tid}?${qs}`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((res) => {
         if (!res.ok) { setError(true); return; }
         setTitle(res.embed?.title || slug?.replace(/-/g, " ") || "");
@@ -108,7 +108,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   useEffect(() => {
     if (!tmdbId) return;
     fetch(`/api/net27/variants/movie/${tmdbId}`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((res) => { if (res.variants) setVariants(res.variants); })
       .catch(() => {});
   }, [tmdbId]);
@@ -154,6 +154,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
       const qs = new URLSearchParams({ type: "movie" });
       if (dub) qs.set("dub", dub);
       const res = await fetch(`/api/net27/embed/${tmdbId}?${qs}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const srcs: SourceOption[] = (data.sources || []).filter((s: any) => s.mimeType === "video/mp4").map((s: any) => ({ ...s, size: s.size }));
       setDownloadSources(srcs);

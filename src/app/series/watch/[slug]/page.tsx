@@ -83,7 +83,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   useEffect(() => {
     if (!tmdbId) return;
     fetch(`/api/tmdb/details/${tmdbId}?type=tv`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((data) => { if (data.poster_path) setPoster(`https://image.tmdb.org/t/p/w500${data.poster_path}`); })
       .catch(() => {});
   }, [tmdbId]);
@@ -96,7 +96,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     const qs = new URLSearchParams({ type: t, se: String(se), ep: String(ep) });
     if (dub) qs.set("dub", dub);
     fetch(`/api/net27/embed/${tid}?${qs}`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((res) => {
         if (!res.ok) { setError(true); return; }
         setTitle(res.embed?.title || "");
@@ -122,7 +122,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   useEffect(() => {
     if (!tmdbId) return;
     fetch(`/api/net27/variants/${type}/${tmdbId}?se=${seasonNum}&ep=${episodeNum}`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((res) => { if (res.variants) setVariants(res.variants); })
       .catch(() => {});
   }, [tmdbId, type, seasonNum, episodeNum]);
@@ -130,7 +130,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   useEffect(() => {
     if (!tmdbId) return;
     fetch(`/api/tmdb/details/${tmdbId}?type=tv`)
-      .then((r) => r.json())
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((data) => {
         const seasons = (data.seasons || []).filter((s: any) => s.season_number > 0);
         setAllSeasons(seasons);
@@ -212,6 +212,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
       const qs = new URLSearchParams({ type, se: String(seasonNum), ep: String(episodeNum) });
       if (dub) qs.set("dub", dub);
       const res = await fetch(`/api/net27/embed/${tmdbId}?${qs}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const srcs: SourceOption[] = (data.sources || []).filter((s: any) => s.mimeType === "video/mp4").map((s: any) => ({ ...s, size: s.size }));
       setDownloadSources(srcs);
