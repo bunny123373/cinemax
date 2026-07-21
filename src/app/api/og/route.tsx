@@ -13,103 +13,119 @@ export async function GET() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%)",
+          background: "#141414",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Top accent */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "4px", background: "linear-gradient(90deg, transparent, #f5c542, transparent)" }} />
-        {/* Bottom accent */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "4px", background: "linear-gradient(90deg, transparent, #f5c542, transparent)" }} />
-
-        {/* Left bar */}
-        <div style={{ position: "absolute", left: 60, top: 180, width: "4px", height: "360px", background: "#f5c542", opacity: 0.4, borderRadius: "2px" }} />
-        {/* Right bar */}
-        <div style={{ position: "absolute", right: 60, top: 180, width: "4px", height: "360px", background: "#f5c542", opacity: 0.4, borderRadius: "2px" }} />
-
-        {/* Corner accents */}
-        <div style={{ position: "absolute", top: 40, left: 40, width: 40, height: 3, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", top: 40, left: 40, width: 3, height: 40, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", top: 40, right: 40, width: 40, height: 3, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", top: 40, right: 40, width: 3, height: 40, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", bottom: 40, left: 40, width: 40, height: 3, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", bottom: 40, left: 40, width: 3, height: 40, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", bottom: 40, right: 40, width: 40, height: 3, background: "#f5c542", opacity: 0.3 }} />
-        <div style={{ position: "absolute", bottom: 40, right: 40, width: 3, height: 40, background: "#f5c542", opacity: 0.3 }} />
-
-        {/* Glow */}
-        <div style={{ position: "absolute", top: 180, left: "50%", width: 240, height: 240, marginLeft: -120, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,197,66,0.12) 0%, transparent 70%)" }} />
-
-        {/* Play icon */}
+        {/* Netflix-style red glow behind text */}
         <div style={{
-          width: 100,
-          height: 100,
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: 600,
+          height: 600,
+          marginLeft: -300,
+          marginTop: -300,
           borderRadius: "50%",
-          border: "3px solid rgba(245,197,66,0.4)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 24,
+          background: "radial-gradient(circle, rgba(229,9,20,0.15) 0%, transparent 65%)",
+        }} />
+
+        {/* Diagonal red stripes — Netflix N style */}
+        <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }} viewBox="0 0 1280 720">
+          <polygon points="0,0 180,0 0,720" fill="rgba(229,9,20,0.04)" />
+          <polygon points="1100,0 1280,0 1280,720 1100,720" fill="rgba(229,9,20,0.04)" />
+          <line x1="0" y1="720" x2="500" y2="0" stroke="rgba(229,9,20,0.06)" strokeWidth="2" />
+          <line x1="780" y1="720" x2="1280" y2="0" stroke="rgba(229,9,20,0.06)" strokeWidth="2" />
+        </svg>
+
+        {/* Big C letter like Netflix N */}
+        <div style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          fontSize: 420,
+          fontWeight: 900,
+          fontFamily: "Arial, sans-serif",
+          color: "rgba(229,9,20,0.08)",
+          lineHeight: 1,
+          marginLeft: -140,
+          marginTop: -230,
         }}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="#f5c542">
-            <polygon points="6,3 20,12 6,21" />
-          </svg>
+          C
         </div>
 
         {/* Title */}
         <div style={{
-          fontSize: 72,
-          fontWeight: "bold",
-          color: "#f5c542",
-          letterSpacing: "8px",
+          fontSize: 80,
+          fontWeight: 900,
+          color: "#e50914",
+          letterSpacing: "4px",
           fontFamily: "Arial, sans-serif",
-          marginBottom: 8,
+          zIndex: 1,
+          textShadow: "0 0 60px rgba(229,9,20,0.3)",
         }}>
           CINEMAX
         </div>
 
         {/* Tagline */}
         <div style={{
-          fontSize: 22,
-          color: "#8e8ea0",
-          letterSpacing: "6px",
+          fontSize: 24,
+          color: "rgba(255,255,255,0.5)",
+          letterSpacing: "8px",
           fontFamily: "Arial, sans-serif",
-          marginBottom: 24,
+          marginTop: 16,
+          zIndex: 1,
         }}>
-          STREAM PREMIUM MOVIES &amp; SERIES
+          MOVIES &amp; SERIES
         </div>
 
-        {/* Separator */}
-        <div style={{ width: 200, height: 2, background: "linear-gradient(90deg, transparent, #f5c542, transparent)", marginBottom: 24 }} />
+        {/* Thin red line */}
+        <div style={{
+          width: 80,
+          height: 3,
+          background: "#e50914",
+          marginTop: 24,
+          borderRadius: 2,
+          zIndex: 1,
+        }} />
 
-        {/* Features */}
-        <div style={{ display: "flex", gap: 40, fontFamily: "Arial, sans-serif", fontSize: 16, color: "#8e8ea0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#46d369" }} />
-            HD Quality
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#46d369" }} />
-            Multi Language
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#46d369" }} />
-            Free Streaming
-          </div>
+        {/* Feature pills */}
+        <div style={{
+          display: "flex",
+          gap: 16,
+          marginTop: 28,
+          zIndex: 1,
+        }}>
+          {["HD", "FREE", "MULTI LANG"].map((label) => (
+            <div key={label} style={{
+              padding: "6px 20px",
+              border: "1px solid rgba(229,9,20,0.4)",
+              borderRadius: 4,
+              fontSize: 13,
+              color: "rgba(255,255,255,0.5)",
+              fontFamily: "Arial, sans-serif",
+              letterSpacing: "2px",
+            }}>
+              {label}
+            </div>
+          ))}
         </div>
 
         {/* URL */}
         <div style={{
           position: "absolute",
-          bottom: 80,
-          fontSize: 18,
-          color: "rgba(245,197,66,0.6)",
+          bottom: 50,
+          fontSize: 16,
+          color: "rgba(255,255,255,0.25)",
           fontFamily: "Arial, sans-serif",
-          letterSpacing: "2px",
+          letterSpacing: "3px",
         }}>
           cinemax77.vercel.app
         </div>
+
+        {/* Bottom red line */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "#e50914" }} />
       </div>
     ),
     {
