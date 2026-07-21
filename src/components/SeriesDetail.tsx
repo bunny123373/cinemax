@@ -9,7 +9,6 @@ import WatchlistButton from "@/components/WatchlistButton";
 import SeasonEpisodes from "@/components/SeasonEpisodes";
 import DownloadGate from "@/components/DownloadGate";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
-import AdBanner from "@/components/AdBanner";
 import { getContinueWatching } from "@/lib/storage";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
@@ -289,8 +288,6 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
             </div>
           </div>
         </a>
-
-        <AdBanner />
 
         {related && related.length > 0 && (
           <div className="mt-12 md:mt-16">

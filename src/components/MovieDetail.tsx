@@ -8,7 +8,6 @@ import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
 import DownloadGate from "@/components/DownloadGate";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
-import AdBanner from "@/components/AdBanner";
 import { getContinueWatching } from "@/lib/storage";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
@@ -260,8 +259,6 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
           </div>
         </div>
       </a>
-
-      <AdBanner />
 
       {related && related.length > 0 && (
         <div className="mt-12 md:mt-16 pb-12 md:pb-16 px-4 sm:px-6 max-w-[1800px] mx-auto">
