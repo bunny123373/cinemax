@@ -3,6 +3,7 @@ import Image from "next/image";
 import ContentRow from "@/components/ContentRow";
 import TopTenRow from "@/components/TopTenRow";
 import ContinueWatchingRow from "@/components/ContinueWatchingRow";
+import SponsoredRow from "@/components/SponsoredRow";
 
 import HeroSlider from "@/components/HeroSlider";
 import { Suspense } from "react";
@@ -120,6 +121,8 @@ export default async function HomePage() {
 
         <ContinueWatchingRow />
 
+        <SponsoredRow />
+
         {featured.length > 0 && (
           <ContentRow title="Trending Now" items={featured.slice(0, 15)} link="/search" />
         )}
@@ -131,6 +134,29 @@ export default async function HomePage() {
         {recentAll.length > 0 && (
           <ContentRow title="Recently Added" items={recentAll.map(mapItem)} link="/search" />
         )}
+
+        <a
+          href="https://t.me/MultiMirror"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gradient-to-r from-[#2CA5E0]/10 to-[#12121a] border border-[#2CA5E0]/20 rounded-xl p-4 md:p-5 hover:border-[#2CA5E0]/50 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#2CA5E0]/10 flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-[#2CA5E0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white group-hover:text-[#2CA5E0] transition-colors">Join Our Telegram</p>
+                <p className="text-xs text-[#8e8ea0]">Get new movies & series updates daily</p>
+              </div>
+            </div>
+            <span className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#2CA5E0]/10 border border-[#2CA5E0]/30 text-[#2CA5E0] rounded-lg whitespace-nowrap">
+              Join Free
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+          </div>
+        </a>
 
         {series.length > 0 && (
           <TopTenRow title="Top 10 Series" items={series.slice(0, 10).map(mapItem)} link="/search?type=series" />

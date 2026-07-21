@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-const TELEGRAM_URL = "https://t.me/YOUR_CHANNEL";
+const TELEGRAM_URL = "https://t.me/MultiMirror";
 const UPI_ID = "YOUR_UPI_ID@upi";
 const USDT_ADDRESS = "YOUR_TRC20_ADDRESS";
 

@@ -7,6 +7,8 @@ import Image from "next/image";
 import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ArrowLeft as Back, Check, ListOrdered, X, Play } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
+import PreRollAd from "@/components/PreRollAd";
+import DownloadGate from "@/components/DownloadGate";
 import { saveContinueWatching, getContinueWatching } from "@/lib/storage";
 import type { ContinueWatchingItem } from "@/types";
 
@@ -59,6 +61,8 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [showUpNext, setShowUpNext] = useState(false);
   const [showEpisodePanel, setShowEpisodePanel] = useState(false);
   const [showStreamBox, setShowStreamBox] = useState(false);
+  const [adPlayed, setAdPlayed] = useState(false);
+  const [showDownloadGate, setShowDownloadGate] = useState(false);
   const [episodeCount, setEpisodeCount] = useState(0);
   const [allSeasons, setAllSeasons] = useState<{ season_number: number; name: string; episode_count: number }[]>([]);
   const [continueWatching, setContinueWatching] = useState<ContinueWatchingItem[]>([]);
@@ -284,32 +288,36 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
         </Link>
 
         <div className="w-full aspect-video bg-black">
-          <Player
-            key={current.url}
-            src={current.url}
-            autoPlay
-            captions={captions}
-            dubOptions={variants.map((v) => ({ id: v.dubSubjectId, label: v.language }))}
-            selectedDub={selectedDub || ""}
-            onDubChange={(dubId) => { setSelectedDub(dubId); }}
-            onProgress={(currentTime, duration) => {
-              if (slug && tmdbId) {
-                saveContinueWatching({
-                  slug,
-                  tmdbId,
-                  type: "series",
-                  title,
-                  poster: poster || "",
-                  currentTime,
-                  duration,
-                  seasonNumber: seasonNum,
-                  episodeNumber: episodeNum,
-                  updatedAt: Date.now(),
-                });
-              }
-            }}
-            onEnded={handleEpisodeEnd}
-          />
+          {!adPlayed ? (
+            <PreRollAd onComplete={() => setAdPlayed(true)} duration={8} />
+          ) : (
+            <Player
+              key={current.url}
+              src={current.url}
+              autoPlay
+              captions={captions}
+              dubOptions={variants.map((v) => ({ id: v.dubSubjectId, label: v.language }))}
+              selectedDub={selectedDub || ""}
+              onDubChange={(dubId) => { setSelectedDub(dubId); }}
+              onProgress={(currentTime, duration) => {
+                if (slug && tmdbId) {
+                  saveContinueWatching({
+                    slug,
+                    tmdbId,
+                    type: "series",
+                    title,
+                    poster: poster || "",
+                    currentTime,
+                    duration,
+                    seasonNumber: seasonNum,
+                    episodeNumber: episodeNum,
+                    updatedAt: Date.now(),
+                  });
+                }
+              }}
+              onEnded={handleEpisodeEnd}
+            />
+          )}
         </div>
 
         <div className="mt-4 md:mt-6">
@@ -322,25 +330,18 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
             </div>
             <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
               <button
+                onClick={() => setShowDownloadGate(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </button>
+              <button
                 onClick={openEpisodePanel}
                 className="flex items-center gap-2 px-3 py-2 bg-[#12121a] border border-[#2a2a3a] text-white text-sm hover:border-[#f5c542]/50 transition-colors"
               >
                 <ListOrdered className="w-4 h-4" />
                 Episodes
-              </button>
-              <button
-                onClick={() => setShowStreamBox(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download 2
-              </button>
-              <button
-                onClick={openDownloadModal}
-                className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download
               </button>
               {variants.length > 0 && (
                 <button
@@ -525,6 +526,12 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           onClose={() => setShowStreamBox(false)}
         />
       )}
+
+      <DownloadGate
+        open={showDownloadGate}
+        onClose={() => setShowDownloadGate(false)}
+        onVerified={() => setShowStreamBox(true)}
+      />
 
       {showDubMenu && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setShowDubMenu(false)}>

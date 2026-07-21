@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /download
+Disallow: /_next/
+
+Sitemap: https://cinemax77.vercel.app/sitemap.xml

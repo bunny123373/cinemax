@@ -39,16 +39,27 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
   const data = await getSeriesData(slug, sp.tmdbId);
   if (!data) return { title: "Not Found" };
-  const { item } = data;
+  const { item, detail } = data;
+  const desc = item.overview?.slice(0, 160) || `Watch ${item.title} series online in HD on CineMax.`;
+  const keywords = [item.title, "watch online", "stream", "HD", "series", "tv show", ...(detail?.genres?.map((g: any) => g.name || g) || [])];
   return {
-    title: `${item.title} | CineMax`,
-    description: item.overview?.slice(0, 160) || `Watch ${item.title} series online in HD on CineMax.`,
+    title: `${item.title} (${item.year}) | Watch Online HD | CineMax`,
+    description: desc,
+    keywords,
     openGraph: {
-      title: `${item.title} | CineMax`,
-      description: item.overview?.slice(0, 160),
-      images: [{ url: item.backdrop || item.poster || "" }],
+      title: `${item.title} (${item.year}) | CineMax`,
+      description: desc,
+      images: [{ url: item.backdrop || item.poster || "", width: 1280, height: 720 }],
       type: "video.tv_show",
+      siteName: "CineMax",
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${item.title} (${item.year}) | CineMax`,
+      description: desc,
+      images: [item.backdrop || item.poster || ""],
+    },
+    alternates: { canonical: `https://cinemax77.vercel.app/series/${slug}?tmdbId=${item.tmdbId}` },
   };
 }
 

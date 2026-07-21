@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
-const TELEGRAM_URL = "https://t.me/YOUR_CHANNEL";
+const TELEGRAM_URL = "https://t.me/MultiMirror";
+const VPN_AFFILIATE_URL = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -57,6 +58,30 @@ export default function Footer() {
               <Link href="/download" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">APK Download</Link>
               <Link href="/support" className="block text-sm text-[#8e8ea0] hover:text-[#f5c542] transition-colors">Support Us</Link>
             </div>
+          </div>
+          <div className="col-span-2 md:col-span-4">
+            <a
+              href={VPN_AFFILIATE_URL}
+              target="_blank"
+              rel="noopener noreferrer sponsored nofollow"
+              className="block bg-gradient-to-r from-[#1a1a2e] to-[#12121a] border border-[#2a2a3a] rounded-xl p-4 md:p-5 hover:border-[#46d369]/40 transition-colors group"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#46d369]/10 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-[#46d369]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white group-hover:text-[#46d369] transition-colors">Stay Safe Online</p>
+                    <p className="text-xs text-[#8e8ea0]">Browse securely — Special offer</p>
+                  </div>
+                </div>
+                <span className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#46d369]/10 border border-[#46d369]/30 text-[#46d369] rounded-lg whitespace-nowrap">
+                  Get Deal
+                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </span>
+              </div>
+            </a>
           </div>
           <div className="col-span-2 md:col-span-4">
             <div className="flex flex-wrap items-center justify-center gap-4">

@@ -6,6 +6,9 @@ import { useState, useEffect } from "react";
 import { Star, Play, Globe, RefreshCw } from "lucide-react";
 import ContentRow from "@/components/ContentRow";
 import WatchlistButton from "@/components/WatchlistButton";
+import DownloadGate from "@/components/DownloadGate";
+import StreamBoxEmbed from "@/components/StreamBoxEmbed";
+import AdBanner from "@/components/AdBanner";
 import { getContinueWatching } from "@/lib/storage";
 import type { Net27TitleDetail, Net27Item } from "@/types/net27";
 
@@ -29,6 +32,8 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string>("");
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
+  const [showDownloadGate, setShowDownloadGate] = useState(false);
+  const [showStreamBox, setShowStreamBox] = useState(false);
 
   useEffect(() => {
     fetch(`/api/net27/variants/movie/${item.tmdbId}`)
@@ -176,6 +181,13 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
                   Restart
                 </Link>
               )}
+              <button
+                onClick={() => setShowDownloadGate(true)}
+                className="inline-flex items-center gap-2 px-5 sm:px-6 py-2 sm:py-2.5 bg-[#f5c542] text-[#0a0a0f] text-sm sm:text-base font-semibold hover:bg-[#e0b530] transition-colors"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download
+              </button>
               <WatchlistButton
                 slug={toSlug(item.title)}
                 tmdbId={item.tmdbId}
@@ -224,6 +236,33 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
         </div>
       </div>
 
+      <a
+        href="https://t.me/MultiMirror"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block max-w-[1800px] mx-auto px-4 sm:px-6 mt-8 md:mt-12"
+      >
+        <div className="bg-gradient-to-r from-[#2CA5E0]/10 to-[#12121a] border border-[#2CA5E0]/20 rounded-xl p-4 hover:border-[#2CA5E0]/50 transition-colors group">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#2CA5E0]/10 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-[#2CA5E0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white group-hover:text-[#2CA5E0] transition-colors">Join Telegram for Updates</p>
+                <p className="text-xs text-[#8e8ea0]">New movies & series added daily</p>
+              </div>
+            </div>
+            <span className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#2CA5E0]/10 border border-[#2CA5E0]/30 text-[#2CA5E0] rounded-lg whitespace-nowrap">
+              Join
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <AdBanner />
+
       {related && related.length > 0 && (
         <div className="mt-12 md:mt-16 pb-12 md:pb-16 px-4 sm:px-6 max-w-[1800px] mx-auto">
           <ContentRow
@@ -257,6 +296,21 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
           />
         </div>
       )}
+
+      {showStreamBox && (
+        <StreamBoxEmbed
+          type="movie"
+          tmdbId={item.tmdbId}
+          title={item.title}
+          onClose={() => setShowStreamBox(false)}
+        />
+      )}
+
+      <DownloadGate
+        open={showDownloadGate}
+        onClose={() => setShowDownloadGate(false)}
+        onVerified={() => setShowStreamBox(true)}
+      />
     </div>
   );
 }

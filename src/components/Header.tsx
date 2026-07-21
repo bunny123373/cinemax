@@ -7,7 +7,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Film, Tv, X } from "lucide-react";
 import type { Net27Item } from "@/types/net27";
 
-const TELEGRAM_URL = "https://t.me/YOUR_CHANNEL";
+const TELEGRAM_URL = "https://t.me/MultiMirror";
 
 const pcNavLinks = [
   { href: "/", label: "Home" },

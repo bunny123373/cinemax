@@ -7,6 +7,10 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import { Analytics } from "@vercel/analytics/react";
+import PushNotificationRegistrar from "@/components/PushNotificationRegistrar";
+import AdblockerDetector from "@/components/AdblockerDetector";
+import InterstitialAd from "@/components/InterstitialAd";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -78,6 +82,10 @@ export default function RootLayout({
           <Footer />
           <BottomNav />
           <ServiceWorkerRegistrar />
+          <PushNotificationRegistrar />
+          <AdblockerDetector />
+          <InterstitialAd />
+          <ExitIntentPopup />
         </ReduxProvider>
         <Analytics />
       </body>

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Settings, Globe, Download, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
+import PreRollAd from "@/components/PreRollAd";
+import DownloadGate from "@/components/DownloadGate";
 import { saveContinueWatching } from "@/lib/storage";
 
 const NET27_BASE = "https://net27.cc";
@@ -51,6 +53,8 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [resumeTime, setResumeTime] = useState<number | null>(null);
   const [showStreamBox, setShowStreamBox] = useState(false);
+  const [adPlayed, setAdPlayed] = useState(false);
+  const [showDownloadGate, setShowDownloadGate] = useState(false);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
@@ -215,7 +219,10 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         </Link>
 
         <div className="w-full aspect-video bg-black">
-          <Player
+          {!adPlayed ? (
+            <PreRollAd onComplete={() => setAdPlayed(true)} duration={8} />
+          ) : (
+            <Player
             key={current.url}
             src={current.url}
             autoPlay
@@ -236,6 +243,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
               }
             }}
           />
+          )}
         </div>
 
         <div className="mt-4 md:mt-6">
@@ -243,14 +251,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             <h1 className="text-lg md:text-2xl font-bold text-white truncate min-w-0">{title}</h1>
             <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-hide pb-1">
               <button
-                onClick={() => setShowStreamBox(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1db954] text-white text-sm font-semibold hover:bg-[#1ed760] transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Download 2
-              </button>
-              <button
-                onClick={openDownloadModal}
+                onClick={() => setShowDownloadGate(true)}
                 className="flex items-center gap-2 px-3 py-2 bg-[#f5c542] text-[#0a0a0f] text-sm font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Download className="w-4 h-4" />
@@ -456,6 +457,12 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
           onClose={() => setShowStreamBox(false)}
         />
       )}
+
+      <DownloadGate
+        open={showDownloadGate}
+        onClose={() => setShowDownloadGate(false)}
+        onVerified={() => setShowStreamBox(true)}
+      />
 
     </main>
   );
