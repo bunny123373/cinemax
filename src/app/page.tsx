@@ -3,7 +3,6 @@ import Image from "next/image";
 import ContentRow from "@/components/ContentRow";
 import TopTenRow from "@/components/TopTenRow";
 import ContinueWatchingRow from "@/components/ContinueWatchingRow";
-import SponsoredRow from "@/components/SponsoredRow";
 
 import HeroSlider from "@/components/HeroSlider";
 import { Suspense } from "react";
@@ -140,8 +139,6 @@ export default async function HomePage() {
         <div className="pt-8" />
 
         <ContinueWatchingRow />
-
-        <SponsoredRow />
 
         {featured.length > 0 && (
           <ContentRow title="Trending Now" items={featured.slice(0, 15)} link="/search" />
