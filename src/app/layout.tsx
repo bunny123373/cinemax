@@ -105,14 +105,15 @@ export default function RootLayout({
         <meta name="44fd5e4d00b33980a1b07849289b58fb201392c1" content="44fd5e4d00b33980a1b07849289b58fb201392c1" />
         <meta name="monetag" content="c5efbe30a1ac8fb7c52769fb7013b9f5"></meta>
         <meta name="referrer" content="no-referrer-when-downgrade" />
-        <script src="https://5gvci.com/act/files/tag.min.js?z=11282497" data-cfasync="false" async></script>
-        <script src="https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044" async></script>
+        <script src="https://5gvci.com/act/files/tag.min.js?z=11376607" data-cfasync="false" async></script>
+        <script>(function(s){s.dataset.zone='11376614',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        <script>(function(s){s.dataset.zone='11376639',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        <script src="https://omg10.com/4/10635439" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
         <link rel="preconnect" href="https://streambox.sonixhub.net" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
-      <script src="https://pl30358092.effectivecpmnetwork.com/83/ae/1d/83ae1d8e37ab5ebba22d210675001f57.js"></script>
       <script dangerouslySetInnerHTML={{ __html: `
         (function(kygw){
           var d = document,

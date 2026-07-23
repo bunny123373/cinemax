@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 const TELEGRAM_URL = "https://t.me/MultiMirror";
-const VPN_AFFILIATE_URL = "https://www.effectivecpmnetwork.com/xht1pw0g3?key=9c3c37751b12c6f33324d06ee16bf044";
+const VPN_AFFILIATE_URL = "https://omg10.com/4/10635439";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
