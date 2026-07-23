@@ -106,8 +106,8 @@ export default function RootLayout({
         <meta name="monetag" content="c5efbe30a1ac8fb7c52769fb7013b9f5"></meta>
         <meta name="referrer" content="no-referrer-when-downgrade" />
         <script src="https://5gvci.com/act/files/tag.min.js?z=11376607" data-cfasync="false" async></script>
-        <script>(function(s){s.dataset.zone='11376614',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-        <script>(function(s){s.dataset.zone='11376639',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        <script dangerouslySetInnerHTML={{ __html: "(function(s){s.dataset.zone='11376614',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))" }} />
+        <script dangerouslySetInnerHTML={{ __html: "(function(s){s.dataset.zone='11376639',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))" }} />
         <script src="https://omg10.com/4/10635439" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
