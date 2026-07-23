@@ -107,7 +107,6 @@ export default function RootLayout({
         <meta name="referrer" content="no-referrer-when-downgrade" />
         <script src="https://5gvci.com/act/files/tag.min.js?z=11376607" data-cfasync="false" async></script>
         <script src="https://pl30358091.effectivecpmnetwork.com/99/0e/d1/990ed1938b16ddb03e403739635bad9d.js"></script>
-
         <script src="https://omg10.com/4/10635439" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
@@ -115,7 +114,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[#0a0a0f] text-[#f5f5f7] antialiased font-sans" suppressHydrationWarning>
       <script src="https://pl30358092.effectivecpmnetwork.com/83/ae/1d/83ae1d8e37ab5ebba22d210675001f57.js"></script>
-
       <script dangerouslySetInnerHTML={{ __html: `
         (function(kygw){
           var d = document,
