@@ -7,7 +7,6 @@ import Image from "next/image";
 import { ArrowLeft, ChevronLeft, ChevronRight, Globe, Settings, Download, ArrowLeft as Back, Check, ListOrdered, X, Play } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
-import PreRollAd from "@/components/PreRollAd";
 import DownloadGate from "@/components/DownloadGate";
 import { saveContinueWatching, getContinueWatching } from "@/lib/storage";
 import type { ContinueWatchingItem } from "@/types";
@@ -61,7 +60,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [showUpNext, setShowUpNext] = useState(false);
   const [showEpisodePanel, setShowEpisodePanel] = useState(false);
   const [showStreamBox, setShowStreamBox] = useState(false);
-  const [adPlayed, setAdPlayed] = useState(false);
   const [showDownloadGate, setShowDownloadGate] = useState(false);
   const [episodeCount, setEpisodeCount] = useState(0);
   const [allSeasons, setAllSeasons] = useState<{ season_number: number; name: string; episode_count: number }[]>([]);
@@ -171,6 +169,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     setShowEpisodePanel(true);
   };
 
+
   const current = sources[selectedSource];
 
   function formatSize(bytes?: number) {
@@ -247,29 +246,29 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
           </Link>
 
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <p className="text-[#8e8ea0]">Stream not available for this episode</p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => { setError(false); if (tmdbId) loadEmbed(tmdbId, type, seasonNum, episodeNum, selectedDub); }}
-                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
-              >
-                Retry
-              </button>
-              <button
-                onClick={() => goToEpisode(seasonNum, episodeNum - 1)}
-                disabled={episodeNum <= 1 && seasonNum <= 1}
-                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a] disabled:opacity-30"
-              >
-                <ChevronLeft className="w-4 h-4 inline mr-1" />Prev
-              </button>
-              <button
-                onClick={() => goToEpisode(seasonNum, episodeNum + 1)}
-                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
-              >
-                Next<ChevronRight className="w-4 h-4 inline ml-1" />
-              </button>
+              <p className="text-[#8e8ea0]">Stream not available for this episode</p>
+              <div className="flex items-center gap-3 flex-wrap justify-center">
+                <button
+                  onClick={() => { setError(false); if (tmdbId) loadEmbed(tmdbId, type, seasonNum, episodeNum, selectedDub); }}
+                  className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+                >
+                  Retry
+                </button>
+                <button
+                  onClick={() => goToEpisode(seasonNum, episodeNum - 1)}
+                  disabled={episodeNum <= 1 && seasonNum <= 1}
+                  className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a] disabled:opacity-30"
+                >
+                  <ChevronLeft className="w-4 h-4 inline mr-1" />Prev
+                </button>
+                <button
+                  onClick={() => goToEpisode(seasonNum, episodeNum + 1)}
+                  className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+                >
+                  Next<ChevronRight className="w-4 h-4 inline ml-1" />
+                </button>
+              </div>
             </div>
-          </div>
         </div>
       </div>
     );
@@ -289,12 +288,11 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
         </Link>
 
         <div className="w-full aspect-video bg-black">
-          {!adPlayed ? (
-            <PreRollAd onComplete={() => setAdPlayed(true)} duration={8} />
-          ) : (
-            <Player
+          <Player
               key={current.url}
               src={current.url}
+              title={title}
+              subtitle={`Season ${seasonNum} \u00B7 Episode ${episodeNum}`}
               autoPlay
               captions={captions}
               dubOptions={variants.map((v) => ({ id: v.dubSubjectId, label: v.language }))}
@@ -318,7 +316,6 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
               }}
               onEnded={handleEpisodeEnd}
             />
-          )}
         </div>
 
         <div className="mt-4 md:mt-6">

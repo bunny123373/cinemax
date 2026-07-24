@@ -38,7 +38,7 @@ export default function WatchlistPage() {
               : `/series/${item.slug}?tmdbId=${item.tmdbId}`;
 
             return (
-              <div key={item.slug} className="relative group">
+              <div key={item.tmdbId || item.slug} className="relative group">
                 <Link href={href} className="block">
                   <div className="relative aspect-[2/3] overflow-hidden bg-[#12121a] rounded-sm">
                     <Image

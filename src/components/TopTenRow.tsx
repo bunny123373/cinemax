@@ -182,7 +182,7 @@ export default function TopTenRow({ title, items, link }: TopTenRowProps) {
           className="flex overflow-x-auto px-4 md:px-8 pb-10 pt-4 scrollbar-hide -my-4"
         >
           {top10.map((item, index) => (
-            <TopTenCard key={item.slug} item={item} index={index} />
+            <TopTenCard key={item.tmdbId || item.slug} item={item} index={index} />
           ))}
         </div>
         <button

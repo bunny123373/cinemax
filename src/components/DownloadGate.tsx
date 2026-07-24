@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-const SMART_LINK_URL = "https://omg10.com/4/10635439";
+const SMART_LINK_URL = "https://www.effectivecpmnetwork.com/xyqk3ubv7?key=b47dcd9610166145c2197181fe08f2a5";
 
 interface DownloadGateProps {
   open: boolean;

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowLeft, Settings, Globe, Download, ArrowLeft as Back, Check } from "lucide-react";
 import Player from "@/components/Player";
 import StreamBoxEmbed from "@/components/StreamBoxEmbed";
-import PreRollAd from "@/components/PreRollAd";
 import DownloadGate from "@/components/DownloadGate";
 import { saveContinueWatching } from "@/lib/storage";
 
@@ -53,7 +52,6 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [resumeTime, setResumeTime] = useState<number | null>(null);
   const [showStreamBox, setShowStreamBox] = useState(false);
-  const [adPlayed, setAdPlayed] = useState(false);
   const [showDownloadGate, setShowDownloadGate] = useState(false);
 
   useEffect(() => {
@@ -167,6 +165,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
     }
   }
 
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0f] gap-4">
@@ -187,20 +186,21 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
             <ArrowLeft className="w-3 h-3 md:w-4 md:h-4" />
             Back to details
           </Link>
+
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <p className="text-[#8e8ea0]">Stream not available</p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => { setError(false); if (tmdbId) loadEmbed(tmdbId, selectedDub); }}
-                className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
-              >
-                Retry
-              </button>
-              <Link href="/" className="px-4 py-2 text-sm border border-[#2a2a3a] text-[#f5c542] hover:border-[#f5c542]/30 transition-colors bg-[#12121a]">
-                Go Home
-              </Link>
+              <p className="text-[#8e8ea0]">Stream not available</p>
+              <div className="flex items-center gap-3 flex-wrap justify-center">
+                <button
+                  onClick={() => { setError(false); if (tmdbId) loadEmbed(tmdbId, selectedDub); }}
+                  className="px-4 py-2 text-sm border border-[#2a2a3a] text-white hover:border-[#f5c542]/30 transition-colors bg-[#12121a]"
+                >
+                  Retry
+                </button>
+                <Link href="/" className="px-4 py-2 text-sm border border-[#2a2a3a] text-[#f5c542] hover:border-[#f5c542]/30 transition-colors bg-[#12121a]">
+                  Go Home
+                </Link>
+              </div>
             </div>
-          </div>
         </div>
       </div>
     );
@@ -220,31 +220,28 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         </Link>
 
         <div className="w-full aspect-video bg-black">
-          {!adPlayed ? (
-            <PreRollAd onComplete={() => setAdPlayed(true)} duration={8} />
-          ) : (
-            <Player
-            key={current.url}
-            src={current.url}
-            autoPlay
-            startTime={resumeTime || undefined}
-            captions={captions}
-            onProgress={(currentTime, duration) => {
-              if (slug && tmdbId) {
-                saveContinueWatching({
-                  slug,
-                  tmdbId,
-                  type: "movie",
-                  title,
-                  poster: poster || "",
-                  currentTime,
-                  duration,
-                  updatedAt: Date.now(),
-                });
-              }
-            }}
-          />
-          )}
+          <Player
+              key={current.url}
+              src={current.url}
+              title={title}
+              autoPlay
+              startTime={resumeTime || undefined}
+              captions={captions}
+              onProgress={(currentTime, duration) => {
+                if (slug && tmdbId) {
+                  saveContinueWatching({
+                    slug,
+                    tmdbId,
+                    type: "movie",
+                    title,
+                    poster: poster || "",
+                    currentTime,
+                    duration,
+                    updatedAt: Date.now(),
+                  });
+                }
+              }}
+            />
         </div>
 
         <div className="mt-4 md:mt-6">

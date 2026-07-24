@@ -9,7 +9,6 @@ import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import { Analytics } from "@vercel/analytics/react";
 import PushNotificationRegistrar from "@/components/PushNotificationRegistrar";
 import AdblockerDetector from "@/components/AdblockerDetector";
-import InterstitialAd from "@/components/InterstitialAd";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 
 const inter = Inter({
@@ -107,7 +106,7 @@ export default function RootLayout({
         <meta name="referrer" content="no-referrer-when-downgrade" />
         <script src="https://5gvci.com/act/files/tag.min.js?z=11376607" data-cfasync="false" async></script>
         <script src="https://pl30358091.effectivecpmnetwork.com/99/0e/d1/990ed1938b16ddb03e403739635bad9d.js"></script>
-        <script src="https://omg10.com/4/10635439" async></script>
+        <script src="https://www.effectivecpmnetwork.com/xyqk3ubv7?key=b47dcd9610166145c2197181fe08f2a5" async></script>
         <link rel="manifest" href="/manifest.json" />
         <link rel="dns-prefetch" href="https://streambox.sonixhub.net" />
         <link rel="preconnect" href="https://streambox.sonixhub.net" crossOrigin="anonymous" />
@@ -136,7 +135,6 @@ export default function RootLayout({
           <ServiceWorkerRegistrar />
           <PushNotificationRegistrar />
           <AdblockerDetector />
-          <InterstitialAd />
           <ExitIntentPopup />
         </ReduxProvider>
         <Analytics />

@@ -6,11 +6,17 @@ import { MediaPlayer, MediaProvider, isHLSProvider, type MediaPlayerInstance, ty
 import { DefaultVideoLayout, defaultLayoutIcons } from "@vidstack/react/player/layouts/default";
 import "@vidstack/react/player/styles/default/theme.css";
 import "@vidstack/react/player/styles/default/layouts/video.css";
+import PlayerTitle from "./PlayerTitle";
+import ChapterTitleEnhanced from "./ChapterTitleEnhanced";
+import TimeSliderEnhanced from "./TimeSliderEnhanced";
+import { useThumbnailVtt } from "@/hooks/useDynamicThumbnails";
 
 interface PlayerProps {
   src: string;
   type?: "hls" | "dash" | "mp4" | "auto";
   poster?: string;
+  title?: string;
+  subtitle?: string;
   autoPlay?: boolean;
   startTime?: number;
   captions?: { lang: string; label: string; url: string }[];
@@ -40,7 +46,23 @@ function formatTime(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function Player({ src, type, poster, autoPlay, startTime, captions, dubOptions, selectedDub, onDubChange, headers, onProgress, onEnded, onError }: PlayerProps) {
+export default function Player({
+  src,
+  type,
+  poster,
+  title,
+  subtitle,
+  autoPlay,
+  startTime,
+  captions,
+  dubOptions,
+  selectedDub,
+  onDubChange,
+  headers,
+  onProgress,
+  onEnded,
+  onError,
+}: PlayerProps) {
   const playerRef = useRef<MediaPlayerInstance>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastProgressRef = useRef(0);
@@ -51,6 +73,17 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
   const [showKeyboardHint, setShowKeyboardHint] = useState<string | null>(null);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [mediaPlaying, setMediaPlaying] = useState(false);
+  const [mediaBuffering, setMediaBuffering] = useState(false);
+  const [mediaCurrentTime, setMediaCurrentTime] = useState(0);
+  const [mediaBuffered, setMediaBuffered] = useState(0);
+
+  const { vttUrl: thumbnailVttUrl, loading: thumbnailsLoading } = useThumbnailVtt(
+    src,
+    videoDuration,
+    videoDuration > 600 ? 10 : videoDuration > 120 ? 5 : 2
+  );
 
   useEffect(() => {
     return () => {
@@ -70,6 +103,51 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
     player.addEventListener("can-play", handler, { once: true });
     return () => player.removeEventListener("can-play", handler);
   }, [startTime, src]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    const onDurationChange = () => {
+      const d = player.duration;
+      if (d > 0) setVideoDuration(d);
+    };
+    player.addEventListener("duration-change", onDurationChange);
+    const d = player.duration;
+    if (d > 0) setVideoDuration(d);
+    return () => player.removeEventListener("duration-change", onDurationChange);
+  }, [src]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+
+    const onPlayEvent = () => { if (mountedRef.current) setMediaPlaying(true); };
+    const onPauseEvent = () => { if (mountedRef.current) setMediaPlaying(false); };
+    const onWaitingEvent = () => { if (mountedRef.current) setMediaBuffering(true); };
+    const onPlayingEvent = () => { if (mountedRef.current) setMediaBuffering(false); };
+    const onTimeTick = () => {
+      if (!mountedRef.current) return;
+      setMediaCurrentTime(player.currentTime);
+      const buffered = (player as any).buffered;
+      if (buffered && buffered.length > 0) {
+        setMediaBuffered(buffered.end(buffered.length - 1));
+      }
+    };
+
+    player.addEventListener("play", onPlayEvent);
+    player.addEventListener("pause", onPauseEvent);
+    player.addEventListener("waiting", onWaitingEvent);
+    player.addEventListener("playing", onPlayingEvent);
+    player.addEventListener("time-update", onTimeTick);
+
+    return () => {
+      player.removeEventListener("play", onPlayEvent);
+      player.removeEventListener("pause", onPauseEvent);
+      player.removeEventListener("waiting", onWaitingEvent);
+      player.removeEventListener("playing", onPlayingEvent);
+      player.removeEventListener("time-update", onTimeTick);
+    };
+  }, [src]);
 
   const flashHint = useCallback((text: string) => {
     setShowKeyboardHint(text);
@@ -333,7 +411,6 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
         playsInline
         viewType="video"
         volume={0.5}
-        crossOrigin="anonymous"
         aspectRatio="16/9"
         onProviderChange={onProviderChange}
         onTimeUpdate={onTimeUpdate}
@@ -351,8 +428,25 @@ export default function Player({ src, type, poster, autoPlay, startTime, caption
             default={c.lang === "en"}
           />
         ))}
-        <DefaultVideoLayout icons={defaultLayoutIcons} />
+        <DefaultVideoLayout icons={defaultLayoutIcons} thumbnails={thumbnailVttUrl ?? undefined} />
+        <PlayerTitle title={title} subtitle={subtitle} isPlaying={mediaPlaying} isPaused={!mediaPlaying && mediaCurrentTime > 0} isBuffering={mediaBuffering} currentTime={mediaCurrentTime} />
+        <ChapterTitleEnhanced showNavigation showProgress showChapterNumber isPlaying={mediaPlaying} currentTime={mediaCurrentTime} duration={videoDuration} playerRef={playerRef} />
       </MediaPlayer>
+
+      <div className="absolute bottom-0 left-0 right-0 z-25 px-4 pb-2 group-hover/player:pb-3 transition-all">
+        <TimeSliderEnhanced showPreview showChapters currentTime={mediaCurrentTime} duration={videoDuration} buffered={mediaBuffered} playerRef={playerRef} />
+      </div>
+
+      <style>{`
+        .vds-video-layout [data-part="time-slider"],
+        .vds-video-layout [data-part="time-slider-root"],
+        .vds-video-layout .vds-time-slider {
+          opacity: 0 !important;
+          pointer-events: none !important;
+          height: 0 !important;
+          overflow: hidden !important;
+        }
+      `}</style>
 
       {showKeyboardHint && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
