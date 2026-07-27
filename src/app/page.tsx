@@ -142,6 +142,10 @@ export default async function HomePage() {
 
         <ContinueWatchingRow />
 
+        <div className="pt-4">
+          <ProviderTabs />
+        </div>
+
         {featured.length > 0 && (
           <ContentRow title="Trending Now" items={featured.slice(0, 15)} link="/search" />
         )}
@@ -205,14 +209,6 @@ export default async function HomePage() {
             />
           ) : null
         )}
-
-        <div className="pt-8">
-          <div className="flex items-center gap-3 mb-4 px-4 md:px-8">
-            <div className="w-1 h-6 bg-[#E50914] rounded-full" />
-            <h2 className="text-xl md:text-2xl font-bold text-white">Browse by Provider</h2>
-          </div>
-          <ProviderTabs />
-        </div>
       </div>
     </div>
   );
