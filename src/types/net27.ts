@@ -1,5 +1,5 @@
 export interface Net27Item {
-  tmdbId: number;
+  tmdbId: string;
   title: string;
   year: string;
   poster: string | null;
@@ -8,6 +8,7 @@ export interface Net27Item {
   rating: number;
   type: string;
   source?: string;
+  detailPath?: string;
 }
 
 export interface Net27ListResponse {
@@ -84,7 +85,7 @@ export interface Net27Caption {
 
 export interface Net27EmbedResponse {
   ok: boolean;
-  tmdbId: number;
+  tmdbId: string;
   title: string;
   type: string;
   mp4: string | null;
@@ -100,6 +101,7 @@ export interface Net27EmbedResponse {
   match: string;
   captions: Net27Caption[];
   fallbackHls: string | null;
+  spaPlayerUrl?: string;
 }
 
 export interface Net27Variant {

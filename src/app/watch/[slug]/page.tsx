@@ -8,11 +8,9 @@ import StreamBoxEmbed from "@/components/StreamBoxEmbed";
 import DownloadGate from "@/components/DownloadGate";
 import { saveContinueWatching } from "@/lib/storage";
 
-const NET27_BASE = "https://net27.cc";
-
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tmdbId?: string; type?: string; dub?: string; t?: string }>;
+  searchParams: Promise<{ tmdbId?: string; type?: string; dub?: string; t?: string; dp?: string; pid?: string }>;
 }
 
 interface SourceOption {
@@ -31,7 +29,7 @@ interface Variant {
 
 export default function WatchMoviePage({ params, searchParams }: Props) {
   const [slug, setSlug] = useState<string | null>(null);
-  const [tmdbId, setTmdbId] = useState<number | null>(null);
+  const [tmdbId, setTmdbId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [sources, setSources] = useState<SourceOption[]>([]);
   const [selectedSource, setSelectedSource] = useState(0);
@@ -53,35 +51,59 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
   const [resumeTime, setResumeTime] = useState<number | null>(null);
   const [showStreamBox, setShowStreamBox] = useState(false);
   const [showDownloadGate, setShowDownloadGate] = useState(false);
+  const [spaPlayerUrl, setSpaPlayerUrl] = useState<string | null>(null);
+  const [detailPath, setDetailPath] = useState<string | undefined>(undefined);
+  const [pid, setPid] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
       setSlug(p.slug);
-      setTmdbId(sp.tmdbId ? Number(sp.tmdbId) : null);
+      setTmdbId(sp.tmdbId || null);
       setTitle(p.slug.replace(/-/g, " "));
       if (sp.dub) setSelectedDub(sp.dub);
       if (sp.t) setResumeTime(Number(sp.t));
+      if (sp.dp) setDetailPath(sp.dp);
+      if (sp.pid) setPid(sp.pid);
     });
   }, [params, searchParams]);
 
   useEffect(() => {
     if (!tmdbId) return;
-    fetch(`/api/tmdb/details/${tmdbId}?type=movie`)
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((data) => { if (data.poster_path) setPoster(`https://image.tmdb.org/t/p/w500${data.poster_path}`); })
-      .catch(() => {});
-  }, [tmdbId]);
+    if (detailPath) {
+      const detailUrl = pid
+        ? `/api/provider?id=${pid}&action=detail&tmdbId=${tmdbId}&dp=${encodeURIComponent(detailPath)}&type=movie`
+        : `/api/net27/detail?tmdbId=${tmdbId}&dp=${encodeURIComponent(detailPath)}&type=movie`;
+      fetch(detailUrl)
+        .then((r) => r.json())
+        .then((data) => {
+          const poster = data.poster || data.detail?.poster || null;
+          if (poster) setPoster(poster);
+        })
+        .catch(() => {});
+    }
+  }, [tmdbId, detailPath, pid]);
 
-  const loadEmbed = useCallback((tid: number, dub?: string) => {
+  const loadEmbed = useCallback((tid: string, dub?: string) => {
     setLoading(true);
     setError(false);
     setSources([]);
+    setSpaPlayerUrl(null);
     const qs = new URLSearchParams({ type: "movie" });
     if (dub) qs.set("dub", dub);
-    fetch(`/api/net27/embed/${tid}?${qs}`)
+    if (detailPath) qs.set("dp", detailPath);
+    const embedUrl = pid
+      ? `/api/provider?id=${pid}&action=embed&tmdbId=${tid}&${qs}`
+      : `/api/net27/embed/${tid}?${qs}`;
+    fetch(embedUrl)
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((res) => {
         if (!res.ok) { setError(true); return; }
+        if (res.spaPlayerUrl) {
+          setSpaPlayerUrl(res.spaPlayerUrl);
+          setTitle(res.embed?.title || slug?.replace(/-/g, " ") || "");
+          setLoading(false);
+          return;
+        }
         setTitle(res.embed?.title || slug?.replace(/-/g, " ") || "");
         setEmbedData(res.embed);
         const srcs: SourceOption[] = (res.sources || []).map((s: any) => ({ ...s, size: s.size }));
@@ -91,12 +113,12 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         setCaptions((res.captions || []).map((c: any) => ({
           lang: c.lang,
           label: c.name || c.lang,
-          url: c.url.startsWith("http") ? c.url : `${NET27_BASE}${c.url}`,
+          url: c.url.startsWith("http") ? c.url : c.url,
         })));
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, detailPath, pid]);
 
   useEffect(() => {
     if (!tmdbId) { setLoading(false); setError(true); return; }
@@ -105,11 +127,13 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
 
   useEffect(() => {
     if (!tmdbId) return;
-    fetch(`/api/net27/variants/movie/${tmdbId}`)
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((res) => { if (res.variants) setVariants(res.variants); })
-      .catch(() => {});
-  }, [tmdbId]);
+    if (!pid) {
+      fetch(`/api/net27/variants/movie/${tmdbId}`)
+        .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then((res) => { if (res.variants) setVariants(res.variants); })
+        .catch(() => {});
+    }
+  }, [tmdbId, pid]);
 
   const current = sources[selectedSource];
 
@@ -175,7 +199,7 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
     );
   }
 
-  if (error || !current) {
+  if (error || (!spaPlayerUrl && !current)) {
     return (
       <div className="min-h-screen bg-[#0a0a0f]">
         <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
@@ -220,28 +244,39 @@ export default function WatchMoviePage({ params, searchParams }: Props) {
         </Link>
 
         <div className="w-full aspect-video bg-black">
-          <Player
-              key={current.url}
-              src={current.url}
+          {spaPlayerUrl ? (
+            <iframe
+              src={spaPlayerUrl}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
               title={title}
-              autoPlay
-              startTime={resumeTime || undefined}
-              captions={captions}
-              onProgress={(currentTime, duration) => {
-                if (slug && tmdbId) {
-                  saveContinueWatching({
-                    slug,
-                    tmdbId,
-                    type: "movie",
-                    title,
-                    poster: poster || "",
-                    currentTime,
-                    duration,
-                    updatedAt: Date.now(),
-                  });
-                }
-              }}
             />
+          ) : (
+            <Player
+                key={current.url}
+                src={current.url}
+                title={title}
+                autoPlay
+                startTime={resumeTime || undefined}
+                captions={captions}
+                onProgress={(currentTime, duration) => {
+                  if (slug && tmdbId) {
+                    saveContinueWatching({
+                      slug,
+                      tmdbId,
+                      type: "movie",
+                      title,
+                      poster: poster || "",
+                      currentTime,
+                      duration,
+                      detailPath,
+                      updatedAt: Date.now(),
+                    });
+                  }
+                }}
+              />
+          )}
         </div>
 
         <div className="mt-4 md:mt-6">

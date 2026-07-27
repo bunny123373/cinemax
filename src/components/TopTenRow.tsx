@@ -22,11 +22,11 @@ function TopTenCard({ item, index }: { item: IContent; index: number }) {
   const [showDetail, setShowDetail] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const href = item.type === "movie"
-    ? `/movie/${toSlug(item.title)}?tmdbId=${item.tmdbId}`
-    : `/series/${toSlug(item.title)}?tmdbId=${item.tmdbId}`;
+    ? `/movie/${toSlug(item.title)}?tmdbId=${item.tmdbId}${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`
+    : `/series/${toSlug(item.title)}?tmdbId=${item.tmdbId}${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`;
   const watchHref = item.type === "movie"
-    ? `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie`
-    : `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=1&episode=1`;
+    ? `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`
+    : `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=1&episode=1${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`;
 
   const handleEnter = useCallback(() => {
     if (closeTimeout.current) clearTimeout(closeTimeout.current);
@@ -127,6 +127,7 @@ function TopTenCard({ item, index }: { item: IContent; index: number }) {
           type={item.type}
           title={item.title}
           slug={toSlug(item.title)}
+          detailPath={item.detailPath}
           onClose={() => setShowDetail(false)}
         />
       )}

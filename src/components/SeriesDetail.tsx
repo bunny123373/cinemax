@@ -26,9 +26,10 @@ interface SeriesDetailProps {
   item: Net27Item;
   detail: Net27TitleDetail | null;
   related: Net27Item[];
+  pid?: string;
 }
 
-export default function SeriesDetail({ item, detail, related }: SeriesDetailProps) {
+export default function SeriesDetail({ item, detail, related, pid }: SeriesDetailProps) {
   const initialSeason = detail?.initialSeason || 1;
   const [selectedDub, setSelectedDub] = useState<string>("");
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -37,14 +38,18 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
   const [showStreamBox, setShowStreamBox] = useState(false);
 
   const dubParam = selectedDub ? `&dub=${selectedDub}` : "";
-  const firstEpHref = `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${initialSeason}&episode=1${dubParam}`;
+  const dpParam = item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : "";
+  const pidParam = pid ? `&pid=${pid}` : "";
+  const firstEpHref = `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${initialSeason}&episode=1${dpParam}${dubParam}${pidParam}`;
 
   useEffect(() => {
-    fetch(`/api/net27/variants/tv/${item.tmdbId}?se=${initialSeason}&ep=1`)
-      .then((r) => r.json())
-      .then((res) => { if (res.variants && res.variants.length > 0) setVariants(res.variants); })
-      .catch(() => {});
-  }, [item.tmdbId, initialSeason]);
+    if (!pid) {
+      fetch(`/api/net27/variants/tv/${item.tmdbId}?se=${initialSeason}&ep=1`)
+        .then((r) => r.json())
+        .then((res) => { if (res.variants && res.variants.length > 0) setVariants(res.variants); })
+        .catch(() => {});
+    }
+  }, [item.tmdbId, initialSeason, pid]);
 
   useEffect(() => {
     const cw = getContinueWatching();
@@ -183,7 +188,7 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
 
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
               <Link
-                href={resumeData ? `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${resumeData.season}&episode=${resumeData.episode}${dubParam}` : firstEpHref}
+                href={resumeData ? `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=${resumeData.season}&episode=${resumeData.episode}${dpParam}${dubParam}${pidParam}` : firstEpHref}
                 className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-[#f5c542] text-[#0a0a0f] text-sm sm:text-base font-semibold hover:bg-[#e0b530] transition-colors"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5" fill="#0a0a0f" />
@@ -233,9 +238,9 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
                   >
                     Original
                   </button>
-                  {variants.map((v) => (
+                  {variants.map((v, i) => (
                     <button
-                      key={v.dubSubjectId}
+                      key={`${v.dubSubjectId}-${i}`}
                       onClick={() => setSelectedDub(v.dubSubjectId)}
                       className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
                         selectedDub === v.dubSubjectId
@@ -261,6 +266,8 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
             tmdbId={item.tmdbId}
             type="tv"
             titleSlug={toSlug(item.title)}
+            detailPath={item.detailPath}
+            pid={pid}
           />
         )}
 
@@ -318,6 +325,7 @@ export default function SeriesDetail({ item, detail, related }: SeriesDetailProp
                 netmirrorId: "",
                 streams: [],
                 createdAt: new Date().toISOString(),
+                detailPath: r.detailPath,
               }))}
             />
           </div>

@@ -25,9 +25,10 @@ interface MovieDetailProps {
   item: Net27Item;
   detail: Net27TitleDetail | null;
   related: Net27Item[];
+  pid?: string;
 }
 
-export default function MovieDetail({ item, detail, related }: MovieDetailProps) {
+export default function MovieDetail({ item, detail, related, pid }: MovieDetailProps) {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [selectedDub, setSelectedDub] = useState<string>("");
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
@@ -50,7 +51,9 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
   }, [item.title]);
 
   const dubParam = selectedDub ? `&dub=${selectedDub}` : "";
-  const watchHref = `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie${dubParam}`;
+  const dpParam = item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : "";
+  const pidParam = pid ? `&pid=${pid}` : "";
+  const watchHref = `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie${dpParam}${dubParam}${pidParam}`;
   const resumeHref = resumeFrom ? `${watchHref}&t=${resumeFrom}` : watchHref;
 
   return (
@@ -264,7 +267,7 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
         <div className="mt-12 md:mt-16 pb-12 md:pb-16 px-4 sm:px-6 max-w-[1800px] mx-auto">
           <ContentRow
             title="More Like This"
-            items={related.map((r) => ({
+              items={related.map((r) => ({
               _id: String(r.tmdbId),
               tmdbId: r.tmdbId,
               type: r.type as "movie" | "series",
@@ -289,6 +292,7 @@ export default function MovieDetail({ item, detail, related }: MovieDetailProps)
               netmirrorId: "",
               streams: [],
               createdAt: new Date().toISOString(),
+              detailPath: r.detailPath,
             }))}
           />
         </div>

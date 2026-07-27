@@ -77,8 +77,8 @@ export default function HeroSlider({ items }: HeroSliderProps) {
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             <Link
               href={item.type === "movie"
-                ? `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie`
-                : `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=1&episode=1`}
+                ? `/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=movie${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`
+                : `/series/watch/${toSlug(item.title)}?tmdbId=${item.tmdbId}&type=tv&season=1&episode=1${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`}
               className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 bg-[#f5c542] text-[#0a0a0f] text-xs sm:text-sm md:text-base font-semibold hover:bg-[#e0b530] transition-colors"
             >
               <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" fill="#0a0a0f" />
@@ -86,8 +86,8 @@ export default function HeroSlider({ items }: HeroSliderProps) {
             </Link>
             <Link
               href={item.type === "movie"
-                ? `/movie/${toSlug(item.title)}?tmdbId=${item.tmdbId}`
-                : `/series/${toSlug(item.title)}?tmdbId=${item.tmdbId}`}
+                ? `/movie/${toSlug(item.title)}?tmdbId=${item.tmdbId}${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`
+                : `/series/${toSlug(item.title)}?tmdbId=${item.tmdbId}${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`}
               className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 border border-white/20 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-white/5 transition-colors"
             >
               More Info

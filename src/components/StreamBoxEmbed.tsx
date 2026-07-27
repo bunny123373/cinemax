@@ -7,7 +7,7 @@ const STREAMBOX_BASE = "https://streambox.sonixhub.net";
 
 interface StreamBoxEmbedProps {
   type: string;
-  tmdbId: number;
+  tmdbId: string;
   season?: number;
   episode?: number;
   title: string;

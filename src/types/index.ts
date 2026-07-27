@@ -1,6 +1,6 @@
 export interface IContent {
   _id: string;
-  tmdbId: number;
+  tmdbId: string;
   type: "movie" | "series";
   title: string;
   slug: string;
@@ -25,6 +25,7 @@ export interface IContent {
   seasons?: Season[];
   featured?: boolean;
   createdAt: string;
+  detailPath?: string;
 }
 
 export interface Season {
@@ -95,7 +96,7 @@ export interface TmdbDetails {
 
 export interface ContinueWatchingItem {
   slug: string;
-  tmdbId: number;
+  tmdbId: string;
   type: "movie" | "series";
   title: string;
   poster: string;
@@ -103,5 +104,6 @@ export interface ContinueWatchingItem {
   duration: number;
   seasonNumber?: number;
   episodeNumber?: number;
+  detailPath?: string;
   updatedAt: number;
 }

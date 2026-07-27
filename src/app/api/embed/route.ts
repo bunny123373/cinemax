@@ -1,26 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchNetMirror, getEmbedUrl } from "@/lib/netmirror";
+import { getProvider } from "@/lib/plugins/registry";
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q") || "";
 
   try {
-    const results = await searchNetMirror(query);
+    const results = await getProvider().search(query);
     const movie = results[0];
     if (!movie) {
       return NextResponse.json({ error: "Not found", sources: [] });
     }
 
-    const embedUrl = await getEmbedUrl(movie.tmdbId, movie.type);
-
     return NextResponse.json({
       title: movie.title,
       sources: [
         {
-          provider: "screenscape",
+          provider: "netflix",
           providerUrl: "",
-          label: "Screenscape",
-          embedUrl,
+          label: "Netflix",
+          tmdbId: movie.tmdbId,
+          type: movie.type,
         },
       ],
     });

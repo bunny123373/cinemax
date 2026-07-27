@@ -16,11 +16,11 @@ export default function ContentCard({ item }: ContentCardProps) {
   const [showDetail, setShowDetail] = useState(false);
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>(null);
   const href = item.type === "movie"
-    ? `/movie/${item.slug}?tmdbId=${item.tmdbId}`
-    : `/series/${item.slug}?tmdbId=${item.tmdbId}`;
+    ? `/movie/${item.slug}?tmdbId=${item.tmdbId}${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`
+    : `/series/${item.slug}?tmdbId=${item.tmdbId}${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`;
   const watchHref = item.type === "movie"
-    ? `/watch/${item.slug}?tmdbId=${item.tmdbId}&type=movie`
-    : `/series/watch/${item.slug}?tmdbId=${item.tmdbId}&type=tv&season=1&episode=1`;
+    ? `/watch/${item.slug}?tmdbId=${item.tmdbId}&type=movie${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`
+    : `/series/watch/${item.slug}?tmdbId=${item.tmdbId}&type=tv&season=1&episode=1${item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : ""}`;
 
   const handleEnter = useCallback(() => {
     if (closeTimeout.current) clearTimeout(closeTimeout.current);
@@ -111,6 +111,7 @@ export default function ContentCard({ item }: ContentCardProps) {
           type={item.type}
           title={item.title}
           slug={item.slug}
+          detailPath={item.detailPath}
           onClose={() => setShowDetail(false)}
         />
       )}

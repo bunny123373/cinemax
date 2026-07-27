@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchTrending, fetchHero, fetchDiscover } from "@/lib/net27";
+import { getProvider } from "@/lib/plugins/registry";
 
 export async function GET(req: NextRequest) {
   const action = req.nextUrl.searchParams.get("action") || "trending";
   try {
     let items;
+    const provider = getProvider();
     switch (action) {
       case "hero":
-        items = await fetchHero();
+        items = await provider.fetchHero();
         break;
       case "discover":
-        items = await fetchDiscover({
+        items = await provider.fetchDiscover({
           type: req.nextUrl.searchParams.get("type") || undefined,
           sort: req.nextUrl.searchParams.get("sort") || undefined,
           genre: req.nextUrl.searchParams.get("genre") || undefined,
         });
         break;
       default:
-        items = await fetchTrending();
+        items = await provider.fetchTrending();
     }
     return NextResponse.json({ ok: true, items });
   } catch (e) {

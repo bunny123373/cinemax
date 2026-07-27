@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchVariants } from "@/lib/net27";
+import { getProvider } from "@/lib/plugins/registry";
 
 export async function GET(
   req: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
   const ep = parseInt(req.nextUrl.searchParams.get("ep") || "1");
 
   try {
-    const resp = await fetchVariants(type, Number(tmdbId), se, ep);
+    const resp = await getProvider().fetchVariants(type, tmdbId, se, ep);
     if (!resp) return NextResponse.json({ ok: false, error: "No variants found" }, { status: 404 });
     return NextResponse.json(resp);
   } catch (e) {

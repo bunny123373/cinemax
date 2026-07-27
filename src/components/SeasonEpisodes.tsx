@@ -22,9 +22,11 @@ interface SeasonEpisodesProps {
   seasons: Season[];
   initialSeason: number;
   initialEpisodes: Episode[];
-  tmdbId: number;
+  tmdbId: string;
   type: string;
   titleSlug: string;
+  detailPath?: string;
+  pid?: string;
 }
 
 function buildPlaceholder(seasons: Season[], seasonNum: number): Episode[] {
@@ -38,7 +40,7 @@ function buildPlaceholder(seasons: Season[], seasonNum: number): Episode[] {
   }));
 }
 
-export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug }: SeasonEpisodesProps) {
+export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes, tmdbId, type, titleSlug, detailPath, pid }: SeasonEpisodesProps) {
   const [selectedSeason, setSelectedSeason] = useState(initialSeason);
   const [episodes, setEpisodes] = useState<Episode[]>(initialEpisodes.length > 0 ? initialEpisodes : buildPlaceholder(seasons, initialSeason));
   const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
@@ -58,6 +60,15 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
     setLoading(true);
 
     try {
+      if (pid) {
+        const res = await fetch(`/api/provider?id=${pid}&action=episodes&tmdbId=${tmdbId}&type=tv&season=${seasonNum}`, { cache: "no-store" });
+        const data = await res.json();
+        if (data.ok && data.episodes?.length > 0) {
+          setEpisodes(data.episodes);
+          return;
+        }
+      }
+
       const res = await fetch(`/api/tmdb/season/${tmdbId}/${seasonNum}`, { cache: "no-store" });
       const data = await res.json();
       if (data.ok && data.episodes?.length > 0) {
@@ -79,7 +90,7 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
     } finally {
       setLoading(false);
     }
-  }, [initialSeason, initialEpisodes, seasons, tmdbId]);
+  }, [initialSeason, initialEpisodes, seasons, tmdbId, pid]);
 
   function handleImageError(episode: number) {
     setFailedImages((prev) => new Set(prev).add(episode));
@@ -116,7 +127,7 @@ export default function SeasonEpisodes({ seasons, initialSeason, initialEpisodes
         {episodes.map((ep) => (
           <Link
             key={`${selectedSeason}-${ep.episode}`}
-            href={`/series/watch/${titleSlug}?tmdbId=${tmdbId}&type=${type}&season=${selectedSeason}&episode=${ep.episode}`}
+            href={`/series/watch/${titleSlug}?tmdbId=${tmdbId}&type=${type}&season=${selectedSeason}&episode=${ep.episode}${detailPath ? `&dp=${encodeURIComponent(detailPath)}` : ""}${pid ? `&pid=${pid}` : ""}`}
             className="group flex-shrink-0 w-[220px] sm:w-[260px] md:w-[340px] bg-[#12121a] border border-[#2a2a3a] hover:border-[#f5c542]/30 transition-all overflow-hidden"
           >
             <div className="relative aspect-video bg-[#1a1a26]">

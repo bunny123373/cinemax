@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Content } from "@/lib/models/Content";
 import { getMovieDetails, getTvDetails, tmdbFetch } from "@/lib/tmdb";
-import { searchNetMirror, getProviderStream } from "@/lib/netmirror";
+import { getProvider } from "@/lib/plugins/registry";
 
 function validateAdmin(request: NextRequest) {
   const key = request.headers.get("x-admin-key");
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     let netmirrorStreams: { language: string; hlsLink: string; embedIframeLink: string }[] = [];
     if (netmirrorId) {
       try {
-        const streamData = await getProviderStream("netmirror", netmirrorId) as any;
+        const streamData = await getProvider().fetchEmbedSource(netmirrorId, "movie") as any;
         if (streamData?.streams) {
           netmirrorStreams = streamData.streams.map((s: any) => ({
             language: s.language || "English",

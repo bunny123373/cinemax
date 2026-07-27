@@ -3,10 +3,11 @@ import Image from "next/image";
 import ContentRow from "@/components/ContentRow";
 import TopTenRow from "@/components/TopTenRow";
 import ContinueWatchingRow from "@/components/ContinueWatchingRow";
+import ProviderTabs from "@/components/ProviderTabs";
 
 import HeroSlider from "@/components/HeroSlider";
 import { Suspense } from "react";
-import { fetchTrending, fetchDiscover } from "@/lib/net27";
+import { getProvider } from "@/lib/plugins/registry";
 import type { Net27Item } from "@/types/net27";
 
 function toSlug(title: string) {
@@ -39,6 +40,7 @@ function mapItem(item: Net27Item) {
     netmirrorId: "",
     streams: [],
     createdAt: new Date().toISOString(),
+    detailPath: item.detailPath,
   };
 }
 
@@ -70,46 +72,46 @@ const TV_GENRES = [
 
 async function getContent() {
   try {
-    const [trending, movies, series, recentMovies, recentSeries] = await Promise.all([
-      fetchTrending(),
-      fetchDiscover({ type: "movie", sort: "trending" }),
-      fetchDiscover({ type: "tv", sort: "trending" }),
-      fetchDiscover({ type: "movie", sort: "latest" }),
-      fetchDiscover({ type: "tv", sort: "latest" }),
+    const provider = getProvider();
+    const [trending, homeCategories] = await Promise.all([
+      provider.fetchTrending(),
+      provider.fetchHomeCategories(),
     ]);
+
+    const heroItems = homeCategories.banners.length > 0
+      ? homeCategories.banners.slice(0, 9)
+      : trending.slice(0, 5);
 
     const movieGenreRows = await Promise.all(
       GENRES.map(async (g) => {
-        const items = await fetchDiscover({ type: "movie", sort: "trending", genre: g.id });
+        const items = await provider.fetchDiscover({ type: "movie", sort: "trending", genre: g.id });
         return { ...g, items };
       })
     );
 
     const tvGenreRows = await Promise.all(
       TV_GENRES.map(async (g) => {
-        const items = await fetchDiscover({ type: "tv", sort: "trending", genre: g.id });
+        const items = await provider.fetchDiscover({ type: "tv", sort: "trending", genre: g.id });
         return { ...g, items };
       })
     );
 
-    return { trending, movies, series, recentMovies, recentSeries, movieGenreRows, tvGenreRows };
+    return {
+      trending,
+      heroItems,
+      categories: homeCategories.categories,
+      movieGenreRows,
+      tvGenreRows,
+    };
   } catch {
-    return { trending: [], movies: [], series: [], recentMovies: [], recentSeries: [], movieGenreRows: [], tvGenreRows: [] };
+    return { trending: [], heroItems: [], categories: [], movieGenreRows: [], tvGenreRows: [] };
   }
 }
 
 export default async function HomePage() {
-  const { trending, movies, series, recentMovies, recentSeries, movieGenreRows, tvGenreRows } = await getContent();
-  const allItems = [...trending, ...movies, ...series];
-  const uniqueItems = allItems.filter(
-    (item, index, self) => index === self.findIndex((t) => t.tmdbId === item.tmdbId)
-  );
-  const heroItems = uniqueItems.slice(0, 5);
-  const allMapped = uniqueItems.map(mapItem);
-  const featured = allMapped.slice(0, 10);
-  const recentAll = [...recentMovies, ...recentSeries]
-    .filter((item, index, self) => index === self.findIndex((t) => t.tmdbId === item.tmdbId))
-    .slice(0, 20);
+  const { trending, heroItems, categories, movieGenreRows, tvGenreRows } = await getContent();
+  const allMapped = trending.map(mapItem);
+  const featured = allMapped.slice(0, 15);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
@@ -144,12 +146,19 @@ export default async function HomePage() {
           <ContentRow title="Trending Now" items={featured.slice(0, 15)} link="/search" />
         )}
 
-        {movies.length > 0 && (
-          <TopTenRow title="Top 10 Movies" items={movies.slice(0, 10).map(mapItem)} link="/search?type=movie" />
+        {movieGenreRows[0]?.items.length > 0 && (
+          <TopTenRow title="Top 10 Movies" items={movieGenreRows[0].items.slice(0, 10).map(mapItem)} link="/search?type=movie" />
         )}
 
-        {recentAll.length > 0 && (
-          <ContentRow title="Recently Added" items={recentAll.map(mapItem)} link="/search" />
+        {categories.map((cat) =>
+          cat.items.length > 0 ? (
+            <ContentRow
+              key={cat.title}
+              title={cat.title}
+              items={cat.items.slice(0, 20).map(mapItem)}
+              link="/search"
+            />
+          ) : null
         )}
 
         <a
@@ -175,14 +184,6 @@ export default async function HomePage() {
           </div>
         </a>
 
-        {series.length > 0 && (
-          <TopTenRow title="Top 10 Series" items={series.slice(0, 10).map(mapItem)} link="/search?type=series" />
-        )}
-
-        {movies.length > 0 && (
-          <ContentRow title="Movies" items={movies.slice(0, 20).map(mapItem)} link="/search?type=movie" />
-        )}
-
         {movieGenreRows.map((genre) =>
           genre.items.length > 0 ? (
             <ContentRow
@@ -192,10 +193,6 @@ export default async function HomePage() {
               link={`/search?type=movie&genre=${genre.id}`}
             />
           ) : null
-        )}
-
-        {series.length > 0 && (
-          <ContentRow title="Series" items={series.slice(0, 20).map(mapItem)} link="/search?type=series" />
         )}
 
         {tvGenreRows.map((genre) =>
@@ -208,6 +205,14 @@ export default async function HomePage() {
             />
           ) : null
         )}
+
+        <div className="pt-8">
+          <div className="flex items-center gap-3 mb-4 px-4 md:px-8">
+            <div className="w-1 h-6 bg-[#E50914] rounded-full" />
+            <h2 className="text-xl md:text-2xl font-bold text-white">Browse by Provider</h2>
+          </div>
+          <ProviderTabs />
+        </div>
       </div>
     </div>
   );

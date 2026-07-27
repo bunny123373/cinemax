@@ -11,11 +11,9 @@ import DownloadGate from "@/components/DownloadGate";
 import { saveContinueWatching, getContinueWatching } from "@/lib/storage";
 import type { ContinueWatchingItem } from "@/types";
 
-const NET27_BASE = "https://net27.cc";
-
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tmdbId?: string; type?: string; season?: string; episode?: string; dub?: string }>;
+  searchParams: Promise<{ tmdbId?: string; type?: string; season?: string; episode?: string; dub?: string; dp?: string; pid?: string }>;
 }
 
 interface SourceOption {
@@ -35,7 +33,7 @@ interface Variant {
 export default function SeriesWatchPage({ params, searchParams }: Props) {
   const router = useRouter();
   const [slug, setSlug] = useState<string | null>(null);
-  const [tmdbId, setTmdbId] = useState<number | null>(null);
+  const [tmdbId, setTmdbId] = useState<string | null>(null);
   const [type, setType] = useState("tv");
   const [seasonNum, setSeasonNum] = useState(1);
   const [episodeNum, setEpisodeNum] = useState(1);
@@ -64,39 +62,63 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   const [episodeCount, setEpisodeCount] = useState(0);
   const [allSeasons, setAllSeasons] = useState<{ season_number: number; name: string; episode_count: number }[]>([]);
   const [continueWatching, setContinueWatching] = useState<ContinueWatchingItem[]>([]);
+  const [spaPlayerUrl, setSpaPlayerUrl] = useState<string | null>(null);
+  const [detailPath, setDetailPath] = useState<string | undefined>(undefined);
+  const [pid, setPid] = useState<string | undefined>(undefined);
   const upNextTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     Promise.all([params, searchParams]).then(([p, sp]) => {
       setSlug(p.slug);
-      setTmdbId(sp.tmdbId ? Number(sp.tmdbId) : null);
+      setTmdbId(sp.tmdbId || null);
       setType(sp.type || "tv");
       setSeasonNum(parseInt(sp.season || "1"));
       setEpisodeNum(parseInt(sp.episode || "1"));
       setTitle(p.slug.replace(/-/g, " "));
       if (sp.dub) setSelectedDub(sp.dub);
+      if (sp.dp) setDetailPath(sp.dp);
+      if (sp.pid) setPid(sp.pid);
     });
   }, [params, searchParams]);
 
   useEffect(() => {
     if (!tmdbId) return;
-    fetch(`/api/tmdb/details/${tmdbId}?type=tv`)
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((data) => { if (data.poster_path) setPoster(`https://image.tmdb.org/t/p/w500${data.poster_path}`); })
-      .catch(() => {});
-  }, [tmdbId]);
+    if (detailPath) {
+      const detailUrl = pid
+        ? `/api/provider?id=${pid}&action=detail&tmdbId=${tmdbId}&dp=${encodeURIComponent(detailPath)}&type=tv`
+        : `/api/net27/detail?tmdbId=${tmdbId}&dp=${encodeURIComponent(detailPath)}&type=tv`;
+      fetch(detailUrl)
+        .then((r) => r.json())
+        .then((data) => {
+          const poster = data.poster || data.detail?.poster || null;
+          if (poster) setPoster(poster);
+        })
+        .catch(() => {});
+    }
+  }, [tmdbId, detailPath, pid]);
 
-  const loadEmbed = useCallback((tid: number, t: string, se: number, ep: number, dub?: string) => {
+  const loadEmbed = useCallback((tid: string, t: string, se: number, ep: number, dub?: string) => {
     setLoading(true);
     setError(false);
     setSources([]);
     setSelectedSource(0);
+    setSpaPlayerUrl(null);
     const qs = new URLSearchParams({ type: t, se: String(se), ep: String(ep) });
     if (dub) qs.set("dub", dub);
-    fetch(`/api/net27/embed/${tid}?${qs}`)
+    if (detailPath) qs.set("dp", detailPath);
+    const embedUrl = pid
+      ? `/api/provider?id=${pid}&action=embed&tmdbId=${tid}&${qs}`
+      : `/api/net27/embed/${tid}?${qs}`;
+    fetch(embedUrl)
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((res) => {
         if (!res.ok) { setError(true); return; }
+        if (res.spaPlayerUrl) {
+          setSpaPlayerUrl(res.spaPlayerUrl);
+          setTitle(res.embed?.title || "");
+          setLoading(false);
+          return;
+        }
         setTitle(res.embed?.title || "");
         setEmbedData(res.embed);
         const srcs: SourceOption[] = (res.sources || []).map((s: any) => ({ ...s, size: s.size }));
@@ -105,12 +127,12 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
         setCaptions((res.captions || []).map((c: { lang: string; name?: string; url: string }) => ({
           lang: c.lang,
           label: c.name || c.lang,
-          url: c.url.startsWith("http") ? c.url : `${NET27_BASE}${c.url}`,
+          url: c.url.startsWith("http") ? c.url : c.url,
         })));
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, []);
+  }, [slug, detailPath, pid]);
 
   useEffect(() => {
     if (!tmdbId) { setLoading(false); setError(true); return; }
@@ -126,9 +148,9 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
   }, [tmdbId, type, seasonNum, episodeNum]);
 
   useEffect(() => {
-    if (!tmdbId) return;
-    fetch(`/api/tmdb/details/${tmdbId}?type=tv`)
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+    if (!tmdbId || !detailPath) return;
+    fetch(`/api/net27/detail?tmdbId=${tmdbId}&dp=${encodeURIComponent(detailPath)}&type=tv`)
+      .then((r) => r.json())
       .then((data) => {
         const seasons = (data.seasons || []).filter((s: any) => s.season_number > 0);
         setAllSeasons(seasons);
@@ -136,7 +158,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
         if (cur) setEpisodeCount(cur.episode_count || 0);
       })
       .catch(() => {});
-  }, [tmdbId, seasonNum]);
+  }, [tmdbId, detailPath, seasonNum]);
 
   const handleEpisodeEnd = useCallback(() => {
     setShowUpNext(true);
@@ -161,6 +183,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     setSeasonNum(se);
     setEpisodeNum(ep);
     const qs = new URLSearchParams({ tmdbId: String(tmdbId || ""), type, season: String(se), episode: String(ep) });
+    if (detailPath) qs.set("dp", detailPath);
     router.push(`/series/watch/${slug}?${qs.toString()}`);
   };
 
@@ -233,7 +256,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
     );
   }
 
-  if (error || !current) {
+  if (error || (!spaPlayerUrl && !current)) {
     return (
       <div className="min-h-screen bg-[#0a0a0f]">
         <div className="max-w-[1800px] mx-auto px-3 md:px-8 py-4 md:py-6">
@@ -288,34 +311,45 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
         </Link>
 
         <div className="w-full aspect-video bg-black">
-          <Player
-              key={current.url}
-              src={current.url}
+          {spaPlayerUrl ? (
+            <iframe
+              src={spaPlayerUrl}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
               title={title}
-              subtitle={`Season ${seasonNum} \u00B7 Episode ${episodeNum}`}
-              autoPlay
-              captions={captions}
-              dubOptions={variants.map((v) => ({ id: v.dubSubjectId, label: v.language }))}
-              selectedDub={selectedDub || ""}
-              onDubChange={(dubId) => { setSelectedDub(dubId); }}
-              onProgress={(currentTime, duration) => {
-                if (slug && tmdbId) {
-                  saveContinueWatching({
-                    slug,
-                    tmdbId,
-                    type: "series",
-                    title,
-                    poster: poster || "",
-                    currentTime,
-                    duration,
-                    seasonNumber: seasonNum,
-                    episodeNumber: episodeNum,
-                    updatedAt: Date.now(),
-                  });
-                }
-              }}
-              onEnded={handleEpisodeEnd}
             />
+          ) : (
+            <Player
+                key={current.url}
+                src={current.url}
+                title={title}
+                subtitle={`Season ${seasonNum} \u00B7 Episode ${episodeNum}`}
+                autoPlay
+                captions={captions}
+                dubOptions={variants.map((v) => ({ id: v.dubSubjectId, label: v.language }))}
+                selectedDub={selectedDub || ""}
+                onDubChange={(dubId) => { setSelectedDub(dubId); }}
+                onProgress={(currentTime, duration) => {
+                  if (slug && tmdbId) {
+                    saveContinueWatching({
+                      slug,
+                      tmdbId,
+                      type: "series",
+                      title,
+                      poster: poster || "",
+                      currentTime,
+                      duration,
+                      seasonNumber: seasonNum,
+                      episodeNumber: episodeNum,
+                      detailPath,
+                      updatedAt: Date.now(),
+                    });
+                  }
+                }}
+                onEnded={handleEpisodeEnd}
+              />
+          )}
         </div>
 
         <div className="mt-4 md:mt-6">
@@ -629,6 +663,7 @@ export default function SeriesWatchPage({ params, searchParams }: Props) {
                         setSeasonNum(s.season_number);
                         setEpisodeCount(s.episode_count);
                         const qs = new URLSearchParams({ tmdbId: String(tmdbId || ""), type, season: String(s.season_number), episode: "1" });
+                        if (detailPath) qs.set("dp", detailPath);
                         router.push(`/series/watch/${slug}?${qs.toString()}`);
                         setShowEpisodePanel(false);
                       }}

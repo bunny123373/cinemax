@@ -17,12 +17,13 @@ export default function ContinueWatchingRow() {
   if (items.length === 0) return null;
 
   function getWatchHref(item: ContinueWatchingItem) {
+    const dpParam = item.detailPath ? `&dp=${encodeURIComponent(item.detailPath)}` : "";
     if (item.type === "movie") {
-      return `/watch/${item.slug}?tmdbId=${item.tmdbId}&t=${item.currentTime}`;
+      return `/watch/${item.slug}?tmdbId=${item.tmdbId}${dpParam}&t=${item.currentTime}`;
     }
     const se = item.seasonNumber || 1;
     const ep = item.episodeNumber || 1;
-    return `/series/watch/${item.slug}?tmdbId=${item.tmdbId}&type=tv&season=${se}&episode=${ep}&t=${item.currentTime}`;
+    return `/series/watch/${item.slug}?tmdbId=${item.tmdbId}&type=tv&season=${se}&episode=${ep}${dpParam}&t=${item.currentTime}`;
   }
 
   function getDetailHref(item: ContinueWatchingItem) {

@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "crypto";
-
-const ALLOWED_KEYS = [
-  process.env.NETMIRROR_API_KEY,
-  "sk_snKcEnMmBtq1W-HSsc2sn7vAab1QsS5N",
-].filter(Boolean);
+import { getProvider } from "@/lib/plugins/registry";
 
 const PROXY_BASE = "https://streamhub-proxy.1545zoya.workers.dev";
 
@@ -13,93 +8,49 @@ function buildProxyUrl(videoUrl: string): string {
 }
 
 export async function GET(request: NextRequest) {
-  const apiKey = request.headers.get("x-api-key") || "";
-  if (!apiKey || !ALLOWED_KEYS.includes(apiKey)) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
-
   const id = request.nextUrl.searchParams.get("id") || "";
+  const type = request.nextUrl.searchParams.get("type") || "movie";
+
   if (!id) {
     return NextResponse.json({ success: false, error: "Missing id param" }, { status: 400 });
   }
 
-  const timestamp = new Date().toISOString();
-  const h = createHash("md5").update(id + timestamp.slice(0, 13)).digest("hex").slice(0, 8);
-
   try {
-    const embedRes = await fetch(`https://net27.cc/api/embed/${encodeURIComponent(id)}`, {
-      headers: {
-        Referer: "https://net27.cc/",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-      signal: AbortSignal.timeout(15000),
-    });
-
-    if (!embedRes.ok) {
-      return NextResponse.json({
-        success: false,
-        error: "NetMirror embed API unavailable",
-        requestParams: { id, timestamp, h },
-      }, { status: 502 });
+    const provider = getProvider();
+    const embed = await provider.fetchEmbedSource(id, type);
+    if (!embed) {
+      return NextResponse.json({ success: false, error: "No stream available" }, { status: 404 });
     }
 
-    const embedData = await embedRes.json();
-
-    if (!embedData.ok) {
-      return NextResponse.json({
-        success: false,
-        error: embedData.error || "No stream available",
-        requestParams: { id, timestamp, h },
-      }, { status: 404 });
-    }
-
+    const stream = provider.resolveStreamUrl(embed);
     const sources: { file: string; label: string; type: string }[] = [];
-    let playlistUrl = "";
 
-    if (embedData.mode === "hls" && embedData.m3u8) {
-      const url = embedData.cdn ? embedData.m3u8 : buildProxyUrl(embedData.m3u8);
-      sources.push({ file: url, label: embedData.resolution || "HD", type: "hls" });
-      playlistUrl = url;
+    if (stream) {
+      const url = embed.direct ? stream.url : buildProxyUrl(stream.url);
+      sources.push({ file: url, label: embed.resolution || "HD", type: stream.mimeType.includes("mpegurl") ? "hls" : "mp4" });
+    }
 
-      if (embedData.fallbackMp4) {
-        sources.push({ file: buildProxyUrl(embedData.fallbackMp4), label: "MP4", type: "mp4" });
+    if (embed.streams) {
+      for (const s of embed.streams) {
+        const url = embed.direct ? s.url : buildProxyUrl(s.url);
+        sources.push({ file: url, label: `${s.resolution}p`, type: s.url.includes(".m3u8") ? "hls" : "mp4" });
       }
-    } else if (embedData.mode === "iframe" && embedData.embedUrl) {
-      sources.push({ file: embedData.embedUrl, label: "Embed", type: "iframe" });
-      playlistUrl = embedData.embedUrl;
-    } else if (embedData.mode === "proxy" && embedData.mp4) {
-      const url = embedData.direct ? embedData.mp4 : buildProxyUrl(embedData.mp4);
-      sources.push({ file: url, label: embedData.resolution || "SD", type: "mp4" });
-      playlistUrl = url;
     }
 
-    // Fallback if no sources found
-    if (sources.length === 0) {
-      const embedUrl = `https://screenscape.me/embed?tmdb=${id}&type=movie`;
-      sources.push({ file: embedUrl, label: "Screenscape", type: "iframe" });
-      playlistUrl = embedUrl;
+    if (embed.mp4 && !sources.some((s) => s.file.includes(embed.mp4!))) {
+      sources.push({ file: embed.mp4, label: embed.resolution || "MP4", type: "mp4" });
     }
+
+    const playlistUrl = sources[0]?.file || "";
 
     return NextResponse.json({
       success: true,
       data: {
         playlistUrl,
         streamData: { sources },
-        requestParams: { id, timestamp, h },
       },
     });
   } catch (err: any) {
-    // Fallback to screenscape on error
-    const embedUrl = `https://screenscape.me/embed?tmdb=${id}&type=movie`;
-    return NextResponse.json({
-      success: true,
-      data: {
-        playlistUrl: embedUrl,
-        streamData: {
-          sources: [{ file: embedUrl, label: "Screenscape (fallback)", type: "iframe" }],
-        },
-        requestParams: { id, timestamp, h },
-      },
-    });
+    return NextResponse.json({ success: false, error: err.message || "Stream fetch failed" }, { status: 500 });
   }
 }

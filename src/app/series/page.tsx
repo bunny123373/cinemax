@@ -1,4 +1,4 @@
-import { fetchDiscover } from "@/lib/net27";
+import { getProvider } from "@/lib/plugins/registry";
 import type { Net27Item } from "@/types/net27";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,7 +15,7 @@ export const metadata = {
 };
 
 export default async function SeriesPage() {
-  const items = await fetchDiscover({ type: "tv", sort: "popular" });
+  const items = await getProvider().fetchDiscover({ type: "tv", sort: "popular" });
 
   return (
     <div className="min-h-screen pt-4 md:pt-8">

@@ -5,7 +5,7 @@ const STREAMBOX_BASE = "https://streambox.sonixhub.net";
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url");
   const filename = req.nextUrl.searchParams.get("filename") || "download.mp4";
-  const referer = req.nextUrl.searchParams.get("referer") || "https://net27.cc/";
+  const referer = req.nextUrl.searchParams.get("referer") || STREAMBOX_BASE + "/";
 
   if (!url) {
     return new Response("Missing url param", { status: 400 });

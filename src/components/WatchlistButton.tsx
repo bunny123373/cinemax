@@ -6,7 +6,7 @@ import { addToWatchlist, removeFromWatchlist, isInWatchlist } from "@/lib/watchl
 
 interface WatchlistButtonProps {
   slug: string;
-  tmdbId: number;
+  tmdbId: string;
   type: "movie" | "series";
   title: string;
   poster: string;

@@ -1,6 +1,6 @@
 export interface WatchlistItem {
   slug: string;
-  tmdbId: number;
+  tmdbId: string;
   type: "movie" | "series";
   title: string;
   poster: string;

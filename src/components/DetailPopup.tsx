@@ -7,10 +7,11 @@ import { X, Play, Star } from "lucide-react";
 import type { Net27TitleDetail } from "@/types/net27";
 
 interface DetailPopupProps {
-  tmdbId: number;
+  tmdbId: string;
   type: string;
   title: string;
   slug: string;
+  detailPath?: string;
   onClose: () => void;
 }
 
@@ -18,16 +19,17 @@ function toSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-export default function DetailPopup({ tmdbId, type, slug, onClose }: DetailPopupProps) {
+export default function DetailPopup({ tmdbId, type, slug, detailPath, onClose }: DetailPopupProps) {
   const [detail, setDetail] = useState<Net27TitleDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const dpParam = detailPath ? `&dp=${encodeURIComponent(detailPath)}` : "";
   const href = type === "movie"
-    ? `/movie/${slug}?tmdbId=${tmdbId}`
-    : `/series/${slug}?tmdbId=${tmdbId}`;
+    ? `/movie/${slug}?tmdbId=${tmdbId}${dpParam}`
+    : `/series/${slug}?tmdbId=${tmdbId}${dpParam}`;
   const watchHref = type === "movie"
-    ? `/watch/${slug}?tmdbId=${tmdbId}&type=movie`
-    : `/series/watch/${slug}?tmdbId=${tmdbId}&type=tv&season=1&episode=1`;
+    ? `/watch/${slug}?tmdbId=${tmdbId}&type=movie${dpParam}`
+    : `/series/watch/${slug}?tmdbId=${tmdbId}&type=tv&season=1&episode=1${dpParam}`;
 
   useEffect(() => {
     fetch(`/api/net27/embed/${tmdbId}?type=${type === "series" ? "tv" : "movie"}`)
