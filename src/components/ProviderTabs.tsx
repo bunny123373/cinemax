@@ -12,6 +12,7 @@ function toSlug(title: string) {
 
 const PROVIDERS = [
   { id: "netflix", name: "Netflix", color: "#E50914" },
+  { id: "netmirror", name: "NetMirror", color: "#FF1744" },
   { id: "anizone", name: "AniZone", color: "#7B2FF2" },
   { id: "animesama", name: "AnimeSama", color: "#FF6B35" },
   { id: "frenchstream", name: "FrenchStream", color: "#1E90FF" },
